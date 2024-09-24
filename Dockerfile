@@ -1,5 +1,5 @@
 # STAGE 1: 테스트 및 빌드 환경
-FROM gradle:7.5.1-jdk17 AS build
+FROM --platform=$BUILDPLATFORM gradle:7.5.1-jdk17 AS build
 
 # 1-1. 작업 디렉토리 설정
 WORKDIR /app
