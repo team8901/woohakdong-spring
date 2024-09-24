@@ -49,8 +49,8 @@ jobs:
 
       - name: Create and push Docker manifest
         run: |
-          docker manifest create ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }} \
+          docker manifest create ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:dev-${{ env.COMMIT_SHA }} \
             --amend ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}-amd64 \
             --amend ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}-arm64
 
-          docker manifest push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}
+          docker manifest push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:dev-${{ env.COMMIT_SHA }}
