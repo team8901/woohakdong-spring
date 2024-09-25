@@ -68,15 +68,17 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v4
 
-      - name: Set up SSH Key
-        run: echo "${{ secrets.AWS_DEV_EC2_PEM_KEY }}" | base64 -d > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+#      - name: Set up SSH Key
+#        run: |
+#          mkdir -p ~/.ssh &&
+#          echo "${{ secrets.AWS_DEV_EC2_PEM_KEY }}" | base64 -d > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
 
       - name: Ssh to EC2 dev server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_DEV_EC2_HOST }}
           username: ${{ secrets.AWS_DEV_EC2_USERNAME }}
-          key: ~/.ssh/id_rsa
+          key: ${{ secrets.AWS_DEV_EC2_PEM_KEY }}
           port: 22
           script: |
             cd /home/ubuntu/workspace
