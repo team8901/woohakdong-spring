@@ -54,6 +54,7 @@ jobs:
             --amend ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}-arm64
 
           docker manifest push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:dev-${{ env.COMMIT_SHA }}
+    
 
   deploy:
     name: Deploy to EC2 dev server
@@ -71,8 +72,12 @@ jobs:
           host: ${{ secrets.AWS_DEV_EC2_HOST }}
           username: ${{ secrets.AWS_DEV_EC2_USERNAME }}
           key: ${{ secrets.AWS_DEV_EC2_PEM_KEY }}
+          port: 22
           script: |
             cd /home/ubuntu/workspace
+            export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
+            export ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}
+            export COMMIT_SHA=${{ needs.build.outputs.commit_sha }}
             docker-compose down
             docker-compose pull
             docker-compose up -d
