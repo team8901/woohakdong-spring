@@ -68,11 +68,6 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v4
 
-#      - name: Set up SSH Key
-#        run: |
-#          mkdir -p ~/.ssh &&
-#          echo "${{ secrets.AWS_DEV_EC2_PEM_KEY }}" | base64 -d > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
-
       - name: Ssh to EC2 dev server
         uses: appleboy/ssh-action@master
         with:
@@ -85,6 +80,7 @@ jobs:
             export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
             export ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}
             export COMMIT_SHA=${{ needs.build.outputs.commit_sha }}
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.ap-northeast-2.amazonaws.com
             docker-compose down
             docker-compose pull
             docker-compose up -d
