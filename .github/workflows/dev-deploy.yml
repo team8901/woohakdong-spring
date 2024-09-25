@@ -55,7 +55,7 @@ jobs:
 
           docker manifest push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:dev-${{ env.COMMIT_SHA }}
     outputs:
-      commit_sha: ${{ steps.set_commit_sha.outputs.commit_sha }}
+      commit_sha: ${{ env.COMMIT_SHA }}
 
 
   deploy:
@@ -68,12 +68,15 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v4
 
+      - name: Set up SSH Key
+        run: echo "${{ secrets.AWS_DEV_EC2_PEM_KEY }}" | base64 -d > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+
       - name: Ssh to EC2 dev server
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.AWS_DEV_EC2_HOST }}
           username: ${{ secrets.AWS_DEV_EC2_USERNAME }}
-          key: ${{ secrets.AWS_DEV_EC2_PEM_KEY }}
+          key: ~/.ssh/id_rsa
           port: 22
           script: |
             cd /home/ubuntu/workspace
