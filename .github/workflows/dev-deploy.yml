@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - "develop"
-      - "WHD-24_cicd_dev-server-pipeline"
   pull_request:
     branches:
       - "develop"
