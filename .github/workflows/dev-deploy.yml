@@ -8,7 +8,6 @@ on:
   pull_request:
     branches:
       - "develop"
-      - "WHD-24_cicd_dev-server-pipeline"
   workflow_dispatch:
 
 jobs:
@@ -79,6 +78,6 @@ jobs:
             cd /home/ubuntu/workspace
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.ap-northeast-2.amazonaws.com
             
-            AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }} ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }} COMMIT_SHA=${{ needs.build.outputs.commit_sha }} docker-compose down
-            AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }} ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }} COMMIT_SHA=${{ needs.build.outputs.commit_sha }} docker-compose pull
+            docker-compose down
+            docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:dev-" | awk '{print $2}' | xargs docker rmi -f
             AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }} ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }} COMMIT_SHA=${{ needs.build.outputs.commit_sha }} docker-compose up -d
