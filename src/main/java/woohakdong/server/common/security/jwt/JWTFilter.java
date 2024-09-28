@@ -12,6 +12,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import woohakdong.server.api.controller.login.dto.CustomUserDetails;
+import woohakdong.server.domain.Member.Member;
 
 public class JWTFilter extends OncePerRequestFilter {
     private final JWTUtil jwtUtil;
