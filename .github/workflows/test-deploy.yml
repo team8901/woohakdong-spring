@@ -1,0 +1,81 @@
+name: Deploy dev server
+
+on:
+  push:
+    branches:
+      - "develop"
+  pull_request:
+    branches:
+      - "develop"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build And Push Docker Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v4
+
+      - name: Set commit SHA
+        run: echo "COMMIT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com
+
+      - name: Build and push Docker image for amd64
+        run: |
+          docker build --platform linux/amd64 \
+            -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}-amd64 .
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}-amd64
+
+      - name: Build and push Docker image for arm64
+        run: |
+          docker build --platform linux/arm64 \
+            -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}-arm64 .
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}-arm64
+
+      - name: Create and push Docker manifest
+        run: |
+          docker manifest create ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:dev-${{ env.COMMIT_SHA }} \
+            --amend ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}-amd64 \
+            --amend ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}-arm64
+
+          docker manifest push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:dev-${{ env.COMMIT_SHA }}
+    outputs:
+      commit_sha: ${{ env.COMMIT_SHA }}
+
+  deploy:
+    name: Deploy to EC2 dev server
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v4
+
+      - name: Ssh to EC2 dev server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_DEV_EC2_HOST }}
+          username: ${{ secrets.AWS_DEV_EC2_USERNAME }}
+          key: ${{ secrets.AWS_DEV_EC2_PEM_KEY }}
+          port: 22
+          script: |
+            cd /home/ubuntu/workspace
+            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.ap-northeast-2.amazonaws.com
+            
+            docker-compose down
+            docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:dev-" | awk '{print $2}' | xargs docker rmi -f
+            AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }} ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }} COMMIT_SHA=${{ needs.build.outputs.commit_sha }} docker-compose up -d
