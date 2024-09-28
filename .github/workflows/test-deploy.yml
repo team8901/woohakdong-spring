@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "develop"
+      - "securitytest-deploy"
   pull_request:
     branches:
       - "develop"
