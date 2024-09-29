@@ -5,9 +5,11 @@ on:
     branches:
       - "develop"
       - "securitytest-deploy"
+      - "securitytest"
   pull_request:
     branches:
       - "develop"
+      - "securitytest"
   workflow_dispatch:
 
 jobs:
@@ -79,4 +81,4 @@ jobs:
             
             docker-compose down
             docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:dev-" | awk '{print $2}' | xargs docker rmi -f
-            AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }} ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }} COMMIT_SHA=${{ needs.build.outputs.commit_sha }} docker-compose up -d
+            AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }} ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }} COMMIT_SHA=${{ needs.build.outputs.commit_sha }} GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} docker-compose up -d
