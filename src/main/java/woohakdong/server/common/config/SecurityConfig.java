@@ -15,29 +15,24 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         //csrf disable
-        http
-                .csrf((auth) -> auth.disable());
+        http.csrf((auth) -> auth.disable());
 
         //From 로그인 방식 disable
-        http
-                .formLogin((auth) -> auth.disable());
+        http.formLogin((auth) -> auth.disable());
 
         //http basic 인증 방식 disable
-        http
-                .httpBasic((auth) -> auth.disable());
+        http.httpBasic((auth) -> auth.disable());
 
 
-        http
-                .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/v1/auth/login/social", "/", "v1/auth/refresh").permitAll()
-                        .requestMatchers("/admin").hasRole("ADMIN")
-                        .anyRequest().authenticated());
+        http.authorizeHttpRequests((auth) -> auth
+                .requestMatchers("/v1/auth/login/social", "/", "v1/auth/refresh").permitAll()
+                .requestMatchers("/admin").hasRole("ADMIN")
+                .anyRequest().authenticated());
 
 
         //세션 설정
-        http
-                .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.sessionManagement((session) -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
