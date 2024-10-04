@@ -23,12 +23,10 @@ public class SecurityConfig {
         //http basic 인증 방식 disable
         http.httpBasic((auth) -> auth.disable());
 
-
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/v1/auth/login/social", "/", "v1/auth/refresh").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
-
 
         //세션 설정
         http.sessionManagement((session) -> session
