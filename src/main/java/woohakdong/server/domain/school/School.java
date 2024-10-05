@@ -20,6 +20,6 @@ public class School {
     private String schoolDomain;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "school")
     private List<Member> members = new ArrayList<>();
 }

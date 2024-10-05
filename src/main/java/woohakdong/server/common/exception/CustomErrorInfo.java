@@ -8,7 +8,8 @@ public enum CustomErrorInfo {
     // 400 BAD_REQUEST
 
     // 401 UNAUTHORIZED
-
+    INVALID_ACCESSTOKEN(401, "Invaild access token", 400001),
+    INVALID_SCHOOL_DOMAIN(401, "Invalid school domain", 400002),
     // 403 FORBIDDEN
 
     // 404 NOT_FOUND
