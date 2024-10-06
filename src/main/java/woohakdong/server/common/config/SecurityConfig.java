@@ -23,8 +23,10 @@ public class SecurityConfig {
         //http basic 인증 방식 disable
         http.httpBasic((auth) -> auth.disable());
 
+        //권한 설정
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/v1/auth/login/social", "/", "v1/auth/refresh").permitAll()
+                .requestMatchers(getSwaggerUIPath()).permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
 
@@ -33,5 +35,9 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
+    }
+
+    private String[] getSwaggerUIPath() {
+        return new String[]{"/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs"};
     }
 }
