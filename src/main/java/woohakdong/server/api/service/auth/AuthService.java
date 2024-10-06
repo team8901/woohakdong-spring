@@ -1,10 +1,10 @@
 package woohakdong.server.api.service.auth;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import woohakdong.server.api.controller.auth.dto.LoginResponseDto;
-import woohakdong.server.common.exception.CustomErrorInfo;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.JWTUtil;
 import woohakdong.server.domain.member.Member;
@@ -17,20 +17,16 @@ import woohakdong.server.domain.school.SchoolRepository;
 import java.util.Date;
 import java.util.Map;
 
+import static woohakdong.server.common.exception.CustomErrorInfo.*;
+
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
     private final MemberRepository memberRepository;
     private final SchoolRepository schoolRepository;
     private final RefreshRepository refreshRepository;
     private final JWTUtil jwtUtil;
-
-    public AuthService(MemberRepository memberRepository, SchoolRepository schoolRepository, RefreshRepository refreshRepository, JWTUtil jwtUtil) {
-        this.memberRepository = memberRepository;
-        this.schoolRepository = schoolRepository;
-        this.refreshRepository = refreshRepository;
-        this.jwtUtil = jwtUtil;
-    }
 
     public LoginResponseDto login(String accessToken) {
         // Access Token을 검증 및 사용자 정보 가져오기
@@ -44,7 +40,7 @@ public class AuthService {
         Map<String, Object> userInfo = response.getBody();
 
         if (userInfo == null || userInfo.get("email") == null) {
-            throw new CustomException(CustomErrorInfo.INVALID_ACCESSTOKEN);
+            throw new CustomException(INVALID_ACCESSTOKEN);
         }
 
         // 사용자 이메일로 DB 조회 및 처리
@@ -57,7 +53,7 @@ public class AuthService {
 
         School school = schoolRepository.findBySchoolDomain(emailDomain);
         if (school == null) {
-            throw new CustomException(CustomErrorInfo.INVALID_SCHOOL_DOMAIN);
+            throw new CustomException(INVALID_SCHOOL_DOMAIN);
         }
 
         // 필요한 추가 정보들 처리

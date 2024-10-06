@@ -19,12 +19,16 @@ public class Member {
     private String memberPhoneNumber;
     private String memberMajor;
     private String memberStudentNumber;
-    private String memberGender;
+    private MemberGender memberGender;
 
     private String memberRole;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
+
+    protected Member() {
+        // 기본 생성자는 필드를 초기화하지 않고 비워둠
+    }
 
     @Builder
     private Member(String memberProvideId, String memberName, String memberEmail, String memberRole, School school) {
