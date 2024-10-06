@@ -32,10 +32,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    implementation platform('software.amazon.awssdk:bom:2.21.1')
-    implementation 'software.amazon.awssdk:s3'
-    implementation 'software.amazon.awssdk:sso'
-    implementation 'software.amazon.awssdk:ssooidc'
+
+    implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.4'
 
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
