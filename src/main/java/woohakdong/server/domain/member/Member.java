@@ -26,9 +26,7 @@ public class Member {
     @JoinColumn(name = "school_id")
     private School school;
 
-    protected Member() {
-        // 기본 생성자는 필드를 초기화하지 않고 비워둠
-    }
+    protected Member() {}
 
     @Builder
     private Member(String memberProvideId, String memberName, String memberEmail, String memberRole, School school) {

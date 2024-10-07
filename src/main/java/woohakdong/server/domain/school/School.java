@@ -2,6 +2,7 @@ package woohakdong.server.domain.school;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import woohakdong.server.domain.member.Member;
@@ -22,4 +23,12 @@ public class School {
     @JsonIgnore
     @OneToMany(mappedBy = "school")
     private List<Member> members = new ArrayList<>();
+
+    protected School() {}
+
+    @Builder
+    public School(String schoolName, String schoolDomain) {
+        this.schoolName = schoolName;
+        this.schoolDomain = schoolDomain;
+    }
 }

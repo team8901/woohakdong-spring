@@ -48,13 +48,7 @@ public class AuthService {
         String providerId = (String) userInfo.get("sub"); // Google에서 제공하는 사용자 고유 ID
         String name = (String) userInfo.get("name");
 
-        // 학교 이메일 검증
-        String emailDomain = email.split("@")[1];
-
-        School school = schoolRepository.findBySchoolDomain(emailDomain);
-        if (school == null) {
-            throw new CustomException(INVALID_SCHOOL_DOMAIN);
-        }
+        School school = checkSchoolDomain(email);
 
         // 필요한 추가 정보들 처리
         String registrationId = "google"; // 이 경우는 Google 제공자로 설정
@@ -81,6 +75,17 @@ public class AuthService {
 
         LoginResponseDto loginResponseDto = new LoginResponseDto(access, refresh);
         return loginResponseDto;
+    }
+
+    public School checkSchoolDomain(String email) {
+        // 학교 이메일 검증
+        String emailDomain = email.split("@")[1];
+
+        School school = schoolRepository.findBySchoolDomain(emailDomain);
+        if (school == null) {
+            throw new CustomException(INVALID_SCHOOL_DOMAIN);
+        }
+        return school;
     }
 
     private void addRefreshEntity(String provideId, String refresh, Long expiredMs) {
