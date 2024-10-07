@@ -1,10 +1,12 @@
 package woohakdong.server.api.service.auth;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import woohakdong.server.api.controller.auth.dto.LoginResponseDto;
+import woohakdong.server.api.controller.auth.dto.RefreshRequestDto;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.JWTUtil;
 import woohakdong.server.domain.member.Member;
@@ -15,6 +17,7 @@ import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import static woohakdong.server.common.exception.CustomErrorInfo.*;
@@ -40,7 +43,7 @@ public class AuthService {
         Map<String, Object> userInfo = response.getBody();
 
         if (userInfo == null || userInfo.get("email") == null) {
-            throw new CustomException(INVALID_ACCESSTOKEN);
+            throw new CustomException(INVALID_ACCESS_TOKEN);
         }
 
         // 사용자 이메일로 DB 조회 및 처리
@@ -48,6 +51,7 @@ public class AuthService {
         String providerId = (String) userInfo.get("sub"); // Google에서 제공하는 사용자 고유 ID
         String name = (String) userInfo.get("name");
 
+        //학교 이메일 체크
         School school = checkSchoolDomain(email);
 
         // 필요한 추가 정보들 처리
@@ -74,6 +78,42 @@ public class AuthService {
         addRefreshEntity(provideId, refresh, 86400000L);
 
         LoginResponseDto loginResponseDto = new LoginResponseDto(access, refresh);
+        return loginResponseDto;
+    }
+
+    public LoginResponseDto refresh(RefreshRequestDto refreshRequestDto) {
+        String refreshToken = refreshRequestDto.refreshToken();
+
+        //refresh token이 없다면
+        if (refreshToken == null) {
+            throw new CustomException(REFRESH_TOKEN_IS_NULL);
+        }
+
+        //expired check
+        if (jwtUtil.isExpired(refreshToken)) {
+            throw new CustomException(REFRESH_TOKEN_EXPIRED);
+        }
+
+        // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
+        String category = jwtUtil.getCategory(refreshToken);
+
+        if (!category.equals("refresh")) {
+            throw new CustomException(INVALID_REFRESH_TOKEN);
+        }
+
+        String provideId = jwtUtil.getProvideId(refreshToken);
+        String role = jwtUtil.getRole(refreshToken);
+
+        //make new JWT
+        String newAccess = jwtUtil.createJwt("access", provideId, role, 600000L);
+        String newRefresh = jwtUtil.createJwt("refresh", provideId, role, 86400000L);
+
+        //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
+        refreshRepository.deleteByRefresh(refreshToken);
+        addRefreshEntity(provideId, newRefresh, 86400000L);
+
+        LoginResponseDto loginResponseDto = new LoginResponseDto(newAccess, newRefresh);
+
         return loginResponseDto;
     }
 

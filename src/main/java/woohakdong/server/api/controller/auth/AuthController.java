@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import woohakdong.server.api.controller.auth.dto.LoginRequestDto;
 import woohakdong.server.api.controller.auth.dto.LoginResponseDto;
+import woohakdong.server.api.controller.auth.dto.RefreshRequestDto;
 import woohakdong.server.api.service.auth.AuthService;
 
 @Controller
@@ -29,5 +30,11 @@ public class AuthController implements AuthControllerDocs{
         String accessToken = loginRequestDto.accessToken();
 
         return authService.login(accessToken);
+    }
+
+    @PostMapping("/v1/auth/refresh")
+    public LoginResponseDto refresh(RefreshRequestDto refreshRequestDto) {
+
+        return authService.refresh(refreshRequestDto);
     }
 }

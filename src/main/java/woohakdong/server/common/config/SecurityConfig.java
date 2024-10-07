@@ -24,7 +24,7 @@ public class SecurityConfig {
         http.httpBasic((auth) -> auth.disable());
 
         http.authorizeHttpRequests((auth) -> auth
-                .requestMatchers("/v1/auth/login/social", "/", "v1/auth/refresh").permitAll()
+                .requestMatchers("/v1/auth/login/social", "/", "/v1/auth/refresh").permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
 

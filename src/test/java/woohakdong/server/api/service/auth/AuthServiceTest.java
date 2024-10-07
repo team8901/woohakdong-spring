@@ -1,5 +1,6 @@
 package woohakdong.server.api.service.auth;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import static woohakdong.server.common.exception.CustomErrorInfo.*;
@@ -43,8 +45,9 @@ class AuthServiceTest {
         School school = authService.checkSchoolDomain(email);
 
         //then
-        assertNotNull(school);
-        assertEquals(school.getSchoolDomain(), "ajou.ac.kr");
+        assertThat(school).isNotNull();
+        assertThat(school.getSchoolDomain()).isEqualTo("ajou.ac.kr");
+
 
     }
 
