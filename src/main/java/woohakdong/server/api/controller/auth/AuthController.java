@@ -10,7 +10,7 @@ import woohakdong.server.api.service.auth.AuthService;
 
 @Controller
 @ResponseBody
-public class AuthController {
+public class AuthController implements AuthControllerDocs{
 
     private final AuthService authService;
 
