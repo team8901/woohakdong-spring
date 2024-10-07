@@ -27,14 +27,19 @@ public class AuthController implements AuthControllerDocs{
 
     @PostMapping("/v1/auth/login/social")
     public LoginResponseDto loginWithGoogle(LoginRequestDto loginRequestDto) {
-        String accessToken = loginRequestDto.accessToken();
 
-        return authService.login(accessToken);
+        return authService.login(loginRequestDto);
     }
 
     @PostMapping("/v1/auth/refresh")
     public LoginResponseDto refresh(RefreshRequestDto refreshRequestDto) {
 
         return authService.refresh(refreshRequestDto);
+    }
+
+    @PostMapping
+    public void logout(RefreshRequestDto refreshRequestDto) {
+
+        authService.logout(refreshRequestDto);
     }
 }

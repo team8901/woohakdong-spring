@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import woohakdong.server.api.controller.auth.dto.LoginRequestDto;
 import woohakdong.server.api.controller.auth.dto.LoginResponseDto;
 import woohakdong.server.api.controller.auth.dto.RefreshRequestDto;
 import woohakdong.server.common.exception.CustomException;
@@ -31,7 +32,9 @@ public class AuthService {
     private final RefreshRepository refreshRepository;
     private final JWTUtil jwtUtil;
 
-    public LoginResponseDto login(String accessToken) {
+    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
+        String accessToken = loginRequestDto.accessToken();
+
         // Access Token을 검증 및 사용자 정보 가져오기
         String googleUserInfoEndpoint = "https://www.googleapis.com/oauth2/v3/userinfo";
         RestTemplate restTemplate = new RestTemplate();
@@ -115,6 +118,36 @@ public class AuthService {
         LoginResponseDto loginResponseDto = new LoginResponseDto(newAccess, newRefresh);
 
         return loginResponseDto;
+    }
+
+    public void logout(RefreshRequestDto refreshRequestDto) {
+        String refreshToken = refreshRequestDto.refreshToken();
+
+        if (refreshToken == null) {
+            throw new CustomException(REFRESH_TOKEN_IS_NULL);
+        }
+
+        //expired check
+        if (jwtUtil.isExpired(refreshToken)) {
+            throw new CustomException(REFRESH_TOKEN_EXPIRED);
+        }
+
+        // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
+        String category = jwtUtil.getCategory(refreshToken);
+
+        if (!category.equals("refresh")) {
+            throw new CustomException(INVALID_REFRESH_TOKEN);
+        }
+
+        //DB에 저장되어 있는지 확인
+        Boolean isExist = refreshRepository.existsByRefresh(refreshToken);
+        if (!isExist) {
+            throw new CustomException(ALREADY_EXISTS);
+        }
+
+        //로그아웃 진행
+        //Refresh 토큰 DB에서 제거
+        refreshRepository.deleteByRefresh(refreshToken);
     }
 
     public School checkSchoolDomain(String email) {
