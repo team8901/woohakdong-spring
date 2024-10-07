@@ -19,13 +19,27 @@ jobs:
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v4
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: | 
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'corretto'
+          cache: gradle
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
       - name: Run tests
         run: ./gradlew test --no-daemon
 
@@ -91,7 +105,7 @@ jobs:
         with:
           host: ${{ secrets.AWS_DEV_EC2_HOST }}
           username: ${{ secrets.AWS_DEV_EC2_USERNAME }}
-          key: ${{ secrets.AWS_DEV_EC2_PEM_KEY }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           port: 22
           script: |
             cd /home/ubuntu/workspace
