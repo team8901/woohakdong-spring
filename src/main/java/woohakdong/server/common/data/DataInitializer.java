@@ -1,9 +1,11 @@
 package woohakdong.server.common.data;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
 import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
 
+@Component
 public class DataInitializer implements CommandLineRunner {
 
     private final SchoolRepository schoolRepository;

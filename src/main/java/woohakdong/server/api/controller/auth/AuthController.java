@@ -37,7 +37,7 @@ public class AuthController implements AuthControllerDocs{
         return authService.refresh(refreshRequestDto);
     }
 
-    @PostMapping
+    @PostMapping("/v1/auth/logout")
     public void logout(RefreshRequestDto refreshRequestDto) {
 
         authService.logout(refreshRequestDto);

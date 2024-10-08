@@ -42,7 +42,7 @@ public class JWTUtil {
                     .getPayload()
                     .getExpiration()
                     .before(new Date());
-        } catch (ExpiredJwtException e) {
+        } catch (Exception e) {
             // 토큰이 만료되었을 때 예외가 발생하므로 만료된 것으로 간주
             return true;
         }
