@@ -33,12 +33,6 @@ class AuthServiceTest {
     @Test
     void schoolDomainValidation() {
         // given
-        schoolRepository.save(School.builder()
-                .schoolName("아주대학교")
-                .schoolDomain("ajou.ac.kr")
-                .build()
-        );
-
         String email = "uiyeop@ajou.ac.kr";
 
         //when
@@ -55,12 +49,6 @@ class AuthServiceTest {
     @Test
     void schoolDomainInValidation() {
         // given
-        schoolRepository.save(School.builder()
-                .schoolName("아주대학교")
-                .schoolDomain("ajou.ac.kr")
-                .build()
-        );
-
         String email = "uiyeop@gmail.com";
 
         //when & then
