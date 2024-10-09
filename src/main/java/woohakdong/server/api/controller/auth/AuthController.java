@@ -1,16 +1,14 @@
 package woohakdong.server.api.controller.auth;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import woohakdong.server.api.controller.auth.dto.LoginRequestDto;
-import woohakdong.server.api.controller.auth.dto.LoginResponseDto;
-import woohakdong.server.api.controller.auth.dto.RefreshRequestDto;
+import org.springframework.web.bind.annotation.RestController;
+import woohakdong.server.api.controller.auth.dto.LoginRequest;
+import woohakdong.server.api.controller.auth.dto.LoginResponse;
+import woohakdong.server.api.controller.auth.dto.RefreshRequest;
 import woohakdong.server.api.service.auth.AuthService;
 
-@Controller
-@ResponseBody
+@RestController
 public class AuthController implements AuthControllerDocs{
 
     private final AuthService authService;
@@ -19,27 +17,21 @@ public class AuthController implements AuthControllerDocs{
         this.authService = authService;
     }
 
-    @GetMapping("/")
-    public String mainP() {
-
-        return "Main Controller";
-    }
-
     @PostMapping("/v1/auth/login/social")
-    public LoginResponseDto loginWithGoogle(LoginRequestDto loginRequestDto) {
+    public LoginResponse loginWithGoogle(LoginRequest loginRequest) {
 
-        return authService.login(loginRequestDto);
+        return authService.login(loginRequest);
     }
 
     @PostMapping("/v1/auth/refresh")
-    public LoginResponseDto refresh(RefreshRequestDto refreshRequestDto) {
+    public LoginResponse refresh(RefreshRequest refreshRequest) {
 
-        return authService.refresh(refreshRequestDto);
+        return authService.refresh(refreshRequest);
     }
 
     @PostMapping("/v1/auth/logout")
-    public void logout(RefreshRequestDto refreshRequestDto) {
+    public void logout(RefreshRequest refreshRequest) {
 
-        authService.logout(refreshRequestDto);
+        authService.logout(refreshRequest);
     }
 }

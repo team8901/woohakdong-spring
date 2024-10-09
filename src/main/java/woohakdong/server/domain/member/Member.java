@@ -19,6 +19,8 @@ public class Member {
     private String memberPhoneNumber;
     private String memberMajor;
     private String memberStudentNumber;
+
+    @Enumerated(EnumType.STRING)
     private MemberGender memberGender;
 
     private String memberRole;
@@ -29,11 +31,15 @@ public class Member {
     protected Member() {}
 
     @Builder
-    private Member(String memberProvideId, String memberName, String memberEmail, String memberRole, School school) {
+    private Member(String memberProvideId, String memberName, String memberEmail, String memberRole, School school, String memberPhoneNumber, String memberMajor, String memberStudentNumber, MemberGender memberGender) {
         this.memberProvideId = memberProvideId;
         this.memberName = memberName;
         this.memberEmail = memberEmail;
         this.memberRole = memberRole;
         this.school = school;
+        this.memberPhoneNumber = memberPhoneNumber;
+        this.memberMajor = memberMajor;
+        this.memberStudentNumber = memberStudentNumber;
+        this.memberGender = memberGender;
     }
 }

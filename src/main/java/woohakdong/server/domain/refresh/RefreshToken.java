@@ -11,7 +11,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class RefreshEntity {
+public class RefreshToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long refreshId;
@@ -20,8 +20,10 @@ public class RefreshEntity {
     private String refresh;
     private String RefreshExpiration;
 
+    protected RefreshToken() {}
+
     @Builder
-    public RefreshEntity(String refreshProvideId, String refresh, String refreshExpiration) {
+    public RefreshToken(String refreshProvideId, String refresh, String refreshExpiration) {
         this.refreshProvideId = refreshProvideId;
         this.refresh = refresh;
         this.RefreshExpiration = refreshExpiration;

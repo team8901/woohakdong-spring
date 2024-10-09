@@ -1,29 +1,29 @@
 package woohakdong.server.api.service.auth;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import woohakdong.server.api.controller.auth.dto.LoginRequestDto;
-import woohakdong.server.api.controller.auth.dto.LoginResponseDto;
-import woohakdong.server.api.controller.auth.dto.RefreshRequestDto;
+import woohakdong.server.api.controller.auth.dto.LoginRequest;
+import woohakdong.server.api.controller.auth.dto.LoginResponse;
+import woohakdong.server.api.controller.auth.dto.RefreshRequest;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.JWTUtil;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
-import woohakdong.server.domain.refresh.RefreshEntity;
+import woohakdong.server.domain.refresh.RefreshToken;
 import woohakdong.server.domain.refresh.RefreshRepository;
 import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import static woohakdong.server.common.exception.CustomErrorInfo.*;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -32,8 +32,8 @@ public class AuthService {
     private final RefreshRepository refreshRepository;
     private final JWTUtil jwtUtil;
 
-    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
-        String accessToken = loginRequestDto.accessToken();
+    public LoginResponse login(LoginRequest loginRequest) {
+        String accessToken = loginRequest.accessToken();
 
         // Access Token을 검증 및 사용자 정보 가져오기
         String googleUserInfoEndpoint = "https://www.googleapis.com/oauth2/v3/userinfo";
@@ -80,12 +80,12 @@ public class AuthService {
         //Refresh 토큰 저장
         addRefreshEntity(provideId, refresh, 86400000L);
 
-        LoginResponseDto loginResponseDto = new LoginResponseDto(access, refresh);
-        return loginResponseDto;
+        LoginResponse loginResponse = new LoginResponse(access, refresh);
+        return loginResponse;
     }
 
-    public LoginResponseDto refresh(RefreshRequestDto refreshRequestDto) {
-        String refreshToken = refreshRequestDto.refreshToken();
+    public LoginResponse refresh(RefreshRequest refreshRequest) {
+        String refreshToken = refreshRequest.refreshToken();
 
         //refresh token이 없다면
         if (refreshToken == null) {
@@ -115,13 +115,13 @@ public class AuthService {
         refreshRepository.deleteByRefresh(refreshToken);
         addRefreshEntity(provideId, newRefresh, 86400000L);
 
-        LoginResponseDto loginResponseDto = new LoginResponseDto(newAccess, newRefresh);
+        LoginResponse loginResponse = new LoginResponse(newAccess, newRefresh);
 
-        return loginResponseDto;
+        return loginResponse;
     }
 
-    public void logout(RefreshRequestDto refreshRequestDto) {
-        String refreshToken = refreshRequestDto.refreshToken();
+    public void logout(RefreshRequest refreshRequest) {
+        String refreshToken = refreshRequest.refreshToken();
 
         if (refreshToken == null) {
             throw new CustomException(REFRESH_TOKEN_IS_NULL);
@@ -154,10 +154,9 @@ public class AuthService {
         // 학교 이메일 검증
         String emailDomain = email.split("@")[1];
 
-        School school = schoolRepository.findBySchoolDomain(emailDomain);
-        if (school == null) {
-            throw new CustomException(INVALID_SCHOOL_DOMAIN);
-        }
+        School school = schoolRepository.findBySchoolDomain(emailDomain)
+                .orElseThrow(() -> new CustomException(INVALID_SCHOOL_DOMAIN));
+
         return school;
     }
 
@@ -165,12 +164,12 @@ public class AuthService {
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
 
-        RefreshEntity refreshEntity = RefreshEntity.builder()
+        RefreshToken refreshToken = RefreshToken.builder()
                 .refreshProvideId(provideId)
                 .refresh(refresh)
                 .refreshExpiration(date.toString())
                 .build();
 
-        refreshRepository.save(refreshEntity);
+        refreshRepository.save(refreshToken);
     }
 }

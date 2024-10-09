@@ -1,6 +1,5 @@
 package woohakdong.server.api.service.auth;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +52,6 @@ class AuthServiceTest {
 
         //when & then
         CustomException exception = assertThrows(CustomException.class, () -> authService.checkSchoolDomain(email));
-
-        assertEquals(INVALID_SCHOOL_DOMAIN, exception.getCustomErrorInfo());
+        assertThat(exception.getCustomErrorInfo()).isEqualTo(INVALID_SCHOOL_DOMAIN);
     }
 }
