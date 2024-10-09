@@ -12,19 +12,12 @@ import woohakdong.server.domain.school.SchoolRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
 import static woohakdong.server.common.exception.CustomErrorInfo.*;
 
 @ActiveProfiles("test")
 @SpringBootTest
 class AuthServiceTest {
-
-    @Autowired
-    private MemberRepository memberRepository;
-
-    @Autowired
-    private SchoolRepository schoolRepository;
 
     @Autowired
     private AuthService authService;
