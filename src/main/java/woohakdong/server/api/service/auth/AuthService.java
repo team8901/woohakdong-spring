@@ -13,7 +13,7 @@ import woohakdong.server.common.security.jwt.JWTUtil;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.refresh.RefreshToken;
-import woohakdong.server.domain.refresh.RefreshRepository;
+import woohakdong.server.domain.refresh.RefreshTokenRepository;
 import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
 
@@ -29,7 +29,7 @@ public class AuthService {
 
     private final MemberRepository memberRepository;
     private final SchoolRepository schoolRepository;
-    private final RefreshRepository refreshRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final JWTUtil jwtUtil;
 
     public LoginResponse login(LoginRequest loginRequest) {
@@ -112,7 +112,7 @@ public class AuthService {
         String newRefresh = jwtUtil.createJwt("refresh", provideId, role, 86400000L);
 
         //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
-        refreshRepository.deleteByRefresh(refreshToken);
+        refreshTokenRepository.deleteByRefresh(refreshToken);
         addRefreshEntity(provideId, newRefresh, 86400000L);
 
         LoginResponse loginResponse = new LoginResponse(newAccess, newRefresh);
@@ -140,14 +140,14 @@ public class AuthService {
         }
 
         //DB에 저장되어 있는지 확인
-        Boolean isExist = refreshRepository.existsByRefresh(refreshToken);
+        Boolean isExist = refreshTokenRepository.existsByRefresh(refreshToken);
         if (!isExist) {
             throw new CustomException(ALREADY_EXISTS);
         }
 
         //로그아웃 진행
         //Refresh 토큰 DB에서 제거
-        refreshRepository.deleteByRefresh(refreshToken);
+        refreshTokenRepository.deleteByRefresh(refreshToken);
     }
 
     public School checkSchoolDomain(String email) {
@@ -170,6 +170,6 @@ public class AuthService {
                 .refreshExpiration(date.toString())
                 .build();
 
-        refreshRepository.save(refreshToken);
+        refreshTokenRepository.save(refreshToken);
     }
 }

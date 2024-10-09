@@ -11,6 +11,7 @@ import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 import static woohakdong.server.common.exception.CustomErrorInfo.*;
@@ -51,7 +52,8 @@ class AuthServiceTest {
         String email = "uiyeop@gmail.com";
 
         //when & then
-        CustomException exception = assertThrows(CustomException.class, () -> authService.checkSchoolDomain(email));
-        assertThat(exception.getCustomErrorInfo()).isEqualTo(INVALID_SCHOOL_DOMAIN);
+        assertThatThrownBy(() -> authService.checkSchoolDomain(email))
+                .isInstanceOf(CustomException.class)
+                .hasMessage(INVALID_SCHOOL_DOMAIN.getMessage());
     }
 }
