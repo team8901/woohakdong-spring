@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum CustomErrorInfo {
 
     // 400 BAD_REQUEST
+    UTIL_IMAGE_COUNT_INVALID(400, "Image count should be greater than 0", 400001),
 
     // 401 UNAUTHORIZED
 
