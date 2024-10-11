@@ -12,9 +12,16 @@ public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long memberId;
+
+    @Column(nullable = false)
     private String memberProvideId;
+
+    @Column(nullable = false)
     private String memberName;
+
+    @Column(nullable = false)
     private String memberEmail;
+
     private String memberPhoneNumber;
     private String memberMajor;
     private String memberStudentNumber;
