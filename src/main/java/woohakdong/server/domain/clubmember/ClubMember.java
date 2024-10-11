@@ -27,7 +27,6 @@ public class ClubMember {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long clubMemberId;
 
-    @Column(nullable = false)
     private LocalDate clubJoinedDate;
 
     @Column(nullable = false)
@@ -36,6 +35,8 @@ public class ClubMember {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ClubMemberRole clubMemberRole;
+
+    private String clubGeneration;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")

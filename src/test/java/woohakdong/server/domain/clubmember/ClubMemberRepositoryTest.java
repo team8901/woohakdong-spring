@@ -66,7 +66,6 @@ class ClubMemberRepositoryTest {
         memberRepository.saveAll(List.of(member1, member2));
 
         ClubMember clubMember1 = ClubMember.builder()
-                .clubJoinedDate(LocalDate.now())
                 .clubMemberAssignedTerm(LocalDate.now())
                 .club(club)
                 .member(member1)
@@ -74,7 +73,6 @@ class ClubMemberRepositoryTest {
                 .build();
 
         ClubMember clubMember2 = ClubMember.builder()
-                .clubJoinedDate(LocalDate.now())
                 .clubMemberAssignedTerm(LocalDate.now())
                 .club(club)
                 .member(member2)
