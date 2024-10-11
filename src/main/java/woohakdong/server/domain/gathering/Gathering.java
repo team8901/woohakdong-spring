@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import woohakdong.server.domain.club.Club;
+import woohakdong.server.domain.clubmember.ClubMember;
 
 @Entity
 @NoArgsConstructor
@@ -40,6 +41,10 @@ public class Gathering {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id")
     private Club club;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "club_member_id")
+    private ClubMember clubMember;
 
     @Builder
     public Gathering(String gatheringName, String gatheringDescription, int gatheringAmount, String gatheringLink,
