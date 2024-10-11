@@ -39,7 +39,7 @@ public interface ClubControllerDocs {
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "동아리 계좌 등록", description = "동아리에서 사용하는 계좌 정보를 등록합니다.")
     @ApiResponse(responseCode = "200", description = "동아리 계좌 등록 성공", useReturnTypeSchema = true)
-    public ClubInfoResponse registerClubAccount(Long clubId, ClubAccountRegisterRequest clubAccountRegisterRequest);
+    public void registerClubAccount(Long clubId, ClubAccountRegisterRequest clubAccountRegisterRequest);
 
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "동아리 계좌 유효성 검증", description = "동아리에서 사용하는 계좌 정보를 입력하면, 해당 계좌 정보가 유효한지 검증합니다.")

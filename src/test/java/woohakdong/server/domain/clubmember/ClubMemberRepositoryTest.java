@@ -55,12 +55,16 @@ class ClubMemberRepositoryTest {
         clubRepository.save(club);
 
         Member member1 = Member.builder()
+                .memberProvideId("testProvideId")
                 .memberName("일반 회원 이름")
+                .memberEmail("user@ajou.ac.kr")
                 .school(school)
                 .build();
 
         Member member2 = Member.builder()
+                .memberProvideId("testProvideId2")
                 .memberName("회장 회원 이름")
+                .memberEmail("president@ajou.ac.kr")
                 .school(school)
                 .build();
         memberRepository.saveAll(List.of(member1, member2));
