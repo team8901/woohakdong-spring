@@ -9,9 +9,10 @@ public enum CustomErrorInfo {
     REFRESH_TOKEN_IS_NULL(400, "refresh token null", 400001),
     REFRESH_TOKEN_EXPIRED(400, "refresh token expired", 400002),
     INVALID_REFRESH_TOKEN(400, "invalid refresh token", 400003),
-    ALREADY_EXISTS(400, "already exists", 400004),
+    REFRESH_TOKEN_ALREADY_EXISTS(400, "refresh token already exists", 400004),
     UTIL_IMAGE_COUNT_INVALID(400, "Image count should be greater than 0", 400005),
-  
+    MEMBER_NOT_FOUND(400, "member not found", 400006),
+
     // 401 UNAUTHORIZED
     INVALID_ACCESS_TOKEN(401, "Invaild access token", 401001),
     INVALID_SCHOOL_DOMAIN(401, "Invalid school domain", 401002),

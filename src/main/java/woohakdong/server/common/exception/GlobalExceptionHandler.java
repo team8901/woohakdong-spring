@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.Map;
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -19,5 +21,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(customErrorInfo.getStatusCode())
                 .body(errorResponseBody);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public void handleValidationExceptions(Exception ex) {
+        log.error("Exception : {}", ex.getMessage());
     }
 }
