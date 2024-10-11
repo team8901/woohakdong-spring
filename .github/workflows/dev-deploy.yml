@@ -22,7 +22,7 @@ jobs:
       - name: Cache Gradle dependencies
         uses: actions/cache@v3
         with:
-          path: |
+          path: | 
             ~/.gradle/caches/modules-2
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
@@ -45,7 +45,10 @@ jobs:
   build:
     name: Build And Push Docker Image
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, 'skip deploy')"
+    if: |
+      !contains(github.event.head_commit.message, 'skip deploy') &&
+      !contains(github.event.pull_request.body, 'skip deploy')
+
     permissions:
       contents: read
     steps:
@@ -72,17 +75,10 @@ jobs:
             -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}-amd64 .
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}-amd64
 
-      - name: Build and push Docker image for arm64
-        run: |
-          docker build --platform linux/arm64 \
-            -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}-arm64 .
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}-arm64
-
       - name: Create and push Docker manifest
         run: |
           docker manifest create ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:dev-${{ env.COMMIT_SHA }} \
-            --amend ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}-amd64 \
-            --amend ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}-arm64
+            --amend ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ env.COMMIT_SHA }}-amd64
 
           docker manifest push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:dev-${{ env.COMMIT_SHA }}
     outputs:

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.member.Member;
 
 import java.util.ArrayList;
@@ -23,6 +24,9 @@ public class School {
     @JsonIgnore
     @OneToMany(mappedBy = "school")
     private List<Member> members = new ArrayList<>();
+
+    @OneToMany(mappedBy = "school")
+    private List<Club> clubs = new ArrayList<>();
 
     protected School() {}
 
