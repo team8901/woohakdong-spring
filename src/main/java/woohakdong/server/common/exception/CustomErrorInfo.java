@@ -13,6 +13,8 @@ public enum CustomErrorInfo {
     UTIL_IMAGE_COUNT_INVALID(400, "Image count should be greater than 0", 400005),
     MEMBER_NOT_FOUND(400, "member not found", 400006),
     SCHOOL_NOT_FOUND(400, "school not found", 400007),
+    BANK_NOT_SUPPORTED(400, "bank not supported", 400008),
+    BANK_INVALID_ACCOUNT_NUMBER(400, "account number invalid", 400009),
 
     // 401 UNAUTHORIZED
     INVALID_ACCESS_TOKEN(401, "Invaild access token", 401001),

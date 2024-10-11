@@ -14,6 +14,7 @@ import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubJoinGatheringInfoResponse;
+import woohakdong.server.api.service.bank.BankService;
 import woohakdong.server.api.service.club.ClubService;
 
 @RestController
@@ -22,6 +23,7 @@ import woohakdong.server.api.service.club.ClubService;
 public class ClubController implements ClubControllerDocs {
 
     private final ClubService clubService;
+    private final BankService bankService;
 
     @PostMapping("/validate")
     public void validateClubName(String clubName) {
@@ -50,7 +52,7 @@ public class ClubController implements ClubControllerDocs {
 
     @PostMapping("/accounts/validate")
     public ClubAccountValidateResponse validateClubAccount(ClubAccountValidateRequest clubAccountValidateRequest) {
-        return null;
+        return bankService.certifyAccount(clubAccountValidateRequest);
     }
 
     @GetMapping("/{clubId}/join")
