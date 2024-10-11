@@ -1,5 +1,6 @@
 package woohakdong.server.domain.club;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -43,7 +44,7 @@ public class Club {
     @JoinColumn(name = "school_id")
     private School school;
 
-    @OneToMany(mappedBy = "club")
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
     private List<Gathering> gatherings = new ArrayList<>();
 
     @Builder
@@ -56,5 +57,9 @@ public class Club {
         this.clubName = clubName;
         this.clubRoom = clubRoom;
         this.school = school;
+    }
+
+    public void addGathering(Gathering gathering) {
+        this.gatherings.add(gathering);
     }
 }

@@ -12,6 +12,7 @@ public enum CustomErrorInfo {
     REFRESH_TOKEN_ALREADY_EXISTS(400, "refresh token already exists", 400004),
     UTIL_IMAGE_COUNT_INVALID(400, "Image count should be greater than 0", 400005),
     MEMBER_NOT_FOUND(400, "member not found", 400006),
+    SCHOOL_NOT_FOUND(400, "school not found", 400007),
 
     // 401 UNAUTHORIZED
     INVALID_ACCESS_TOKEN(401, "Invaild access token", 401001),
@@ -21,6 +22,7 @@ public enum CustomErrorInfo {
     // 404 NOT_FOUND
 
     // 409 CONFLICT
+    CLUB_NAME_DUPLICATION(409, "Duplicate club name", 409001),
 
     // 500 INTERNAL_SERVER_ERROR
     INTERNAL_SERVER_ERROR(500, "Internal server error", 500001);
