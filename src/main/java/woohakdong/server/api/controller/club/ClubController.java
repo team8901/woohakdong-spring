@@ -46,8 +46,8 @@ public class ClubController implements ClubControllerDocs {
     }
 
     @PostMapping("/{clubId}/accounts")
-    public ClubInfoResponse registerClubAccount(@PathVariable Long clubId, ClubAccountRegisterRequest clubAccountRegisterRequest) {
-        return null;
+    public void registerClubAccount(@PathVariable Long clubId, ClubAccountRegisterRequest clubAccountRegisterRequest) {
+        clubService.registerClubAccount(clubId, clubAccountRegisterRequest);
     }
 
     @PostMapping("/accounts/validate")
