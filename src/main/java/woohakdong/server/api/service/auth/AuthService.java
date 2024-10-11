@@ -62,17 +62,17 @@ public class AuthService {
 
         String provideId = registrationId + "_" + providerId;
 
-        Member member = memberRepository.findByMemberProvideId(provideId);
-        if (member == null) {
-            member = Member.builder()
-                    .memberProvideId(provideId)
-                    .memberName(name)
-                    .memberEmail(email)
-                    .memberRole("USER_ROLE")
-                    .school(school)
-                    .build();
-            memberRepository.save(member);
-        }
+        Member member = memberRepository.findByMemberProvideId(provideId)
+                .orElseGet(() -> {
+                    Member newMember = Member.builder()
+                            .memberProvideId(provideId)
+                            .memberName(name)
+                            .memberEmail(email)
+                            .memberRole("USER_ROLE")
+                            .school(school)
+                            .build();
+                    return memberRepository.save(newMember); // 새로운 멤버 저장
+                });
 
         String access = jwtUtil.createJwt("access", member.getMemberProvideId(), member.getMemberRole(), 600000L);
         String refresh = jwtUtil.createJwt("refresh", member.getMemberProvideId(), member.getMemberRole(), 86400000L);
@@ -142,7 +142,7 @@ public class AuthService {
         //DB에 저장되어 있는지 확인
         Boolean isExist = refreshTokenRepository.existsByRefresh(refreshToken);
         if (!isExist) {
-            throw new CustomException(ALREADY_EXISTS);
+            throw new CustomException(REFRESH_TOKEN_ALREADY_EXISTS);
         }
 
         //로그아웃 진행

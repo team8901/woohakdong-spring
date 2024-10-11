@@ -8,7 +8,6 @@ import woohakdong.server.domain.school.School;
 
 @Entity
 @Getter
-@Setter
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,6 +39,22 @@ public class Member {
         this.memberPhoneNumber = memberPhoneNumber;
         this.memberMajor = memberMajor;
         this.memberStudentNumber = memberStudentNumber;
+        this.memberGender = memberGender;
+    }
+
+    public void setMemberPhoneNumber(String memberPhoneNumber) {
+        this.memberPhoneNumber = memberPhoneNumber;
+    }
+
+    public void setMemberMajor(String memberMajor) {
+        this.memberMajor = memberMajor;
+    }
+
+    public void setMemberStudentNumber(String memberStudentNumber) {
+        this.memberStudentNumber = memberStudentNumber;
+    }
+
+    public void setMemberGender(MemberGender memberGender) {
         this.memberGender = memberGender;
     }
 }
