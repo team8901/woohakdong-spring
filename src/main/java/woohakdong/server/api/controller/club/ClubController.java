@@ -14,6 +14,7 @@ import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubJoinGatheringInfoResponse;
+import woohakdong.server.api.controller.club.dto.ClubNameValidateRequest;
 import woohakdong.server.api.service.bank.BankService;
 import woohakdong.server.api.service.club.ClubService;
 
@@ -26,13 +27,13 @@ public class ClubController implements ClubControllerDocs {
     private final BankService bankService;
 
     @PostMapping("/validate")
-    public void validateClubName(String clubName) {
-
+    public void validateClubName(ClubNameValidateRequest request) {
+        clubService.validateClubWithNames(request.clubName(), request.clubEnglishName());
     }
 
     @PostMapping
-    public ClubCreateResponse createClub(ClubCreateRequest clubCreateRequest) {
-        return clubService.registerClub(clubCreateRequest);
+    public ClubCreateResponse createClub(ClubCreateRequest request) {
+        return clubService.registerClub(request);
     }
 
     @GetMapping("/{clubId}")
@@ -41,18 +42,18 @@ public class ClubController implements ClubControllerDocs {
     }
 
     @PutMapping("/{clubId}")
-    public ClubInfoResponse updateClubInfo(@PathVariable Long clubId, ClubCreateRequest clubCreateRequest) {
+    public ClubInfoResponse updateClubInfo(@PathVariable Long clubId, ClubCreateRequest request) {
         return null;
     }
 
     @PostMapping("/{clubId}/accounts")
-    public void registerClubAccount(@PathVariable Long clubId, ClubAccountRegisterRequest clubAccountRegisterRequest) {
-        clubService.registerClubAccount(clubId, clubAccountRegisterRequest);
+    public void registerClubAccount(@PathVariable Long clubId, ClubAccountRegisterRequest request) {
+        clubService.registerClubAccount(clubId, request);
     }
 
     @PostMapping("/accounts/validate")
-    public ClubAccountValidateResponse validateClubAccount(ClubAccountValidateRequest clubAccountValidateRequest) {
-        return bankService.certifyAccount(clubAccountValidateRequest);
+    public ClubAccountValidateResponse validateClubAccount(ClubAccountValidateRequest request) {
+        return bankService.certifyAccount(request);
     }
 
     @GetMapping("/{clubId}/join")
