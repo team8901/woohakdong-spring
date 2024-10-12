@@ -1,6 +1,8 @@
 package woohakdong.server.api.service.club;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NAME_DUPLICATION;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.gathering.GatheringType.JOIN;
 
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
+import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
@@ -96,7 +99,7 @@ class ClubServiceTest {
 
     @DisplayName("동아리를 등록하면, 등록한 사람이 회장으로 등록된다.")
     @Test
-    void test() {
+    void registerClubPresidentCheck() {
         // Given
         ClubCreateRequest clubCreateRequest = createClubCreateRequest();
 
@@ -136,6 +139,55 @@ class ClubServiceTest {
         assertThat(clubAccount).isPresent();
         assertThat(clubAccount.get().getClubAccountBankName()).isEqualTo("국민은행");
         assertThat(clubAccount.get().getClubAccountNumber()).isEqualTo("1234567890");
+    }
+
+    @DisplayName("동아리의 clubName과 clubEnglishName가 모두 중복이 아니라면 유효하다.")
+    @Test
+    void validateClubWithNames() {
+        // Given
+        School school = School.builder()
+                .schoolDomain("ajou.ac.kr")
+                .schoolName("아주대학교")
+                .build();
+        schoolRepository.save(school);
+
+        Club club = Club.builder()
+                .clubName("두리안")
+                .clubEnglishName("Durian")
+                .school(school)
+                .build();
+        clubRepository.save(club);
+
+        // When & Then
+        clubService.validateClubWithNames("바나나", "Banana");
+        clubService.validateClubWithNames("딸기", "Strawberry");
+    }
+
+    @DisplayName("동아리의 clubName과 clubEnglishName 중 하나라도 중복이라면 유효하지 않다.")
+    @Test
+    void validateClubWithNamesWithSameName() {
+        // Given
+        School school = School.builder()
+                .schoolDomain("ajou.ac.kr")
+                .schoolName("아주대학교")
+                .build();
+        schoolRepository.save(school);
+
+        Club club = Club.builder()
+                .clubName("두리안")
+                .clubEnglishName("Durian")
+                .school(school)
+                .build();
+        clubRepository.save(club);
+
+        // When & Then
+        assertThatThrownBy(() -> clubService.validateClubWithNames("두리안", "Banana"))
+                .isInstanceOf(CustomException.class)
+                .hasMessage(CLUB_NAME_DUPLICATION.getMessage());
+
+        assertThatThrownBy(() -> clubService.validateClubWithNames("Banana", "Durian"))
+                .isInstanceOf(CustomException.class)
+                .hasMessage(CLUB_NAME_DUPLICATION.getMessage());
     }
 
     private ClubCreateRequest createClubCreateRequest() {
