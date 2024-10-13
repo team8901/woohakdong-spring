@@ -3,6 +3,7 @@ package woohakdong.server.api.service.club;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NAME_DUPLICATION;
+import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.gathering.GatheringType.JOIN;
 
@@ -132,10 +133,10 @@ class ClubServiceTest {
                 .clubAccountNumber("1234567890")
                 .clubAccountPinTechNumber("123456")
                 .build();
-        
+
         // When
         clubService.registerClubAccount(clubId, clubAccountRegisterRequest);
-    	
+
         // Then
         Optional<ClubAccount> clubAccount = clubAccountRepository.findByClub(club);
 
@@ -192,6 +193,60 @@ class ClubServiceTest {
                 .isInstanceOf(CustomException.class)
                 .hasMessage(CLUB_NAME_DUPLICATION.getMessage());
     }
+
+    @DisplayName("clubId를 이용하여 동아리 정보를 조회할 수 있다.")
+    @Test
+    void findClubInfo() {
+        // Given
+        School school = School.builder()
+                .schoolDomain("ajou.ac.kr")
+                .schoolName("아주대학교")
+                .build();
+        schoolRepository.save(school);
+
+        Club club = Club.builder()
+                .clubName("두리안")
+                .clubEnglishName("Durian")
+                .school(school)
+                .build();
+        Club saved = clubRepository.save(club);
+
+        Long clubId = saved.getClubId();
+
+        // When
+        ClubInfoResponse response = clubService.findClubInfo(clubId);
+
+        // Then
+        assertThat(response).isNotNull()
+                .extracting("clubName", "clubEnglishName")
+                .containsExactly("두리안", "Durian");
+    }
+
+    @DisplayName("존재하지 않는 clubId로 동아리 정보를 조회하면 예외가 발생한다.")
+    @Test
+    void findClubInfoWithInvalidClubId() {
+        // Given
+        School school = School.builder()
+                .schoolDomain("ajou.ac.kr")
+                .schoolName("아주대학교")
+                .build();
+        schoolRepository.save(school);
+
+        Club club = Club.builder()
+                .clubName("두리안")
+                .clubEnglishName("Durian")
+                .school(school)
+                .build();
+        Club saved = clubRepository.save(club);
+
+        Long invalidClubId = saved.getClubId() + 1;
+
+        // When & Then
+        assertThatThrownBy(() -> clubService.findClubInfo(invalidClubId))
+                .isInstanceOf(CustomException.class)
+                .hasMessage(CLUB_NOT_FOUND.getMessage());
+    }
+
 
     private ClubCreateRequest createClubCreateRequest() {
         return ClubCreateRequest.builder()

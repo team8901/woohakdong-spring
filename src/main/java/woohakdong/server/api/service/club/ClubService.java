@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
+import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
@@ -74,13 +75,21 @@ public class ClubService {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
 
-        if ( !clubMemberRepository.existsByClubAndMemberAndClubMemberRole(club, member, PRESIDENT) ) {
+        if (!clubMemberRepository.existsByClubAndMemberAndClubMemberRole(club, member, PRESIDENT)) {
             throw new CustomException(CLUB_MEMBER_ROLE_NOT_ALLOWED);
         }
 
         ClubAccount clubAccount = createClubAccount(clubAccountRegisterRequest, club);
         clubAccountRepository.save(clubAccount);
     }
+
+    public ClubInfoResponse findClubInfo(Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+
+        return ClubInfoResponse.from(club);
+    }
+
 
     private Club createClub(ClubCreateRequest clubCreateRequest, School school) {
         validateClubWithNames(clubCreateRequest.clubName(), clubCreateRequest.clubEnglishName());
