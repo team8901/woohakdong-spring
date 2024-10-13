@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
@@ -27,12 +28,12 @@ public class ClubController implements ClubControllerDocs {
     private final BankService bankService;
 
     @PostMapping("/validate")
-    public void validateClubName(ClubNameValidateRequest request) {
+    public void validateClubName(@RequestBody ClubNameValidateRequest request) {
         clubService.validateClubWithNames(request.clubName(), request.clubEnglishName());
     }
 
     @PostMapping
-    public ClubCreateResponse createClub(ClubCreateRequest request) {
+    public ClubCreateResponse createClub(@RequestBody ClubCreateRequest request) {
         return clubService.registerClub(request);
     }
 
@@ -42,17 +43,17 @@ public class ClubController implements ClubControllerDocs {
     }
 
     @PutMapping("/{clubId}")
-    public ClubInfoResponse updateClubInfo(@PathVariable Long clubId, ClubCreateRequest request) {
+    public ClubInfoResponse updateClubInfo(@PathVariable Long clubId, @RequestBody ClubCreateRequest request) {
         return null;
     }
 
     @PostMapping("/{clubId}/accounts")
-    public void registerClubAccount(@PathVariable Long clubId, ClubAccountRegisterRequest request) {
+    public void registerClubAccount(@PathVariable Long clubId, @RequestBody ClubAccountRegisterRequest request) {
         clubService.registerClubAccount(clubId, request);
     }
 
     @PostMapping("/accounts/validate")
-    public ClubAccountValidateResponse validateClubAccount(ClubAccountValidateRequest request) {
+    public ClubAccountValidateResponse validateClubAccount(@RequestBody ClubAccountValidateRequest request) {
         return bankService.certifyAccount(request);
     }
 
