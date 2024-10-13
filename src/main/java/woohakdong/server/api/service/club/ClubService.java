@@ -90,6 +90,7 @@ public class ClubService {
                 .clubImage(clubCreateRequest.clubImage())
                 .clubDescription(clubCreateRequest.clubDescription())
                 .clubRoom(clubCreateRequest.clubRoom())
+                .clubGeneration(clubCreateRequest.clubGeneration())
                 .school(school)
                 .build();
     }
@@ -100,7 +101,7 @@ public class ClubService {
                 .club(club)
                 .gatheringAmount(clubCreateRequest.clubDues())
                 .gatheringType(JOIN)
-                .gatheringName(clubCreateRequest.clubGeneration() + "기 모집")
+                .gatheringName(club.getClubGeneration() + "기 모집")
                 .build();
     }
 
