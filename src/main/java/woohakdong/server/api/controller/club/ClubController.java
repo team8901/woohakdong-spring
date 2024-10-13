@@ -39,7 +39,7 @@ public class ClubController implements ClubControllerDocs {
 
     @GetMapping("/{clubId}")
     public ClubInfoResponse getClubInfo(@PathVariable Long clubId) {
-        return null;
+        return clubService.findClubInfo(clubId);
     }
 
     @PutMapping("/{clubId}")
