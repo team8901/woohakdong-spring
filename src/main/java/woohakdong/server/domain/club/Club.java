@@ -40,6 +40,7 @@ public class Club {
     private String clubImage;
     private LocalDate clubEstablishmentDate;
     private String clubRoom;
+    private String clubGeneration;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
@@ -53,13 +54,14 @@ public class Club {
 
     @Builder
     public Club(String clubDescription, String clubEnglishName, LocalDate clubEstablishmentDate, String clubImage,
-                String clubName, String clubRoom, School school) {
+                String clubName, String clubRoom, String clubGeneration, School school) {
         this.clubDescription = clubDescription;
         this.clubEnglishName = clubEnglishName;
         this.clubEstablishmentDate = clubEstablishmentDate;
         this.clubImage = clubImage;
         this.clubName = clubName;
         this.clubRoom = clubRoom;
+        this.clubGeneration = clubGeneration;
         this.school = school;
     }
 

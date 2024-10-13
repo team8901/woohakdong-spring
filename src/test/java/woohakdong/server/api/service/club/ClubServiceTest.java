@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
+import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
@@ -46,6 +47,7 @@ class ClubServiceTest {
 
     @Autowired
     private SchoolRepository schoolRepository;
+
     @Autowired
     private ClubAccountRepository clubAccountRepository;
 
@@ -91,6 +93,7 @@ class ClubServiceTest {
 
         assertThat(club.getClubName()).isEqualTo("두리안");
         assertThat(club.getClubEnglishName()).isEqualTo("Durian");
+        assertThat(club.getClubGeneration()).isEqualTo("33");
         assertThat(clubCreateResponse.clubId()).isEqualTo(club.getClubId());
         assertThat(club.getGatherings().size()).isEqualTo(1);
         assertThat(club.getGatherings().get(0).getGatheringAmount()).isEqualTo(10000);
