@@ -2,7 +2,6 @@ package woohakdong.server.api.controller.club.dto;
 
 import lombok.Builder;
 import lombok.NonNull;
-import woohakdong.server.domain.club.Club;
 
 @Builder
 public record ClubCreateRequest(
@@ -17,6 +16,6 @@ public record ClubCreateRequest(
         String clubRoom,
 
         String clubGeneration,
-        int clubDues
+        Integer clubDues
 ){
 }

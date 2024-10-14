@@ -207,6 +207,8 @@ class ClubServiceTest {
         Club club = Club.builder()
                 .clubName("두리안")
                 .clubEnglishName("Durian")
+                .clubGeneration("33")
+                .clubDues(10000)
                 .school(school)
                 .build();
         Club saved = clubRepository.save(club);
@@ -218,8 +220,8 @@ class ClubServiceTest {
 
         // Then
         assertThat(response).isNotNull()
-                .extracting("clubName", "clubEnglishName")
-                .containsExactly("두리안", "Durian");
+                .extracting("clubName", "clubEnglishName", "clubGeneration", "clubDues")
+                .containsExactly("두리안", "Durian", "33", 10000);
     }
 
     @DisplayName("존재하지 않는 clubId로 동아리 정보를 조회하면 예외가 발생한다.")

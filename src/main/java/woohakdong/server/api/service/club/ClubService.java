@@ -3,6 +3,7 @@ package woohakdong.server.api.service.club;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_MEMBER_ROLE_NOT_ALLOWED;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NAME_DUPLICATION;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
+import static woohakdong.server.common.exception.CustomErrorInfo.GATHERING_NOT_FOUND;
 import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
 import static woohakdong.server.common.exception.CustomErrorInfo.SCHOOL_NOT_FOUND;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
@@ -18,6 +19,7 @@ import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
+import woohakdong.server.api.controller.club.dto.ClubJoinGatheringInfoResponse;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
@@ -28,6 +30,7 @@ import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.clubmember.ClubMemberRole;
 import woohakdong.server.domain.gathering.Gathering;
+import woohakdong.server.domain.gathering.GatheringRepository;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
@@ -43,6 +46,7 @@ public class ClubService {
     private final SchoolRepository schoolRepository;
     private final ClubAccountRepository clubAccountRepository;
     private final ClubMemberRepository clubMemberRepository;
+    private final GatheringRepository gatheringRepository;
 
     public void validateClubWithNames(String clubName, String clubEnglishName) {
         if (clubRepository.existsByClubNameOrClubEnglishName(clubName, clubEnglishName)) {
@@ -57,7 +61,7 @@ public class ClubService {
                 .orElseThrow(() -> new CustomException(SCHOOL_NOT_FOUND));
 
         Club club = createClub(clubCreateRequest, school);
-        club.addGathering(createJoinGathering(clubCreateRequest, club));
+        club.addGathering(createJoinGathering(club));
 
         ClubMember clubMember = createClubMember(member, club, PRESIDENT);
         club.addClubMember(clubMember);
@@ -90,6 +94,15 @@ public class ClubService {
         return ClubInfoResponse.from(club);
     }
 
+    public ClubJoinGatheringInfoResponse findClubJoinInfo(Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+
+        Gathering gathering = gatheringRepository.findByClubAndGatheringType(club, JOIN)
+                .orElseThrow(() -> new CustomException(GATHERING_NOT_FOUND));
+
+        return ClubJoinGatheringInfoResponse.from(gathering);
+    }
 
     private Club createClub(ClubCreateRequest clubCreateRequest, School school) {
         validateClubWithNames(clubCreateRequest.clubName(), clubCreateRequest.clubEnglishName());
@@ -100,15 +113,16 @@ public class ClubService {
                 .clubDescription(clubCreateRequest.clubDescription())
                 .clubRoom(clubCreateRequest.clubRoom())
                 .clubGeneration(clubCreateRequest.clubGeneration())
+                .clubDues(clubCreateRequest.clubDues())
                 .school(school)
                 .build();
     }
 
-    private Gathering createJoinGathering(ClubCreateRequest clubCreateRequest, Club club) {
+    private Gathering createJoinGathering(Club club) {
         return Gathering.builder()
                 .gatheringLink("https://woohakdong.com/clubs/" + club.getClubEnglishName())
                 .club(club)
-                .gatheringAmount(clubCreateRequest.clubDues())
+                .gatheringAmount(club.getClubDues())
                 .gatheringType(JOIN)
                 .gatheringName(club.getClubGeneration() + "기 모집")
                 .build();
@@ -147,4 +161,5 @@ public class ClubService {
         int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
         return LocalDate.of(year, semester, 1);
     }
+
 }

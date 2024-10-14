@@ -17,6 +17,7 @@ public enum CustomErrorInfo {
     BANK_INVALID_ACCOUNT_NUMBER(400, "account number invalid", 400009),
     CLUB_NOT_FOUND(400, "club not found", 400010),
     CLUB_MEMBER_ROLE_NOT_ALLOWED(400, "club member role not allowed", 400011),
+    GATHERING_NOT_FOUND(400, "gathering not found", 400012),
 
     // 401 UNAUTHORIZED
     INVALID_ACCESS_TOKEN(401, "Invaild access token", 401001),
