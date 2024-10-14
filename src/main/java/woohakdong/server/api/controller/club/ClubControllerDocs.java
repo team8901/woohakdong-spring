@@ -48,7 +48,7 @@ public interface ClubControllerDocs {
     public ClubAccountValidateResponse validateClubAccount(ClubAccountValidateRequest clubAccountValidateRequest);
 
     @SecurityRequirement(name = "accessToken")
-    @Operation(summary = "동아리 가입 요청을 위한 정보 불러오기 (진행 중)", description = "동아리원들에게 제공할 링크 및 정보를 제공합니다.")
+    @Operation(summary = "동아리 가입 요청을 위한 정보 불러오기", description = "동아리원들에게 제공할 링크 및 정보를 제공합니다.")
     @ApiResponse(responseCode = "200", description = "동아리 가입 요청을 위한 정보 불러오기 성공", useReturnTypeSchema = true)
     public ClubJoinGatheringInfoResponse getClubJoinInfo(Long clubId);
 

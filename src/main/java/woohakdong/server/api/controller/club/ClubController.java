@@ -59,6 +59,6 @@ public class ClubController implements ClubControllerDocs {
 
     @GetMapping("/{clubId}/join")
     public ClubJoinGatheringInfoResponse getClubJoinInfo(@PathVariable Long clubId) {
-        return null;
+        return clubService.findClubJoinInfo(clubId);
     }
 }
