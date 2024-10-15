@@ -1,7 +1,7 @@
 package woohakdong.server.common.exception;
 
-public record ErrorResponseBody(
+public record ErrorResponseBody<T>(
         int detailStatusCode,
-        String message
+        T message
 ) {
 }

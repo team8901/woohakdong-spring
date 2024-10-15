@@ -4,13 +4,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.PathVariable;
+import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
 import woohakdong.server.api.controller.club.dto.ClubAccountValidateRequest;
 import woohakdong.server.api.controller.club.dto.ClubAccountValidateResponse;
 import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
-import woohakdong.server.api.controller.club.dto.ClubJoinGatheringInfoResponse;
+import woohakdong.server.api.controller.club.dto.ClubJoinGroupInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubNameValidateRequest;
 
 @Tag(name = "Club", description = "동아리 관련 API")
@@ -48,9 +50,12 @@ public interface ClubControllerDocs {
     public ClubAccountValidateResponse validateClubAccount(ClubAccountValidateRequest clubAccountValidateRequest);
 
     @SecurityRequirement(name = "accessToken")
-    @Operation(summary = "동아리 가입 요청을 위한 정보 불러오기 (진행 중)", description = "동아리원들에게 제공할 링크 및 정보를 제공합니다.")
+    @Operation(summary = "동아리 가입 요청을 위한 정보 불러오기", description = "동아리원들에게 제공할 링크 및 정보를 제공합니다.")
     @ApiResponse(responseCode = "200", description = "동아리 가입 요청을 위한 정보 불러오기 성공", useReturnTypeSchema = true)
-    public ClubJoinGatheringInfoResponse getClubJoinInfo(Long clubId);
+    public ClubJoinGroupInfoResponse getClubJoinInfo(Long clubId);
 
-
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "가입한 동아리 목록 불러오기", description = "가입한 동아리 목록을 불러옵니다.")
+    @ApiResponse(responseCode = "200", description = "가입한 동아리 목록 불러오기 성공", useReturnTypeSchema = true)
+    public ListWrapperResponse<ClubInfoResponse> getJoinedClubs();
 }

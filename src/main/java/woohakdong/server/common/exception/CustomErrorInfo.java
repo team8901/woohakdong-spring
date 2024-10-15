@@ -17,6 +17,8 @@ public enum CustomErrorInfo {
     BANK_INVALID_ACCOUNT_NUMBER(400, "account number invalid", 400009),
     CLUB_NOT_FOUND(400, "club not found", 400010),
     CLUB_MEMBER_ROLE_NOT_ALLOWED(400, "club member role not allowed", 400011),
+    GROUP_NOT_FIND(400, "group not found", 400012),
+    ORDER_ALREADY_EXIST(400, "order already exist", 400013),
 
     // 401 UNAUTHORIZED
     INVALID_ACCESS_TOKEN(401, "Invaild access token", 401001),
@@ -28,11 +30,12 @@ public enum CustomErrorInfo {
     // 409 CONFLICT
     CLUB_NAME_DUPLICATION(409, "Duplicate club name", 409001),
 
+
     // 500 INTERNAL_SERVER_ERROR
     INTERNAL_SERVER_ERROR(500, "Internal server error", 500001);
 
     private final int statusCode;
-    private final String message;
+    private  String message;
     private final int detailStatusCode;
 
     CustomErrorInfo(int statusCode, String message, int detailStatusCode) {
