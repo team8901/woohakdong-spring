@@ -11,7 +11,8 @@ public record ClubInfoResponse(
         String clubImage,
         String clubDescription,
         String clubRoom,
-        String clubGeneration
+        String clubGeneration,
+        Integer clubDues
 ) {
     public static ClubInfoResponse from(Club club) {
         return ClubInfoResponse.builder()
@@ -22,6 +23,7 @@ public record ClubInfoResponse(
                 .clubDescription(club.getClubDescription())
                 .clubRoom(club.getClubRoom())
                 .clubGeneration(club.getClubGeneration())
+                .clubDues(club.getClubDues())
                 .build();
     }
 }

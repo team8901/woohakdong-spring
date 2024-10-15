@@ -16,7 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
@@ -63,7 +62,7 @@ public class ClubService {
                 .orElseThrow(() -> new CustomException(SCHOOL_NOT_FOUND));
 
         Club club = createClub(clubCreateRequest, school);
-        club.addGroup(createJoinGathering(clubCreateRequest, club));
+        club.addGroup(createJoinGroup(club));
 
         ClubMember clubMember = createClubMember(member, club, PRESIDENT);
         club.addClubMember(clubMember);
@@ -127,13 +126,14 @@ public class ClubService {
                 .build();
     }
 
-    private Group createJoinGathering(ClubCreateRequest clubCreateRequest, Club club) {
+    private Group createJoinGroup(Club club) {
         return Group.builder()
                 .groupLink("https://woohakdong.com/clubs/" + club.getClubEnglishName())
                 .club(club)
-                .groupAmount(clubCreateRequest.clubDues())
+                .groupAmount(club.getClubDues())
                 .groupType(JOIN)
-                .groupName(club.getClubGeneration() + "기 모집")
+                .groupName(club.getClubName() + " 가입하기")
+                .groupDescription(club.getClubName() + "의 " + club.getClubGeneration() + "기 동아리 가입하기")
                 .build();
     }
 
