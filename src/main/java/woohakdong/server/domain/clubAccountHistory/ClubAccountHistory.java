@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import woohakdong.server.domain.admin.adminAccount.AccountType;
 import woohakdong.server.domain.clubAccount.ClubAccount;
 
 import java.time.LocalDate;
@@ -19,7 +20,8 @@ public class ClubAccountHistory {
     private Long clubAccountHistoryId;
 
     @Column(nullable = false)
-    private String clubAccountHistoryInOutType;
+    @Enumerated(EnumType.STRING)
+    private AccountType clubAccountHistoryInOutType;
 
     @Column(nullable = false)
     private LocalDate clubAccountHistoryTranDate;
@@ -38,7 +40,7 @@ public class ClubAccountHistory {
     private ClubAccount clubAccount;
 
     @Builder
-    public ClubAccountHistory(String clubAccountHistoryInOutType, LocalDate clubAccountHistoryTranDate,
+    public ClubAccountHistory(AccountType clubAccountHistoryInOutType, LocalDate clubAccountHistoryTranDate,
                               Long clubAccountHistoryBalanceAmt, Long clubAccountHistoryTranAmt,
                               String clubAccountHistoryContent) {
         this.clubAccountHistoryInOutType = clubAccountHistoryInOutType;
