@@ -40,4 +40,8 @@ public class AdminAccount {
         this.adminAccountAmount = adminAccountAmount;
         this.adminAccountBankCode = adminAccountBankCode;
     }
+
+    public void setAdminAccountAmount(Long adminAccountAmount) {
+        this.adminAccountAmount = adminAccountAmount;
+    }
 }

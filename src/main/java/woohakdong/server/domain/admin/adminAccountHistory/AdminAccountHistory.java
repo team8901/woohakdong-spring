@@ -42,11 +42,12 @@ public class AdminAccountHistory {
     @Builder
     public AdminAccountHistory(AccountType adminAccountHistoryInOutType, LocalDate adminAccountHistoryTranDate,
                                Long adminAccountHistoryBalanceAmt, Long adminAccountHistoryTranAmt,
-                               String adminAccountHistoryContent) {
+                               String adminAccountHistoryContent, AdminAccount adminAccount) {
         this.adminAccountHistoryInOutType = adminAccountHistoryInOutType;
         this.adminAccountHistoryTranDate = adminAccountHistoryTranDate;
         this.adminAccountHistoryBalanceAmt = adminAccountHistoryBalanceAmt;
         this.adminAccountHistoryTranAmt = adminAccountHistoryTranAmt;
         this.adminAccountHistoryContent = adminAccountHistoryContent;
+        this.adminAccount = adminAccount;
     }
 }

@@ -42,11 +42,12 @@ public class ClubAccountHistory {
     @Builder
     public ClubAccountHistory(AccountType clubAccountHistoryInOutType, LocalDate clubAccountHistoryTranDate,
                               Long clubAccountHistoryBalanceAmt, Long clubAccountHistoryTranAmt,
-                              String clubAccountHistoryContent) {
+                              String clubAccountHistoryContent, ClubAccount clubAccount) {
         this.clubAccountHistoryInOutType = clubAccountHistoryInOutType;
         this.clubAccountHistoryTranDate = clubAccountHistoryTranDate;
         this.clubAccountHistoryBalanceAmt = clubAccountHistoryBalanceAmt;
         this.clubAccountHistoryTranAmt = clubAccountHistoryTranAmt;
         this.clubAccountHistoryContent = clubAccountHistoryContent;
+        this.clubAccount = clubAccount;
     }
 }

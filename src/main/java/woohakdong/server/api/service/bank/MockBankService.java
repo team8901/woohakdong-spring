@@ -1,5 +1,6 @@
 package woohakdong.server.api.service.bank;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -13,10 +14,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import woohakdong.server.api.controller.club.dto.ClubAccountValidateRequest;
 import woohakdong.server.api.controller.club.dto.ClubAccountValidateResponse;
 import woohakdong.server.common.exception.CustomException;
+import woohakdong.server.domain.admin.adminAccount.AccountType;
+import woohakdong.server.domain.admin.adminAccount.AdminAccount;
+import woohakdong.server.domain.admin.adminAccount.AdminAccountRepository;
+import woohakdong.server.domain.admin.adminAccountHistory.AdminAccountHistory;
+import woohakdong.server.domain.admin.adminAccountHistory.AdminAccountHistoryRepository;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubAccount.ClubAccount;
@@ -34,6 +41,8 @@ public class MockBankService implements BankService {
     private final ClubRepository clubRepository;
     private final ClubAccountRepository clubAccountRepository;
     private final MemberRepository memberRepository;
+    private final AdminAccountRepository adminAccountRepository;
+    private final AdminAccountHistoryRepository adminAccountHistoryRepository;
 
     @Value("${nh.iscd}")
     private String iscd;
@@ -76,6 +85,7 @@ public class MockBankService implements BankService {
                 .build();
     }
 
+    @Transactional
     public void transferClubFee(Long memberId, Long clubId) {
         // clubId로 동아리 정보 조회
         Club club = clubRepository.findById(clubId)
@@ -117,6 +127,33 @@ public class MockBankService implements BankService {
 
         // HTTP 요청 보내기
         sendTransferRequest(request);
+
+        // adminAccount Id
+        Long adminAccountId = 1L;
+
+        // 1. AdminAccount 조회
+        AdminAccount adminAccount = adminAccountRepository.findById(adminAccountId)
+                .orElseThrow(() -> new CustomException(ADMIN_ACCOUNT_NOT_FOUND));
+
+        // 2. 잔액 업데이트 (입금/출금에 따라 다르게 처리)
+        Long updatedBalance = adminAccount.getAdminAccountAmount();
+        updatedBalance -= club.getClubDues();
+
+        // 3. AdminAccountHistory 기록 생성 및 저장
+        AdminAccountHistory history = AdminAccountHistory.builder()
+                .adminAccountHistoryInOutType(AccountType.WITHDRAW) // 출금
+                .adminAccountHistoryTranDate(LocalDate.now())
+                .adminAccountHistoryBalanceAmt(updatedBalance) // 업데이트된 잔액
+                .adminAccountHistoryTranAmt(Long.valueOf(club.getClubDues()))    // 이체된 금액
+                .adminAccountHistoryContent(club.getClubName() + " 회비 이체 " + member.getMemberName() + "의 회비")           // 이체 내역 설명
+                .adminAccount(adminAccount)                    // 연관된 AdminAccount 설정
+                .build();
+
+        adminAccountHistoryRepository.save(history);
+
+        // 4. AdminAccount의 잔액 업데이트 후 저장
+        adminAccount.setAdminAccountAmount(updatedBalance);  // AdminAccount의 잔액 설정
+        adminAccountRepository.save(adminAccount);  // 업데이트된 계좌 정보 저장
     }
 
     private void sendTransferRequest(Map<String, Object> request) {
