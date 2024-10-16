@@ -27,8 +27,7 @@ public class ClubMemberService {
         LocalDate assignedTerm = getAssignedTerm();
 
         // clubId와 assignedTerm으로 클럽 멤버 조회
-        List<ClubMember> clubMembers = clubMemberRepository.findByClubIdAndAssignedTerm(clubId, assignedTerm)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+        List<ClubMember> clubMembers = clubMemberRepository.findByClubIdAndAssignedTerm(clubId, assignedTerm);
 
         // ClubMember를 ClubMemberInfoResponse로 변환하여 반환
         return clubMembers.stream().map(clubMember -> {
@@ -51,8 +50,7 @@ public class ClubMemberService {
     public List<ClubMemberInfoResponse> getTermMembers(Long clubId, LocalDate clubMemberAssignedTerm) {
 
         // clubId와 assignedTerm으로 클럽 멤버 조회
-        List<ClubMember> clubMembers = clubMemberRepository.findByClubIdAndAssignedTerm(clubId, clubMemberAssignedTerm)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+        List<ClubMember> clubMembers = clubMemberRepository.findByClubIdAndAssignedTerm(clubId, clubMemberAssignedTerm);
 
         // ClubMember를 ClubMemberInfoResponse로 변환하여 반환
         return clubMembers.stream().map(clubMember -> {
