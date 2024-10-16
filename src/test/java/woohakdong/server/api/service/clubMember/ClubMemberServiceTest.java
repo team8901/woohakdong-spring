@@ -48,7 +48,7 @@ class ClubMemberServiceTest {
     @Autowired
     private SchoolRepository schoolRepository;
 
-    @DisplayName("동아리 멤버 리스트를 확인할 있다.")
+    @DisplayName("동아리 멤버 리스트를 확인할 수 있다.")
     @Test
     void getMembers() {
         // given
@@ -105,7 +105,7 @@ class ClubMemberServiceTest {
         assertThat(responses.size()).isEqualTo(2);
     }
 
-    @DisplayName("분기별 동아리 멤버 리스트를 확인할 있다.")
+    @DisplayName("분기별 동아리 멤버 리스트를 확인할 수 있다.")
     @Test
     void getTermMembers() {
         // given
