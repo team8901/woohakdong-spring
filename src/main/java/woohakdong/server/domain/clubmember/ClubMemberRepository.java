@@ -17,5 +17,5 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
     Boolean existsByClubAndMember(Club club, Member member);
 
     @Query("SELECT cm FROM ClubMember cm WHERE cm.club.clubId = :clubId AND cm.clubMemberAssignedTerm = :assignedTerm")
-    Optional<List<ClubMember>> findByClubIdAndAssignedTerm(@Param("clubId") Long clubId, @Param("assignedTerm") LocalDate assignedTerm);
+    List<ClubMember> findByClubIdAndAssignedTerm(@Param("clubId") Long clubId, @Param("assignedTerm") LocalDate assignedTerm);
 }

@@ -15,7 +15,7 @@ public class MemberController implements MemberControllerDocs {
     private final MemberService memberService;
 
     @PostMapping("/info")
-    public void createMember(@RequestBody CreateMemberRequest createMemberRequest) {
+    public void createMember(@RequestBody @Valid CreateMemberRequest createMemberRequest) {
 
         memberService.createMember(createMemberRequest);
     }
