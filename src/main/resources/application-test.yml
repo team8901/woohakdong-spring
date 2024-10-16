@@ -13,3 +13,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
+
+portone:
+  rest:
+    api:
+      key: your_test_key
+      secret: your_test_secret

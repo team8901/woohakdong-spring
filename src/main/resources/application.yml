@@ -3,3 +3,9 @@ spring:
     name: woohakdong-server
   jwt:
     secret: fklwnvndfjlsdkjevealkekfnkevkenflwjkfjlsdjvoiwenbfklhaedsf
+
+portone:
+  rest:
+    api:
+      key: ${PORTONE_API_KEY}
+      secret: ${PORTONE_API_SECRET}
