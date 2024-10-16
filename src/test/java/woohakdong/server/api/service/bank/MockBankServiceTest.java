@@ -7,13 +7,21 @@ import static woohakdong.server.common.exception.CustomErrorInfo.BANK_NOT_SUPPOR
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.club.dto.ClubAccountValidateRequest;
 import woohakdong.server.api.controller.club.dto.ClubAccountValidateResponse;
 import woohakdong.server.common.exception.CustomException;
 
+@ActiveProfiles("test")
+@SpringBootTest
+@Transactional
 class MockBankServiceTest {
 
-    private final MockBankService mockBankService = new MockBankService();
+    @Autowired
+    private MockBankService mockBankService;
 
     @DisplayName("은행 이름과 계좌번호가 주어졌을 때, 해당 계좌번호의 PIN을 반환한다.")
     @Test
