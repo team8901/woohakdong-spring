@@ -2,6 +2,7 @@ package woohakdong.server.domain.order;
 
 import static woohakdong.server.domain.order.OrderStatus.INIT;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -20,6 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.member.Member;
+import woohakdong.server.domain.payment.Payment;
 
 @Entity
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
@@ -49,8 +51,12 @@ public class Order {
     private Member member;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gathering_id")
+    @JoinColumn(name = "group_id")
     private Group group;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
 
     @Builder
     public Order(Long id, String orderMerchantUid, LocalDateTime orderAt, Integer orderAmount, Member member, Group group) {
@@ -65,5 +71,14 @@ public class Order {
 
     public boolean isAmountValid(Integer amount) {
         return this.orderAmount.equals(amount);
+    }
+
+    public boolean isOrderComplete() {
+        return this.orderStatus.equals(OrderStatus.COMPLETE);
+    }
+
+    public void completeOrder(Payment payment) {
+        this.payment = payment;
+        this.orderStatus = OrderStatus.COMPLETE;
     }
 }

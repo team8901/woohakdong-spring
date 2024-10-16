@@ -4,10 +4,10 @@ import lombok.Builder;
 
 @Builder
 public record ClubJoinGroupInfoResponse(
-        int groupId,
+        Long groupId,
         String groupName,
         String groupLink,
         String groupDescription,
-        int groupAmount
+        Integer groupAmount
 ) {
 }

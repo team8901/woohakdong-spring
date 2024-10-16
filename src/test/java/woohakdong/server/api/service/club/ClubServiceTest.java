@@ -19,12 +19,15 @@ import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
+import woohakdong.server.api.controller.club.dto.ClubJoinGroupInfoResponse;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubAccount.ClubAccount;
 import woohakdong.server.domain.clubAccount.ClubAccountRepository;
+import woohakdong.server.domain.group.Group;
+import woohakdong.server.domain.group.GroupRepository;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
@@ -49,6 +52,9 @@ class ClubServiceTest {
 
     @Autowired
     private ClubAccountRepository clubAccountRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
 
     @BeforeEach
     void setUp() {
@@ -131,10 +137,10 @@ class ClubServiceTest {
                 .clubAccountNumber("1234567890")
                 .clubAccountPinTechNumber("123456")
                 .build();
-        
+
         // When
         clubService.registerClubAccount(clubId, clubAccountRegisterRequest);
-    	
+
         // Then
         Optional<ClubAccount> clubAccount = clubAccountRepository.findByClub(club);
 
@@ -190,6 +196,26 @@ class ClubServiceTest {
         assertThatThrownBy(() -> clubService.validateClubWithNames("Banana", "Durian"))
                 .isInstanceOf(CustomException.class)
                 .hasMessage(CLUB_NAME_DUPLICATION.getMessage());
+    }
+
+    @DisplayName("동아리의 가입을 위한 group 정보를 조회한다.")
+    @Test
+    void getClubJoinInfo() {
+        // Given
+        ClubCreateRequest clubCreateRequest = createClubCreateRequest();
+        Long clubId = clubService.registerClub(clubCreateRequest).clubId();
+        Club club = clubRepository.findById(clubId).get();
+
+        // When
+        ClubJoinGroupInfoResponse clubJoinInfo = clubService.getClubJoinInfo(club.getClubId());
+
+        // Then
+        Optional<Group> optionalGroup = groupRepository.findByClubAndGroupType(club, JOIN);
+        assertThat(optionalGroup).isPresent();
+        Group group = optionalGroup.get();
+
+        assertThat(clubJoinInfo).extracting("groupId", "groupAmount", "groupLink", "groupDescription")
+                .containsExactly(group.getGroupId(), group.getGroupAmount(), group.getGroupLink(), group.getGroupDescription());
     }
 
     private ClubCreateRequest createClubCreateRequest() {

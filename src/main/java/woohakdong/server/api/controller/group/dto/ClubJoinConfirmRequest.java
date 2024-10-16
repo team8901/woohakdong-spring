@@ -12,6 +12,8 @@ public record ClubJoinConfirmRequest(
 
         @Schema(description = "아임포트에서 발급한 고유 주문 번호", example = "imp123")
         @NotNull(message = "impUid은 null이 될 수 없습니다.")
-        String impUid
+        String impUid,
+
+        Long orderId
 ) {
 }

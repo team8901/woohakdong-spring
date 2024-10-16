@@ -13,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
@@ -21,6 +22,7 @@ import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
 
+@ActiveProfiles("test")
 @SpringBootTest
 @Transactional
 class ClubMemberRepositoryTest {

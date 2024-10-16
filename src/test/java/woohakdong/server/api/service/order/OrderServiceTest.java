@@ -1,14 +1,16 @@
-package woohakdong.server.api.service.group;
+package woohakdong.server.api.service.order;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 import static woohakdong.server.domain.member.MemberGender.MAN;
 import static woohakdong.server.domain.order.OrderStatus.INIT;
 
+import com.siot.IamportRestClient.IamportClient;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,10 +36,10 @@ import woohakdong.server.domain.school.SchoolRepository;
 @ActiveProfiles("test")
 @SpringBootTest
 @Transactional
-class GroupServiceTest {
+class OrderServiceTest {
 
     @Autowired
-    private GroupService groupService;
+    private OrderService orderService;
 
     @Autowired
     private MemberRepository memberRepository;
@@ -95,7 +97,7 @@ class GroupServiceTest {
                 .build();
 
         // When
-        ClubJoinOrderResponse response = groupService.registerOrder(group.getGroupId(), request);
+        ClubJoinOrderResponse response = orderService.registerOrder(group.getGroupId(), request);
 
         // Then
         assertThat(response).isNotNull();

@@ -1,19 +1,27 @@
-package woohakdong.server.api.service.group;
+package woohakdong.server.api.service.order;
 
-import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_NOT_FIND;
+import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_NOT_FOUND;
 import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
 import static woohakdong.server.common.exception.CustomErrorInfo.ORDER_ALREADY_EXIST;
+import static woohakdong.server.common.exception.CustomErrorInfo.ORDER_NOT_FOUND;
 
+import com.siot.IamportRestClient.IamportClient;
+import com.siot.IamportRestClient.exception.IamportResponseException;
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import woohakdong.server.api.controller.group.dto.ClubJoinConfirmRequest;
 import woohakdong.server.api.controller.group.dto.ClubJoinOrderRequest;
 import woohakdong.server.api.controller.group.dto.ClubJoinOrderResponse;
+import woohakdong.server.api.controller.group.dto.PortOnePaymentResponse;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
+import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.group.GroupRepository;
@@ -21,23 +29,26 @@ import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.order.Order;
 import woohakdong.server.domain.order.OrderRepository;
+import woohakdong.server.domain.payment.Payment;
+import woohakdong.server.domain.payment.PaymentStatus;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class GroupService {
+public class OrderService {
 
     private final MemberRepository memberRepository;
     private final ClubMemberRepository clubMemberRepository;
     private final GroupRepository groupRepository;
     private final OrderRepository orderRepository;
+    private final IamportClient iamportClient;
 
     @Transactional
     public ClubJoinOrderResponse registerOrder(Long groupId, ClubJoinOrderRequest request) {
         Member member = getMemberFromJwtInformation();
 
         Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new CustomException(GROUP_NOT_FIND));
+                .orElseThrow(() -> new CustomException(GROUP_NOT_FOUND));
 
         if ( orderRepository.existsByOrderMerchantUid(request.merchantUid()) ) {
             throw new CustomException(ORDER_ALREADY_EXIST);
@@ -68,7 +79,52 @@ public class GroupService {
                 .build();
     }
 
-    private static Order createOrder(ClubJoinOrderRequest request, Group group, Member member) {
+    @Transactional
+    public void confirmJoinOrder(Long groupId, Long orderId, ClubJoinConfirmRequest request) {
+        Member member = getMemberFromJwtInformation();
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() ->  new CustomException(ORDER_NOT_FOUND));
+
+        if ( order.isOrderComplete() ) {
+            return;
+        }
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new CustomException(GROUP_NOT_FOUND));
+
+        if ( !order.getGroup().equals(group) | !order.getMember().equals(member)) {
+            throw new CustomException(ORDER_NOT_FOUND);
+        }
+
+        PortOnePaymentResponse paymentResponse = getPaymentInfoFromPortOne(request.impUid());
+        if (!Objects.equals(paymentResponse.amount(), order.getOrderAmount()) |
+                !Objects.equals(paymentResponse.merchantUid(), order.getOrderMerchantUid())) {
+            throw new CustomException(ORDER_NOT_FOUND);
+        }
+
+        Payment payment = Payment.builder()
+                .paymentAmount(paymentResponse.amount())
+                .paymentMerchantUid(paymentResponse.merchantUid())
+                .paymentImpUid(paymentResponse.impUid())
+                .paymentStatus(PaymentStatus.PAYMENT)
+                .build();
+
+        order.completeOrder(payment);
+        orderRepository.save(order);
+
+        // TODO : clubMember 추가하기
+    }
+
+    private PortOnePaymentResponse getPaymentInfoFromPortOne(String impUid) {
+        try {
+            return PortOnePaymentResponse.from(iamportClient.paymentByImpUid(impUid).getResponse());
+        } catch (IamportResponseException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Order createOrder(ClubJoinOrderRequest request, Group group, Member member) {
         return Order.builder()
                 .group(group)
                 .member(member)

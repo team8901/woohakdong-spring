@@ -3,7 +3,7 @@ package woohakdong.server.api.service.club;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_MEMBER_ROLE_NOT_ALLOWED;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NAME_DUPLICATION;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
-import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_NOT_FIND;
+import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_NOT_FOUND;
 import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
 import static woohakdong.server.common.exception.CustomErrorInfo.SCHOOL_NOT_FOUND;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
@@ -93,9 +93,10 @@ public class ClubService {
                 .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
 
         Group group = groupRepository.findByClubAndGroupType(club, JOIN)
-                .orElseThrow(() -> new CustomException(GROUP_NOT_FIND));
+                .orElseThrow(() -> new CustomException(GROUP_NOT_FOUND));
 
         return ClubJoinGroupInfoResponse.builder()
+                .groupId(group.getGroupId())
                 .groupName(group.getGroupName())
                 .groupDescription(group.getGroupDescription())
                 .groupLink(group.getGroupLink())
@@ -122,6 +123,7 @@ public class ClubService {
                 .clubDescription(clubCreateRequest.clubDescription())
                 .clubRoom(clubCreateRequest.clubRoom())
                 .clubGeneration(clubCreateRequest.clubGeneration())
+                .clubDues(clubCreateRequest.clubDues())
                 .school(school)
                 .build();
     }
@@ -132,7 +134,7 @@ public class ClubService {
                 .club(club)
                 .groupAmount(club.getClubDues())
                 .groupType(JOIN)
-                .groupName(club.getClubName() + " 가입하기")
+                .groupName(club.getClubName())
                 .groupDescription(club.getClubName() + "의 " + club.getClubGeneration() + "기 동아리 가입하기")
                 .build();
     }

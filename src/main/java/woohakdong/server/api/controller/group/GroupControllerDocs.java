@@ -20,7 +20,7 @@ public interface GroupControllerDocs {
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "동아리 가입 완료 요청(결제 성공 후)", description = "결제가 완료 후, 동아리 가입을 완료를 요청합니다.")
     @ApiResponse(responseCode = "200", description = "동아리 가입 완료", useReturnTypeSchema = true)
-    void completeClubJoin(Long groupId, ClubJoinConfirmRequest request);
+    void completeClubJoinOrder(Long groupId, ClubJoinConfirmRequest request);
 
     @Operation(summary = "포트원 측 결제 완료 webhook", description = "포트원 측에서 결제가 완료되었을 때, webhook을 통해 호출되는 API")
     @ApiResponse(responseCode = "200", description = "포트원 측 결제 완료 webhook 호출 성공", useReturnTypeSchema = true)
