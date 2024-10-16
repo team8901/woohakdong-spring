@@ -7,5 +7,5 @@ spring:
 portone:
   rest:
     api:
-      key: ${PORTONE_API_KEY}
-      secret: ${PORTONE_API_SECRET}
+      key: ${PORTONE_REST_API_KEY}
+      secret: ${PORTONE_REST_API_SECRET}
