@@ -1,11 +1,6 @@
 package woohakdong.server.api.service.club;
 
-import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_MEMBER_ROLE_NOT_ALLOWED;
-import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NAME_DUPLICATION;
-import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
-import static woohakdong.server.common.exception.CustomErrorInfo.GATHERING_NOT_FOUND;
-import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
-import static woohakdong.server.common.exception.CustomErrorInfo.SCHOOL_NOT_FOUND;
+import static woohakdong.server.common.exception.CustomErrorInfo.*;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.gathering.GatheringType.JOIN;
 
@@ -138,10 +133,13 @@ public class ClubService {
     }
 
     private ClubAccount createClubAccount(ClubAccountRegisterRequest clubAccountRegisterRequest, Club club) {
+        String bankCode = getBankCode(clubAccountRegisterRequest.clubAccountBankName());
+
         return ClubAccount.builder()
                 .clubAccountBankName(clubAccountRegisterRequest.clubAccountBankName())
                 .clubAccountNumber(clubAccountRegisterRequest.clubAccountNumber())
                 .clubAccountPinTechNumber(clubAccountRegisterRequest.clubAccountPinTechNumber())
+                .clubAccountBankCode(bankCode)
                 .club(club)
                 .build();
     }
@@ -160,6 +158,47 @@ public class ClubService {
         int year = now.getYear();
         int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
         return LocalDate.of(year, semester, 1);
+    }
+
+    private String getBankCode(String bankName) {
+        switch (bankName) {
+            case "농협은행":
+                return "011";
+            case "농협상호금융":
+                return "012";
+            case "산업은행":
+                return "002";
+            case "기업은행":
+                return "003";
+            case "국민은행":
+                return "004";
+            case "KEB하나은행":
+                return "081";
+            case "우리은행":
+                return "020";
+            case "SC제일은행":
+                return "023";
+            case "시티은행":
+                return "027";
+            case "대구은행":
+                return "032";
+            case "광주은행":
+                return "034";
+            case "제주은행":
+                return "035";
+            case "전북은행":
+                return "037";
+            case "경남은행":
+                return "039";
+            case "새마을금고":
+                return "045";
+            case "신한은행":
+                return "088";
+            case "카카오뱅크":
+                return "090";
+            default:
+                throw new CustomException(INVALID_BANK_NAME);
+        }
     }
 
 }

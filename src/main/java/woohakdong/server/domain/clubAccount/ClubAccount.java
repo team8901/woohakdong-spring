@@ -32,16 +32,20 @@ public class ClubAccount {
     @Column(nullable = false)
     private String clubAccountPinTechNumber;
 
+    @Column(nullable = false)
+    private String clubAccountBankCode;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id")
     private Club club;
 
     @Builder
     public ClubAccount(Club club, String clubAccountBankName, String clubAccountNumber,
-                       String clubAccountPinTechNumber) {
+                       String clubAccountPinTechNumber, String clubAccountBankCode) {
         this.club = club;
         this.clubAccountBankName = clubAccountBankName;
         this.clubAccountNumber = clubAccountNumber;
         this.clubAccountPinTechNumber = clubAccountPinTechNumber;
+        this.clubAccountBankCode = clubAccountBankCode;
     }
 }
