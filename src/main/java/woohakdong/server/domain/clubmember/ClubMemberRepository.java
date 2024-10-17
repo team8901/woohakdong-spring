@@ -18,4 +18,6 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
 
     @Query("SELECT cm FROM ClubMember cm WHERE cm.club.clubId = :clubId AND cm.clubMemberAssignedTerm = :assignedTerm")
     List<ClubMember> findByClubIdAndAssignedTerm(@Param("clubId") Long clubId, @Param("assignedTerm") LocalDate assignedTerm);
+
+    List<ClubMember> findAllByMember(Member member);
 }
