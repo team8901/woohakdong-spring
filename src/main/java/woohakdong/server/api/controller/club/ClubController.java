@@ -14,7 +14,7 @@ import woohakdong.server.api.controller.club.dto.ClubAccountValidateResponse;
 import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
-import woohakdong.server.api.controller.club.dto.ClubJoinGatheringInfoResponse;
+import woohakdong.server.api.controller.club.dto.ClubJoinGroupInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubNameValidateRequest;
 import woohakdong.server.api.service.bank.BankService;
 import woohakdong.server.api.service.club.ClubService;
@@ -58,7 +58,7 @@ public class ClubController implements ClubControllerDocs {
     }
 
     @GetMapping("/{clubId}/join")
-    public ClubJoinGatheringInfoResponse getClubJoinInfo(@PathVariable Long clubId) {
+    public ClubJoinGroupInfoResponse getClubJoinInfo(@PathVariable Long clubId) {
         return clubService.findClubJoinInfo(clubId);
     }
 }

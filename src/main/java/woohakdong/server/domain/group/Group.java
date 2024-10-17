@@ -1,4 +1,4 @@
-package woohakdong.server.domain.gathering;
+package woohakdong.server.domain.group;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,24 +21,25 @@ import woohakdong.server.domain.clubmember.ClubMember;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Gathering {
+@Table(name = "groups")
+public class Group {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long gatheringId;
+    private Long groupId;
 
     @Column(nullable = false)
-    private String gatheringName;
+    private String groupName;
 
-    private String gatheringDescription;
+    private String groupDescription;
 
-    private int gatheringAmount;
+    private int groupAmount;
 
     @Column(nullable = false)
-    private String gatheringLink;
+    private String groupLink;
 
     @Enumerated(EnumType.STRING)
-    private GatheringType gatheringType;
+    private GroupType groupType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id")
@@ -48,13 +50,13 @@ public class Gathering {
     private ClubMember clubMember;
 
     @Builder
-    public Gathering(String gatheringName, String gatheringDescription, int gatheringAmount, String gatheringLink,
-                     GatheringType gatheringType, Club club) {
-        this.gatheringName = gatheringName;
-        this.gatheringDescription = gatheringDescription;
-        this.gatheringAmount = gatheringAmount;
-        this.gatheringLink = gatheringLink;
-        this.gatheringType = gatheringType;
+    public Group(String groupName, String groupDescription, int groupAmount, String groupLink,
+                 GroupType groupType, Club club) {
+        this.groupName = groupName;
+        this.groupDescription = groupDescription;
+        this.groupAmount = groupAmount;
+        this.groupLink = groupLink;
+        this.groupType = groupType;
         this.club = club;
     }
 }
