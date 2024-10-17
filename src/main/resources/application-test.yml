@@ -19,3 +19,7 @@ portone:
     api:
       key: your_test_key
       secret: your_test_secret
+
+nh:
+  iscd: "002645"
+  accessToken: "01e392673ca609a93515a86580a6343652cefae31bbeb6e1333211c4e6b446ec"
