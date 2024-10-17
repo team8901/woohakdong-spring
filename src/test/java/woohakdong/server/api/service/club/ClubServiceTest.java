@@ -249,6 +249,32 @@ class ClubServiceTest {
                 .hasMessage(CLUB_NOT_FOUND.getMessage());
     }
 
+    @DisplayName("동아리의 clubEnglishName으로 동아리 정보를 조회할 수 있다.")
+    @Test
+    void findClubInfoWithEnglishName() {
+        // Given
+        School school = School.builder()
+                .schoolDomain("ajou.ac.kr")
+                .schoolName("아주대학교")
+                .build();
+        schoolRepository.save(school);
+
+        Club club = Club.builder()
+                .clubName("두리안")
+                .clubEnglishName("Durian")
+                .school(school)
+                .build();
+        Club saved = clubRepository.save(club);
+
+        // When
+        ClubInfoResponse response = clubService.findClubInfoWithEnglishName("Durian");
+
+        // Then
+        assertThat(response).isNotNull()
+                .extracting("clubName", "clubEnglishName")
+                .containsExactly("두리안", "Durian");
+    }
+
 
     private ClubCreateRequest createClubCreateRequest() {
         return ClubCreateRequest.builder()

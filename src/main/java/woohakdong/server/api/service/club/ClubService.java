@@ -122,6 +122,13 @@ public class ClubService {
         return ClubInfoResponse.from(club);
     }
 
+    public ClubInfoResponse findClubInfoWithEnglishName(String clubName) {
+        Club club = clubRepository.findByClubEnglishName(clubName)
+                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+
+        return ClubInfoResponse.from(club);
+    }
+
     private Club createClub(ClubCreateRequest clubCreateRequest, School school) {
         validateClubWithNames(clubCreateRequest.clubName(), clubCreateRequest.clubEnglishName());
         return Club.builder()
