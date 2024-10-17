@@ -1,6 +1,7 @@
 package woohakdong.server.api.controller.member.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import woohakdong.server.domain.member.MemberGender;
 
@@ -15,7 +16,7 @@ public record CreateMemberRequest(
         @NotBlank(message = "Student number is required")
         String memberStudentNumber,
 
-        @NotBlank(message = "Gender is required")
+        @NotNull(message = "Member gender is required")
         MemberGender memberGender
 ) {
 }
