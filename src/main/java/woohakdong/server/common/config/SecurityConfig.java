@@ -29,6 +29,9 @@ public class SecurityConfig {
         //http basic 인증 방식 disable
         http.httpBasic((auth) -> auth.disable());
 
+        // cors 설정 disable
+        http.cors(Customizer.withDefaults());
+
         //권한 설정
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/v1/auth/login/social", "/", "/v1/auth/refresh").permitAll()
