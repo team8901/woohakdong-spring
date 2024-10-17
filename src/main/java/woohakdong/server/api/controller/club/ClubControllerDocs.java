@@ -10,7 +10,7 @@ import woohakdong.server.api.controller.club.dto.ClubAccountValidateResponse;
 import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
-import woohakdong.server.api.controller.club.dto.ClubJoinGatheringInfoResponse;
+import woohakdong.server.api.controller.club.dto.ClubJoinGroupInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubNameValidateRequest;
 
 @Tag(name = "Club", description = "동아리 관련 API")
@@ -50,7 +50,7 @@ public interface ClubControllerDocs {
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "동아리 가입 요청을 위한 정보 불러오기", description = "동아리원들에게 제공할 링크 및 정보를 제공합니다.")
     @ApiResponse(responseCode = "200", description = "동아리 가입 요청을 위한 정보 불러오기 성공", useReturnTypeSchema = true)
-    public ClubJoinGatheringInfoResponse getClubJoinInfo(Long clubId);
+    public ClubJoinGroupInfoResponse getClubJoinInfo(Long clubId);
 
 
 }
