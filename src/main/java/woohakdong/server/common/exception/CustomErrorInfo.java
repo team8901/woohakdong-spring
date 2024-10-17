@@ -21,6 +21,10 @@ public enum CustomErrorInfo {
     INVALID_BANK_NAME(400, "bank name invalid", 400013),
     TRANSFER_FAILED(400, "transfer failed", 400014),
     ADMIN_ACCOUNT_NOT_FOUND(400, "admin account not found", 400015),
+    ORDER_NOT_FOUND(400, "order not found", 400016),
+    ORDER_ALREADY_EXIST(400, "order already exist", 400017),
+    CLUB_ALREADY_JOINED(400, "club already joined", 400018),
+    GROUP_TYPE_NOT_FOUND(400, "group type not found", 400019),
 
     // 401 UNAUTHORIZED
     INVALID_ACCESS_TOKEN(401, "Invaild access token", 401001),
