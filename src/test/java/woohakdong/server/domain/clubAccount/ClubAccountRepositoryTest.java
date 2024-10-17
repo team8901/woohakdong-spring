@@ -37,6 +37,7 @@ class ClubAccountRepositoryTest {
                 .clubAccountBankName("테스트은행")
                 .clubAccountNumber("1111111111")
                 .clubAccountPinTechNumber("PIN-11111111")
+                .clubAccountBankCode("011")
                 .club(club)
                 .build();
         clubAccountRepository.save(clubAccount);
@@ -69,6 +70,7 @@ class ClubAccountRepositoryTest {
                 .clubAccountBankName("테스트은행")
                 .clubAccountNumber("1111111111")
                 .clubAccountPinTechNumber("PIN-11111111")
+                .clubAccountBankCode("011")
                 .club(club)
                 .build();
         clubAccountRepository.save(clubAccount);
