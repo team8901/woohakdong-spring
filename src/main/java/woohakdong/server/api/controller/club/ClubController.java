@@ -67,4 +67,9 @@ public class ClubController implements ClubControllerDocs {
     public ListWrapperResponse<ClubInfoResponse> getJoinedClubs() {
         return ListWrapperResponse.of(clubService.getJoinedClubInfos());
     }
+
+    @GetMapping("/search")
+    public ClubInfoResponse getClubInfoByEnglishName(String clubEnglishName) {
+        return clubService.findClubInfoWithEnglishName(clubEnglishName);
+    }
 }

@@ -28,7 +28,6 @@ public interface ClubControllerDocs {
     @ApiResponse(responseCode = "200", description = "동아리 등록 성공", useReturnTypeSchema = true)
     public ClubCreateResponse createClub(ClubCreateRequest clubCreateRequest);
 
-    @SecurityRequirement(name = "accessToken")
     @Operation(summary = "동아리 정보 불러오기", description = "동아리 id를 입력하면, 해당 동아리의 정보를 반환합니다.")
     @ApiResponse(responseCode = "200", description = "동아리 정보 조회 성공", useReturnTypeSchema = true)
     public ClubInfoResponse getClubInfo(Long clubId);
@@ -57,4 +56,9 @@ public interface ClubControllerDocs {
     @Operation(summary = "가입한 동아리 목록 불러오기", description = "가입한 동아리 목록을 불러옵니다.")
     @ApiResponse(responseCode = "200", description = "가입한 동아리 목록 불러오기 성공", useReturnTypeSchema = true)
     public ListWrapperResponse<ClubInfoResponse> getJoinedClubs();
+
+    @Operation(summary = "동아리 이름으로 찾기", description = "동아리 이름을 입력하면, 해당 동아리의 정보를 반환합니다.")
+    @ApiResponse(responseCode = "200", description = "동아리 이름으로 찾기 성공", useReturnTypeSchema = true)
+    public ClubInfoResponse getClubInfoByEnglishName(String clubEnglishName);
+
 }
