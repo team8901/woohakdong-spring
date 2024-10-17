@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .requestMatchers("/v1/auth/login/social", "/", "/v1/auth/refresh").permitAll()
                 .requestMatchers(getSwaggerUIPath()).permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
-                .anyRequest().permitAll());
+                .anyRequest().authenticated());
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
