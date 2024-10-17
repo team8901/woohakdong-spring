@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "develop"
+      - "WHD-110_feat-payment_api"
   pull_request:
     branches:
       - "develop"
@@ -110,7 +111,7 @@ jobs:
             echo "COMMIT_SHA=${{ needs.build.outputs.commit_sha }}" >> .env
             echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}" >> .env
             echo "ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}" >> .env
-            ehoc "PORTONE_REST_API_KEY=${{ secrets.PORTONE_REST_API_KEY }}" >> .env
+            echo "PORTONE_REST_API_KEY=${{ secrets.PORTONE_REST_API_KEY }}" >> .env
             echo "PORTONE_REST_API_SECRET=${{ secrets.PORTONE_REST_API_SECRET }}" >> .env
             
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.ap-northeast-2.amazonaws.com
