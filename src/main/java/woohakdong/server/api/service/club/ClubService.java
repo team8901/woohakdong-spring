@@ -1,10 +1,17 @@
 package woohakdong.server.api.service.club;
 
-import static woohakdong.server.common.exception.CustomErrorInfo.*;
+import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_MEMBER_ROLE_NOT_ALLOWED;
+import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NAME_DUPLICATION;
+import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
+import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_NOT_FOUND;
+import static woohakdong.server.common.exception.CustomErrorInfo.INVALID_BANK_NAME;
+import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
+import static woohakdong.server.common.exception.CustomErrorInfo.SCHOOL_NOT_FOUND;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 
 import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -56,7 +63,7 @@ public class ClubService {
                 .orElseThrow(() -> new CustomException(SCHOOL_NOT_FOUND));
 
         Club club = createClub(clubCreateRequest, school);
-        club.addGroup(createJoinGathering(club));
+        club.addGroup(createJoinGroup(club));
 
         ClubMember clubMember = createClubMember(member, club, PRESIDENT);
         club.addClubMember(clubMember);
@@ -82,21 +89,37 @@ public class ClubService {
         clubAccountRepository.save(clubAccount);
     }
 
+    public ClubJoinGroupInfoResponse getClubJoinInfo(Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+
+        Group group = groupRepository.findByClubAndGroupType(club, JOIN)
+                .orElseThrow(() -> new CustomException(GROUP_NOT_FOUND));
+
+        return ClubJoinGroupInfoResponse.builder()
+                .groupId(group.getGroupId())
+                .groupName(group.getGroupName())
+                .groupDescription(group.getGroupDescription())
+                .groupLink(group.getGroupLink())
+                .groupAmount(group.getGroupAmount())
+                .build();
+    }
+
+    public List<ClubInfoResponse> getJoinedClubInfos() {
+        Member member = getMemberFromJwtInformation();
+        List<ClubMember> clubMembers = clubMemberRepository.findAllByMember(member);
+
+        return clubMembers.stream()
+                .map(ClubMember::getClub)
+                .map(ClubInfoResponse::from)
+                .toList();
+    }
+
     public ClubInfoResponse findClubInfo(Long clubId) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
 
         return ClubInfoResponse.from(club);
-    }
-
-    public ClubJoinGroupInfoResponse findClubJoinInfo(Long clubId) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
-
-        Group group = groupRepository.findByClubAndGroupType(club, JOIN)
-                .orElseThrow(() -> new CustomException(GATHERING_NOT_FOUND));
-
-        return ClubJoinGroupInfoResponse.from(group);
     }
 
     private Club createClub(ClubCreateRequest clubCreateRequest, School school) {
@@ -113,13 +136,14 @@ public class ClubService {
                 .build();
     }
 
-    private Group createJoinGathering(Club club) {
+    private Group createJoinGroup(Club club) {
         return Group.builder()
                 .groupLink("https://woohakdong.com/clubs/" + club.getClubEnglishName())
                 .club(club)
                 .groupAmount(club.getClubDues())
                 .groupType(JOIN)
-                .groupName(club.getClubGeneration() + "기 모집")
+                .groupName(club.getClubName())
+                .groupDescription(club.getClubName() + "의 " + club.getClubGeneration() + "기 동아리 가입하기")
                 .build();
     }
 

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
 import woohakdong.server.api.controller.club.dto.ClubAccountValidateRequest;
 import woohakdong.server.api.controller.club.dto.ClubAccountValidateResponse;
@@ -59,6 +60,11 @@ public class ClubController implements ClubControllerDocs {
 
     @GetMapping("/{clubId}/join")
     public ClubJoinGroupInfoResponse getClubJoinInfo(@PathVariable Long clubId) {
-        return clubService.findClubJoinInfo(clubId);
+        return clubService.getClubJoinInfo(clubId);
+    }
+
+    @GetMapping
+    public ListWrapperResponse<ClubInfoResponse> getJoinedClubs() {
+        return ListWrapperResponse.of(clubService.getJoinedClubInfos());
     }
 }
