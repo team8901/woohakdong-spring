@@ -27,10 +27,10 @@ public class ClubAccountHistory {
     private LocalDate clubAccountHistoryTranDate;
 
     @Column(nullable = false)
-    private Long clubAccountHistoryBalanceAmt;
+    private Long clubAccountHistoryBalanceAmount;
 
     @Column(nullable = false)
-    private Long clubAccountHistoryTranAmt;
+    private Long clubAccountHistoryTranAmount;
 
     @Column(nullable = false)
     private String clubAccountHistoryContent;
@@ -41,12 +41,12 @@ public class ClubAccountHistory {
 
     @Builder
     public ClubAccountHistory(AccountType clubAccountHistoryInOutType, LocalDate clubAccountHistoryTranDate,
-                              Long clubAccountHistoryBalanceAmt, Long clubAccountHistoryTranAmt,
+                              Long clubAccountHistoryBalanceAmount, Long clubAccountHistoryTranAmount,
                               String clubAccountHistoryContent, ClubAccount clubAccount) {
         this.clubAccountHistoryInOutType = clubAccountHistoryInOutType;
         this.clubAccountHistoryTranDate = clubAccountHistoryTranDate;
-        this.clubAccountHistoryBalanceAmt = clubAccountHistoryBalanceAmt;
-        this.clubAccountHistoryTranAmt = clubAccountHistoryTranAmt;
+        this.clubAccountHistoryBalanceAmount = clubAccountHistoryBalanceAmount;
+        this.clubAccountHistoryTranAmount = clubAccountHistoryTranAmount;
         this.clubAccountHistoryContent = clubAccountHistoryContent;
         this.clubAccount = clubAccount;
     }

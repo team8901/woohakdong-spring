@@ -157,8 +157,8 @@ public class MockBankService implements BankService {
         AdminAccountHistory history = AdminAccountHistory.builder()
                 .adminAccountHistoryInOutType(AccountType.WITHDRAW) // 출금
                 .adminAccountHistoryTranDate(LocalDate.now())
-                .adminAccountHistoryBalanceAmt(updatedBalance) // 업데이트된 잔액
-                .adminAccountHistoryTranAmt(Long.valueOf(club.getClubDues()))    // 이체된 금액
+                .adminAccountHistoryBalanceAmount(updatedBalance) // 업데이트된 잔액
+                .adminAccountHistoryTranAmount(Long.valueOf(club.getClubDues()))    // 이체된 금액
                 .adminAccountHistoryContent(club.getClubName() + " 회비 이체 " + member.getMemberName() + "의 회비")           // 이체 내역 설명
                 .adminAccount(adminAccount)                    // 연관된 AdminAccount 설정
                 .build();

@@ -130,7 +130,7 @@ class MockBankServiceTest {
 
         AdminAccountHistory history = adminAccountHistoryRepository.findAll().get(0);
         assertThat(history).isNotNull();
-        assertThat(history.getAdminAccountHistoryTranAmt()).isEqualTo(10000L); // 이체 금액 확인
+        assertThat(history.getAdminAccountHistoryTranAmount()).isEqualTo(10000L); // 이체 금액 확인
         assertThat(history.getAdminAccountHistoryContent()).isEqualTo("테스트 동아리 회비 이체 테스트 회원의 회비");
     }
 
@@ -170,7 +170,7 @@ class MockBankServiceTest {
 
         AdminAccountHistory history = adminAccountHistoryRepository.findAll().get(0);
         assertThat(history).isNotNull();
-        assertThat(history.getAdminAccountHistoryTranAmt()).isEqualTo(10000L); // 이체 금액 확인
+        assertThat(history.getAdminAccountHistoryTranAmount()).isEqualTo(10000L); // 이체 금액 확인
         assertThat(history.getAdminAccountHistoryContent()).isEqualTo("테스트 동아리 회비 이체 테스트 회원의 회비");
     }
 }

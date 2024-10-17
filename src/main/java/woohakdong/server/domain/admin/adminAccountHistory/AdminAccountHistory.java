@@ -27,10 +27,10 @@ public class AdminAccountHistory {
     private LocalDate adminAccountHistoryTranDate;
 
     @Column(nullable = false)
-    private Long adminAccountHistoryBalanceAmt;
+    private Long adminAccountHistoryBalanceAmount;
 
     @Column(nullable = false)
-    private Long adminAccountHistoryTranAmt;
+    private Long adminAccountHistoryTranAmount;
 
     @Column(nullable = false)
     private String adminAccountHistoryContent;
@@ -41,12 +41,12 @@ public class AdminAccountHistory {
 
     @Builder
     public AdminAccountHistory(AccountType adminAccountHistoryInOutType, LocalDate adminAccountHistoryTranDate,
-                               Long adminAccountHistoryBalanceAmt, Long adminAccountHistoryTranAmt,
+                               Long adminAccountHistoryBalanceAmount, Long adminAccountHistoryTranAmount,
                                String adminAccountHistoryContent, AdminAccount adminAccount) {
         this.adminAccountHistoryInOutType = adminAccountHistoryInOutType;
         this.adminAccountHistoryTranDate = adminAccountHistoryTranDate;
-        this.adminAccountHistoryBalanceAmt = adminAccountHistoryBalanceAmt;
-        this.adminAccountHistoryTranAmt = adminAccountHistoryTranAmt;
+        this.adminAccountHistoryBalanceAmount = adminAccountHistoryBalanceAmount;
+        this.adminAccountHistoryTranAmount = adminAccountHistoryTranAmount;
         this.adminAccountHistoryContent = adminAccountHistoryContent;
         this.adminAccount = adminAccount;
     }
