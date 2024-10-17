@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NAME_DUPLICATION;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
-import static woohakdong.server.domain.gathering.GatheringType.JOIN;
+import static woohakdong.server.domain.group.GroupType.JOIN;
 
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -96,9 +96,9 @@ class ClubServiceTest {
         assertThat(club.getClubEnglishName()).isEqualTo("Durian");
         assertThat(club.getClubGeneration()).isEqualTo("33");
         assertThat(clubCreateResponse.clubId()).isEqualTo(club.getClubId());
-        assertThat(club.getGatherings().size()).isEqualTo(1);
-        assertThat(club.getGatherings().get(0).getGatheringAmount()).isEqualTo(10000);
-        assertThat(club.getGatherings().get(0).getGatheringType()).isEqualTo(JOIN);
+        assertThat(club.getGroups().size()).isEqualTo(1);
+        assertThat(club.getGroups().get(0).getGroupAmount()).isEqualTo(10000);
+        assertThat(club.getGroups().get(0).getGroupType()).isEqualTo(JOIN);
     }
 
     @DisplayName("동아리를 등록하면, 등록한 사람이 회장으로 등록된다.")
