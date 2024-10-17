@@ -1,5 +1,6 @@
 package woohakdong.server.api.service.bank;
 
+import java.sql.SQLOutput;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -50,7 +51,8 @@ public class MockBankService implements BankService {
     @Value("${nh.accessToken}")
     private String accessToken;
 
-    private static final String NH_API_URL = "https://developers.nonghyup.com/ReceivedTransferOtherBank.nh";
+    private static final String NH_OTHER_BANK_TRANSFER_API_URL = "https://developers.nonghyup.com/ReceivedTransferOtherBank.nh";
+    private static final String NH_TRANSFER_API_URL = "https://developers.nonghyup.com/ReceivedTransferAccountNumber.nh";
 
     static {
         Map<String, String> kbBank = new HashMap<>();
@@ -108,7 +110,6 @@ public class MockBankService implements BankService {
         Map<String, String> header = new HashMap<>();
 
         // Header 설정
-        header.put("ApiNm", "ReceivedTransferOtherBank");
         header.put("Tsymd", transferDate); // 거래일자
         header.put("Trtm", transferTime);  // 거래시간
         header.put("Iscd", iscd);          // 환경변수로 설정된 ISCD
@@ -116,6 +117,13 @@ public class MockBankService implements BankService {
         header.put("ApiSvcCd", "ReceivedTransferA");
         header.put("IsTuno", generateUniqueTransferId()); // 무작위 생성된 고유번호
         header.put("AccessToken", accessToken);           // 환경변수로 설정된 AccessToken
+
+        // 은행에 따라 헤더 및 API 설정 다르게 처리
+        if (clubAccount.getClubAccountBankCode().equals("011")) {  // 농협은행일 경우
+            header.put("ApiNm", "ReceivedTransferAccountNumber");
+        } else {  // 그 외 은행일 경우
+            header.put("ApiNm", "ReceivedTransferOtherBank");
+        }
 
         // Body 설정
         request.put("Header", header);
@@ -126,7 +134,13 @@ public class MockBankService implements BankService {
         request.put("MractOtlt", member.getMemberName() + "의 회비");  // 입금 메모 (회원 이름)
 
         // HTTP 요청 보내기
-        sendTransferRequest(request);
+        if (clubAccount.getClubAccountBankCode().equals("011")) {
+            sendNHBankTransferRequest(request);
+        }
+        else {
+            sendOtherBankTransferRequest(request);
+        }
+
 
         // adminAccount Id
         Long adminAccountId = 1L;
@@ -156,7 +170,7 @@ public class MockBankService implements BankService {
         adminAccountRepository.save(adminAccount);  // 업데이트된 계좌 정보 저장
     }
 
-    private void sendTransferRequest(Map<String, Object> request) {
+    private void sendOtherBankTransferRequest(Map<String, Object> request) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
@@ -164,7 +178,7 @@ public class MockBankService implements BankService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
 
         ResponseEntity<Map> response = restTemplate.exchange(
-                NH_API_URL,
+                NH_OTHER_BANK_TRANSFER_API_URL,
                 HttpMethod.POST,
                 entity,
                 Map.class
@@ -175,6 +189,34 @@ public class MockBankService implements BankService {
         if (responseBody != null) {
             Map<String, String> responseHeader = (Map<String, String>) responseBody.get("Header");
             if (!"00000".equals(responseHeader.get("Rpcd"))) {
+                System.out.println(responseHeader.get("Rsms"));
+                throw new CustomException(TRANSFER_FAILED);
+            } else {
+                System.out.println("이체 성공: " + responseHeader.get("Rsms"));
+            }
+        }
+    }
+
+    private void sendNHBankTransferRequest(Map<String, Object> request) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                NH_TRANSFER_API_URL,
+                HttpMethod.POST,
+                entity,
+                Map.class
+        );
+
+        // 응답 처리
+        Map<String, Object> responseBody = response.getBody();
+        if (responseBody != null) {
+            Map<String, String> responseHeader = (Map<String, String>) responseBody.get("Header");
+            if (!"00000".equals(responseHeader.get("Rpcd"))) {
+                System.out.println(responseHeader.get("Rsms"));
                 throw new CustomException(TRANSFER_FAILED);
             } else {
                 System.out.println("이체 성공: " + responseHeader.get("Rsms"));
