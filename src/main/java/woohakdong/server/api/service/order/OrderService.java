@@ -23,6 +23,7 @@ import woohakdong.server.api.controller.group.dto.GroupJoinConfirmRequest;
 import woohakdong.server.api.controller.group.dto.GroupJoinOrderRequest;
 import woohakdong.server.api.controller.group.dto.GroupJoinOrderResponse;
 import woohakdong.server.api.controller.group.dto.PortOnePaymentResponse;
+import woohakdong.server.api.controller.group.dto.PortOneWebhookRequest;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
@@ -101,6 +102,41 @@ public class OrderService {
 
         if ( !order.getGroup().equals(group) | !order.getMember().equals(member)) {
             throw new CustomException(ORDER_NOT_FOUND);
+        }
+
+        PortOnePaymentResponse paymentResponse = getPaymentInfoFromPortOne(request.impUid());
+        if (!Objects.equals(paymentResponse.amount(), order.getOrderAmount()) |
+                !Objects.equals(paymentResponse.merchantUid(), order.getOrderMerchantUid())) {
+            throw new CustomException(ORDER_NOT_FOUND);
+        }
+
+        Payment payment = Payment.builder()
+                .paymentAmount(paymentResponse.amount())
+                .paymentMerchantUid(paymentResponse.merchantUid())
+                .paymentImpUid(paymentResponse.impUid())
+                .paymentStatus(PaymentStatus.PAYMENT)
+                .build();
+
+        order.completeOrder(payment);
+        orderRepository.save(order);
+
+        ClubMember clubMember = ClubMember.builder()
+                .club(order.getGroup().getClub())
+                .member(order.getMember())
+                .clubJoinedDate(LocalDateTime.now().toLocalDate())
+                .clubMemberRole(MEMBER)
+                .clubMemberAssignedTerm(getAssignedTerm())
+                .build();
+        clubMemberRepository.save(clubMember);
+    }
+
+    @Transactional
+    public void portOnePaymentComplete(PortOneWebhookRequest request) {
+        Order order = orderRepository.findByOrderMerchantUid(request.merchantUid())
+                .orElseThrow(() -> new CustomException(ORDER_NOT_FOUND));
+
+        if ( order.isOrderComplete() ) {
+            return;
         }
 
         PortOnePaymentResponse paymentResponse = getPaymentInfoFromPortOne(request.impUid());

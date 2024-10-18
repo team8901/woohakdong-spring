@@ -35,6 +35,6 @@ public class GroupController implements GroupControllerDocs {
 
     @PostMapping("/payment/webhook")
     public void portOnePaymentComplete(@RequestBody PortOneWebhookRequest request) {
-
+        orderService.portOnePaymentComplete(request);
     }
 }
