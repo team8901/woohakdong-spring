@@ -12,22 +12,23 @@ import static woohakdong.server.domain.group.GroupType.JOIN;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
-import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
-import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
-import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
-import woohakdong.server.api.controller.club.dto.ClubJoinGroupInfoResponse;
+import woohakdong.server.api.controller.ListWrapperResponse;
+import woohakdong.server.api.controller.club.dto.*;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubAccount.ClubAccount;
 import woohakdong.server.domain.clubAccount.ClubAccountRepository;
+import woohakdong.server.domain.clubHistory.ClubHistory;
+import woohakdong.server.domain.clubHistory.ClubHistoryRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.clubmember.ClubMemberRole;
@@ -49,6 +50,7 @@ public class ClubService {
     private final ClubAccountRepository clubAccountRepository;
     private final ClubMemberRepository clubMemberRepository;
     private final GroupRepository groupRepository;
+    private final ClubHistoryRepository clubHistoryRepository;
 
     public void validateClubWithNames(String clubName, String clubEnglishName) {
         if (clubRepository.existsByClubNameOrClubEnglishName(clubName, clubEnglishName)) {
@@ -67,6 +69,10 @@ public class ClubService {
 
         ClubMember clubMember = createClubMember(member, club, PRESIDENT);
         club.addClubMember(clubMember);
+
+        // club history에 이번 분기 추가
+        ClubHistory clubHistory = createClubHistory(club);
+        club.addClubHistory(clubHistory);
 
         clubRepository.save(club);
 
@@ -87,6 +93,23 @@ public class ClubService {
 
         ClubAccount clubAccount = createClubAccount(clubAccountRegisterRequest, club);
         clubAccountRepository.save(clubAccount);
+    }
+
+    @Transactional
+    public ListWrapperResponse<ClubHistoryTermResponse> getClubHistory(Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+
+        List<ClubHistory> clubHistories = clubHistoryRepository.findByClub_ClubId(clubId);
+
+        // ClubHistory를 ClubHistoryTermResponse로 변환
+        List<ClubHistoryTermResponse> clubHistoryResponses = clubHistories.stream()
+                .map(clubHistory -> ClubHistoryTermResponse.builder()
+                        .clubHistoryUsageDate(clubHistory.getClubHistoryUsageDate())  // 적절한 필드 사용
+                        .build())
+                .collect(Collectors.toList());
+
+        return ListWrapperResponse.of(clubHistoryResponses);
     }
 
     public ClubJoinGroupInfoResponse getClubJoinInfo(Long clubId) {
@@ -151,6 +174,13 @@ public class ClubService {
                 .groupType(JOIN)
                 .groupName(club.getClubName())
                 .groupDescription(club.getClubName() + "의 " + club.getClubGeneration() + "기 동아리 가입하기")
+                .build();
+    }
+
+    private ClubHistory createClubHistory(Club club) {
+        return ClubHistory.builder()
+                .club(club)
+                .clubHistoryUsageDate(getAssignedTerm())
                 .build();
     }
 

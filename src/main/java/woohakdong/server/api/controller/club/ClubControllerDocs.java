@@ -4,15 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.PathVariable;
 import woohakdong.server.api.controller.ListWrapperResponse;
-import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
-import woohakdong.server.api.controller.club.dto.ClubAccountValidateRequest;
-import woohakdong.server.api.controller.club.dto.ClubAccountValidateResponse;
-import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
-import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
-import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
-import woohakdong.server.api.controller.club.dto.ClubJoinGroupInfoResponse;
-import woohakdong.server.api.controller.club.dto.ClubNameValidateRequest;
+import woohakdong.server.api.controller.club.dto.*;
 
 @Tag(name = "Club", description = "동아리 관련 API")
 public interface ClubControllerDocs {
@@ -60,5 +54,9 @@ public interface ClubControllerDocs {
     @Operation(summary = "동아리 이름으로 찾기", description = "동아리 이름을 입력하면, 해당 동아리의 정보를 반환합니다.")
     @ApiResponse(responseCode = "200", description = "동아리 이름으로 찾기 성공", useReturnTypeSchema = true)
     public ClubInfoResponse getClubInfoByEnglishName(String clubEnglishName);
+
+    @Operation(summary = "동아리 가입 기수 리스트 조회하기", description = "동아리가 우학동을 사용한 분기를 리스트로 반환합니다.")
+    @ApiResponse(responseCode = "200", description = "동아리 가입 기수 리스트 반환 성공", useReturnTypeSchema = true)
+    public ListWrapperResponse<ClubHistoryTermResponse> getClubHistory(@PathVariable Long clubId);
 
 }
