@@ -2,6 +2,7 @@ package woohakdong.server.domain.clubHistory;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import woohakdong.server.domain.club.Club;
@@ -23,4 +24,10 @@ public class ClubHistory {
 
     @Column(nullable = false)
     private LocalDate clubHistoryUsageDate;
+
+    @Builder
+    public ClubHistory(Club club, LocalDate clubHistoryUsageDate) {
+        this.club = club;
+        this.clubHistoryUsageDate = clubHistoryUsageDate;
+    }
 }

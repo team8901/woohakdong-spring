@@ -10,14 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import woohakdong.server.api.controller.ListWrapperResponse;
-import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
-import woohakdong.server.api.controller.club.dto.ClubAccountValidateRequest;
-import woohakdong.server.api.controller.club.dto.ClubAccountValidateResponse;
-import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
-import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
-import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
-import woohakdong.server.api.controller.club.dto.ClubJoinGroupInfoResponse;
-import woohakdong.server.api.controller.club.dto.ClubNameValidateRequest;
+import woohakdong.server.api.controller.club.dto.*;
 import woohakdong.server.api.service.bank.BankService;
 import woohakdong.server.api.service.club.ClubService;
 
@@ -72,5 +65,10 @@ public class ClubController implements ClubControllerDocs {
     @GetMapping("/search")
     public ClubInfoResponse getClubInfoByEnglishName(@RequestParam String clubEnglishName) {
         return clubService.findClubInfoWithEnglishName(clubEnglishName);
+    }
+
+    @GetMapping("/{clubId}/terms")
+    public ListWrapperResponse<ClubHistoryTermResponse> getClubHistory(@PathVariable Long clubId) {
+        return clubService.getClubHistory(clubId);
     }
 }

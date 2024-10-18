@@ -7,6 +7,7 @@ import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,16 +18,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
-import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
-import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
-import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
+import woohakdong.server.api.controller.ListWrapperResponse;
+import woohakdong.server.api.controller.club.dto.*;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubAccount.ClubAccount;
 import woohakdong.server.domain.clubAccount.ClubAccountRepository;
+import woohakdong.server.domain.clubHistory.ClubHistory;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
@@ -273,6 +273,47 @@ class ClubServiceTest {
         assertThat(response).isNotNull()
                 .extracting("clubName", "clubEnglishName")
                 .containsExactly("두리안", "Durian");
+    }
+
+    @DisplayName("동아리의 우학동 서비스 사용 분기를 리스트로 확인할 수 있다.")
+    @Test
+    void checkClubHistory() {
+        // Given
+        School school = School.builder()
+                .schoolDomain("ajou.ac.kr")
+                .schoolName("아주대학교")
+                .build();
+        schoolRepository.save(school);
+
+        Club club = Club.builder()
+                .clubName("두리안")
+                .clubEnglishName("Durian")
+                .school(school)
+                .build();
+
+        ClubHistory clubHistory1 = ClubHistory.builder()
+                .club(club)
+                .clubHistoryUsageDate(LocalDate.of(2023, 1, 1))
+                .build();
+
+        ClubHistory clubHistory2 = ClubHistory.builder()
+                .club(club)
+                .clubHistoryUsageDate(LocalDate.of(2024, 1, 1))
+                .build();
+
+        club.addClubHistory(clubHistory1);
+        club.addClubHistory(clubHistory2);
+
+        Club saved = clubRepository.save(club);
+
+        // When
+        ListWrapperResponse<ClubHistoryTermResponse> result = clubService.getClubHistory(saved.getClubId());
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.result()).hasSize(2);
+        assertThat(result.result().get(0).clubHistoryUsageDate()).isEqualTo(LocalDate.of(2023, 1, 1));
+        assertThat(result.result().get(1).clubHistoryUsageDate()).isEqualTo(LocalDate.of(2024, 1, 1));
     }
 
 
