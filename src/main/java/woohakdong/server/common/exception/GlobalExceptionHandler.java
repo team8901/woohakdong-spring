@@ -24,7 +24,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public void handleValidationExceptions(Exception ex) {
+    public ResponseEntity handleValidationExceptions(Exception ex) {
         log.error("Exception : {}", ex.getMessage());
+        return ResponseEntity
+                .status(500)
+                .body(Map.of("message", ex.getMessage()));
     }
 }
