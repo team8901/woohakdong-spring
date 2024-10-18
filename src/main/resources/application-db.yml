@@ -1,0 +1,53 @@
+spring:
+  config:
+    activate:
+      on-profile: h2-test
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+---
+spring:
+  config:
+    activate:
+      on-profile: mysql-dev
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/woohakdong-dev
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+---
+spring:
+  config:
+    activate:
+      on-profile: mysql-prod
+
+  datasource:
+    url: ${PROD_DB_URL}
+    username: ${PROD_DB_USERNAME}
+    password: ${PROD_DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+      dialect: org.hibernate.dialect.MySQLDialect

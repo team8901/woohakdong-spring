@@ -1,14 +1,16 @@
 spring:
   application:
     name: woohakdong-server
+
+  profiles:
+    default: dev
+    group:
+      test: h2-test, payment-fake, sentry
+      dev: mysql-dev, payment-portone, payment-nh, sentry
+      prod: mysql-prod, payment-portone, payment-nh, sentry
+
+  config:
+    import: "application-db.yml,application-payment.yml, application-sentry.yml"
+
   jwt:
     secret: fklwnvndfjlsdkjevealkekfnkevkenflwjkfjlsdjvoiwenbfklhaedsf
-
-portone:
-  rest:
-    api:
-      key: ${PORTONE_REST_API_KEY}
-      secret: ${PORTONE_REST_API_SECRET}
-nh:
-  iscd: "002645"
-  accessToken: "01e392673ca609a93515a86580a6343652cefae31bbeb6e1333211c4e6b446ec"

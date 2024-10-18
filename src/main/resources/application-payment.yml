@@ -1,0 +1,33 @@
+spring:
+  config:
+    activate:
+      on-profile: payment-fake
+portone:
+  rest:
+      api:
+        key: fake_key
+        secret: fake_secret
+nh:
+  iscd: "002645"
+  accessToken: "01e392673ca609a93515a86580a6343652cefae31bbeb6e1333211c4e6b446ec"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: payment-portone
+portone:
+  rest:
+    api:
+      key: ${PORTONE_REST_API_KEY}
+      secret: ${PORTONE_REST_API_SECRET}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: payment-nh
+nh:
+  iscd: ${NH_ISCD}
+  accessToken: ${NH_ACCESS_TOKEN}
+
