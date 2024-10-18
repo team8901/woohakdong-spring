@@ -14,14 +14,14 @@ import java.util.List;
 @Tag(name = "Club", description = "동아리 멤버 관련 API")
 public interface ClubMemberControllerDocs {
 
-    @SecurityRequirement(name = "accessToken")
-    @Operation(summary = "동아리 소속 멤버 리스트 조회", description = "동아리 소속 멤버 리스트 조회하기")
-    @ApiResponse(responseCode = "200", description = "동아리 소속 멤버 리스트 조회 성공", useReturnTypeSchema = true)
-    @ApiResponse(responseCode = "400", description = "동아리 소속 멤버 리스트 조회 실패")
-    public ListWrapperResponse<ClubMemberInfoResponse> getMembers(@PathVariable Long clubId);
+//    @SecurityRequirement(name = "accessToken")
+//    @Operation(summary = "동아리 소속 멤버 리스트 조회", description = "동아리 소속 멤버 리스트 조회하기")
+//    @ApiResponse(responseCode = "200", description = "동아리 소속 멤버 리스트 조회 성공", useReturnTypeSchema = true)
+//    @ApiResponse(responseCode = "400", description = "동아리 소속 멤버 리스트 조회 실패")
+//    public ListWrapperResponse<ClubMemberInfoResponse> getMembers(@PathVariable Long clubId);
 
     @SecurityRequirement(name = "accessToken")
-    @Operation(summary = "동아리 소속 기수별 멤버 리스트 조회하기", description = "clubId와 기수(24-1)로 동아리 소속 기수별 멤버 리스트 조회하기")
+    @Operation(summary = "동아리 소속 기수별 멤버 리스트 조회하기", description = "clubId와 기수(24-1)로 동아리 소속 기수별 멤버 리스트 조회하기 쿼리 파리미터가 없다면 현재 기수 조회")
     @ApiResponse(responseCode = "200", description = "동아리 소속 기수별 멤버 리스트 조회하기 성공", useReturnTypeSchema = true)
     @ApiResponse(responseCode = "400", description = "동아리 소속 기수별 멤버 리스트 조회하기 실패")
     public ListWrapperResponse<ClubMemberInfoResponse> getTermMembers(@PathVariable Long clubId, @PathVariable LocalDate clubMemberAssignedTerm);
