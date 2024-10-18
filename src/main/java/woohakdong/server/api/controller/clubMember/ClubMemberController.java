@@ -1,10 +1,7 @@
 package woohakdong.server.api.controller.clubMember;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.clubMember.dto.ClubMemberInfoResponse;
 import woohakdong.server.api.service.clubMember.ClubMemberService;
@@ -20,15 +17,15 @@ public class ClubMemberController implements ClubMemberControllerDocs{
     private final ClubMemberService clubMemberService;
 
     @GetMapping("/{clubId}/members")
-    public ListWrapperResponse<ClubMemberInfoResponse> getMembers(@PathVariable Long clubId) {
+    public ListWrapperResponse<ClubMemberInfoResponse> getTermMembers(@PathVariable Long clubId, @RequestParam(required = false) LocalDate clubMemberAssignedTerm) {
 
-        return ListWrapperResponse.of(clubMemberService.getMembers(clubId));
-    }
-
-    @GetMapping("/{clubId}/members/{clubMemberAssignedTerm}")
-    public ListWrapperResponse<ClubMemberInfoResponse> getTermMembers(@PathVariable Long clubId, @PathVariable LocalDate clubMemberAssignedTerm) {
-
-        return ListWrapperResponse.of(clubMemberService.getTermMembers(clubId, clubMemberAssignedTerm));
+        if (clubMemberAssignedTerm != null) {
+            // 학기로 필터링된 멤버 목록 조회
+            return ListWrapperResponse.of(clubMemberService.getTermMembers(clubId, clubMemberAssignedTerm));
+        } else {
+            // 모든 멤버 조회
+            return ListWrapperResponse.of(clubMemberService.getMembers(clubId));
+        }
     }
 
 }

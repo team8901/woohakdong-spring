@@ -17,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import woohakdong.server.domain.clubHistory.ClubHistory;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.school.School;
@@ -53,6 +54,9 @@ public class Club {
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
     private List<ClubMember> clubMembers = new ArrayList<>();
 
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
+    private List<ClubHistory> clubHistorys = new ArrayList<>();
+
     @Builder
     public Club(String clubDescription, String clubEnglishName, LocalDate clubEstablishmentDate, String clubImage,
                 String clubName, String clubRoom, String clubGeneration, Integer clubDues, School school) {
@@ -73,5 +77,9 @@ public class Club {
 
     public void addClubMember(ClubMember clubMember) {
         this.clubMembers.add(clubMember);
+    }
+
+    public void addClubHistory(ClubHistory clubHistory) {
+        this.clubHistorys.add(clubHistory);
     }
 }
