@@ -50,7 +50,7 @@ public class Order {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
     private Group group;
 
@@ -59,7 +59,8 @@ public class Order {
     private Payment payment;
 
     @Builder
-    public Order(Long id, String orderMerchantUid, LocalDateTime orderAt, Integer orderAmount, Member member, Group group) {
+    public Order(Long id, String orderMerchantUid, LocalDateTime orderAt, Integer orderAmount, Member member,
+                 Group group) {
         this.id = id;
         this.orderMerchantUid = orderMerchantUid;
         this.orderAt = orderAt;
