@@ -35,6 +35,7 @@ public class SecurityConfig {
         //권한 설정
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/v1/auth/login/social", "/", "/v1/auth/refresh").permitAll()
+                .requestMatchers("/v1/groups/payment/webhook").permitAll()
                 .requestMatchers(getSwaggerUIPath()).permitAll()
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());

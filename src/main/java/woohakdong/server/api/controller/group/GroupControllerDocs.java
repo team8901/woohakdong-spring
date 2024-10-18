@@ -22,7 +22,7 @@ public interface GroupControllerDocs {
     @ApiResponse(responseCode = "200", description = "동아리 가입 완료", useReturnTypeSchema = true)
     void completeClubJoinOrder(Long groupId, GroupJoinConfirmRequest request);
 
-    @Operation(summary = "포트원 측 결제 완료 webhook(진행 중)", description = "포트원 측에서 결제가 완료되었을 때, webhook을 통해 호출되는 API")
+    @Operation(summary = "포트원 측 결제 완료 webhook", description = "포트원 측에서 결제가 완료되었을 때, webhook을 통해 호출되는 API")
     @ApiResponse(responseCode = "200", description = "포트원 측 결제 완료 webhook 호출 성공", useReturnTypeSchema = true)
     void portOnePaymentComplete(PortOneWebhookRequest request);
 }
