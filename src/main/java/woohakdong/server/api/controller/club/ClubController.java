@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
@@ -69,7 +70,7 @@ public class ClubController implements ClubControllerDocs {
     }
 
     @GetMapping("/search")
-    public ClubInfoResponse getClubInfoByEnglishName(String clubEnglishName) {
+    public ClubInfoResponse getClubInfoByEnglishName(@RequestParam String clubEnglishName) {
         return clubService.findClubInfoWithEnglishName(clubEnglishName);
     }
 }
