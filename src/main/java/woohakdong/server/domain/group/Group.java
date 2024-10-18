@@ -10,13 +10,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import woohakdong.server.domain.club.Club;
-import woohakdong.server.domain.clubmember.ClubMember;
+import woohakdong.server.domain.order.Order;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -45,9 +48,8 @@ public class Group {
     @JoinColumn(name = "club_id")
     private Club club;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "club_member_id")
-    private ClubMember clubMember;
+    @OneToMany(mappedBy = "group")
+    private List<Order> orders = new ArrayList<>();
 
     @Builder
     public Group(String groupName, String groupDescription, int groupAmount, String groupLink,
