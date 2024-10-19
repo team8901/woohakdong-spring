@@ -3,6 +3,7 @@ package woohakdong.server.api.service.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import woohakdong.server.api.controller.item.dto.ItemListResponse;
 import woohakdong.server.api.controller.item.dto.ItemRegisterRequest;
 import woohakdong.server.api.controller.item.dto.ItemRegisterResponse;
 import woohakdong.server.common.exception.CustomErrorInfo;
@@ -11,6 +12,9 @@ import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.item.Item;
 import woohakdong.server.domain.item.ItemRepository;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
 
@@ -49,5 +53,24 @@ public class ItemService {
                 .itemId(savedItem.getItemId())
                 .itemName(savedItem.getItemName())
                 .build();
+    }
+
+    @Transactional
+    public List<ItemListResponse> getItemsByClubId(Long clubId) {
+        List<Item> items = itemRepository.findByClubClubId(clubId);
+        return items.stream()
+                .map(item -> ItemListResponse.builder()
+                        .itemId(item.getItemId())
+                        .itemName(item.getItemName())
+                        .itemPhoto(item.getItemPhoto())
+                        .itemDescription(item.getItemDescription())
+                        .itemLocation(item.getItemLocation())
+                        .itemCategory(item.getItemCategory())
+                        .itemRentalMaxDay(item.getItemRentalMaxDay())
+                        .itemAvailable(item.getItemAvailable())
+                        .itemUsing(item.getItemUsing())
+                        .itemRentalDate(item.getItemRentalDate())
+                        .build())
+                .collect(Collectors.toList());
     }
 }
