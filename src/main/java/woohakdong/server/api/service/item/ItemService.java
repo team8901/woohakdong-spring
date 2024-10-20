@@ -26,6 +26,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final ClubRepository clubRepository;
 
+    @Transactional
     public ItemRegisterResponse registerItem(Long clubId, ItemRegisterRequest request) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
@@ -57,6 +58,9 @@ public class ItemService {
 
     @Transactional
     public List<ItemListResponse> getItemsByClubId(Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+
         List<Item> items = itemRepository.findByClubClubId(clubId);
         return items.stream()
                 .map(item -> ItemListResponse.builder()
