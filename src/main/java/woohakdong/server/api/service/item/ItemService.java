@@ -93,7 +93,7 @@ public class ItemService {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
 
-        Item item = itemRepository.findById(itemId)
+        Item item = itemRepository.findByIdForUpdate(itemId)
                 .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
 
         // 물품이 대여 가능 상태인지 확인
