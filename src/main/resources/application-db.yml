@@ -14,9 +14,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
+
 ---
 spring:
   config:
@@ -24,16 +22,14 @@ spring:
       on-profile: mysql-dev
 
   datasource:
-    url: jdbc:mysql://localhost:3306/woohakdong-dev
+    url: jdbc:mysql://mysql:3306/woohakdong-dev
     username: root
     password:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+
 ---
 spring:
   config:
@@ -48,6 +44,3 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    properties:
-      hibernate:
-      dialect: org.hibernate.dialect.MySQLDialect
