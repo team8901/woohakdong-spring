@@ -28,6 +28,8 @@ public enum CustomErrorInfo {
     ITEM_NOT_FOUND(400, "item not found", 400020),
     ITEM_NOT_AVAILABLE(400, "item not available", 400021),
     ITEM_USING(400, "item using", 400022),
+    ITEM_NOT_USING(400, "item not using", 400023),
+    ITEM_HISTORY_NOT_FOUND(400, "item history not found", 400024),
 
     // 401 UNAUTHORIZED
     INVALID_ACCESS_TOKEN(401, "Invaild access token", 401001),
