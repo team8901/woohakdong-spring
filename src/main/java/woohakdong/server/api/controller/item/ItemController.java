@@ -13,12 +13,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/clubs")
 @RequiredArgsConstructor
-public class ItemController {
+public class ItemController implements ItemControllerDocs {
 
     private final ItemService itemService;
 
     @PostMapping("/{clubId}/items")
-    public ItemRegisterResponse registerItem(@PathVariable Long clubId, ItemRegisterRequest request) {
+    public ItemRegisterResponse registerItem(@PathVariable Long clubId, @RequestBody ItemRegisterRequest request) {
         return itemService.registerItem(clubId, request);
     }
 
