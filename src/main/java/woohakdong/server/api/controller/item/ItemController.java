@@ -3,10 +3,7 @@ package woohakdong.server.api.controller.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import woohakdong.server.api.controller.ListWrapperResponse;
-import woohakdong.server.api.controller.item.dto.ItemBorrowResponse;
-import woohakdong.server.api.controller.item.dto.ItemListResponse;
-import woohakdong.server.api.controller.item.dto.ItemRegisterRequest;
-import woohakdong.server.api.controller.item.dto.ItemRegisterResponse;
+import woohakdong.server.api.controller.item.dto.*;
 import woohakdong.server.api.service.item.ItemService;
 
 import java.util.List;
@@ -32,5 +29,12 @@ public class ItemController implements ItemControllerDocs {
     @PostMapping("/{clubId}/items/{itemId}/borrow")
     public ItemBorrowResponse borrowItem(@PathVariable Long clubId, @PathVariable Long itemId) {
         return itemService.borrowItem(clubId, itemId);
+    }
+
+    @PostMapping("/{clubId}/items/{itemId}/return")
+    public void returnItem(@PathVariable Long clubId, @PathVariable Long itemId,
+                           @RequestBody ItemReturnRequest request) {
+
+        itemService.returnItem(clubId, itemId, request);
     }
 }
