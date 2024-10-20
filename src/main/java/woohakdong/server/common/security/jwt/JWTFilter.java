@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +17,7 @@ import java.io.PrintWriter;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JWTFilter extends OncePerRequestFilter {
     private final JWTUtil jwtUtil;
 
@@ -43,6 +45,7 @@ public class JWTFilter extends OncePerRequestFilter {
         if (jwtUtil.isExpired(accessToken)) {
             //response body
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            log.error("\tExpired token");
             filterChain.doFilter(request, response);
 
             return;
@@ -58,6 +61,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
             //response status code
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            log.error("\tInvalid access token");
             return;
         }
 
