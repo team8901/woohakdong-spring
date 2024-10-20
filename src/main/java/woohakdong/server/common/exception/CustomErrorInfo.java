@@ -25,6 +25,9 @@ public enum CustomErrorInfo {
     ORDER_ALREADY_EXIST(400, "order already exist", 400017),
     CLUB_ALREADY_JOINED(400, "club already joined", 400018),
     GROUP_TYPE_NOT_FOUND(400, "group type not found", 400019),
+    ITEM_NOT_FOUND(400, "item not found", 400020),
+    ITEM_NOT_AVAILABLE(400, "item not available", 400021),
+    ITEM_USING(400, "item using", 400022),
 
     // 401 UNAUTHORIZED
     INVALID_ACCESS_TOKEN(401, "Invaild access token", 401001),
