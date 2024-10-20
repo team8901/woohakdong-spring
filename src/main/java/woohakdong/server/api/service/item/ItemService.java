@@ -5,10 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.item.dto.ItemBorrowResponse;
-import woohakdong.server.api.controller.item.dto.ItemListResponse;
-import woohakdong.server.api.controller.item.dto.ItemRegisterRequest;
-import woohakdong.server.api.controller.item.dto.ItemRegisterResponse;
+import woohakdong.server.api.controller.item.dto.*;
 import woohakdong.server.common.exception.CustomErrorInfo;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
@@ -126,6 +123,39 @@ public class ItemService {
                 .itemRentalDate(itemHistory.getItemRentalDate())
                 .itemDueDate(itemHistory.getItemDueDate())
                 .build();
+    }
+
+    public void returnItem(Long clubId, Long itemId, ItemReturnRequest request) {
+        Member member = getMemberFromJwtInformation();
+
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
+
+        if (!item.getItemUsing()) {
+            throw new CustomException(ITEM_NOT_USING);
+        }
+
+        // 대여 기록 찾기 (반납 기록이 없는 대여 기록을 찾음)
+        ItemHistory itemHistory = itemHistoryRepository.findActiveBorrowingRecord(item, member)
+                .orElseThrow(() -> new CustomException(ITEM_HISTORY_NOT_FOUND));
+
+        // 반납 처리
+        itemHistory.setItemReturnDate(LocalDateTime.now());  // 반납 시간 설정
+
+        if (request.itemReturnImage() != null) {
+            itemHistory.setItemReturnImage(request.itemReturnImage());  // 반납 사진 저장 (선택 사항)
+        }
+
+        // 물품 상태 변경
+        item.setItemUsing(false);
+
+        // 추가적으로 연체 여부 확인 가능
+        if (LocalDateTime.now().isAfter(itemHistory.getItemDueDate())) {
+            // 연체 처리 로직 추가 가능
+        }
     }
 
     private Member getMemberFromJwtInformation() {

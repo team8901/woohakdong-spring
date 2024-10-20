@@ -48,4 +48,12 @@ public class ItemHistory {
         this.member = member;
         this.item = item;
     }
+
+    public void setItemReturnImage(String itemReturnImage) {
+        this.itemReturnImage = itemReturnImage;
+    }
+
+    public void setItemReturnDate(LocalDateTime itemReturnDate) {
+        this.itemReturnDate = itemReturnDate;
+    }
 }
