@@ -17,7 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     private String[] getAllowedOrigins() {
         return new String[]{
-                "http://d1r973zpg8hnu4.cloudfront.net",
+                "https://d1r973zpg8hnu4.cloudfront.net",
                 "http://localhost:3000",
                 "http://localhost",
                 "http://52.78.100.19",
