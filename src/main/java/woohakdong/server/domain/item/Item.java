@@ -68,4 +68,12 @@ public class Item {
         this.itemPhoto = itemPhoto;
         this.itemName = itemName;
     }
+
+    public void setItemUsing(Boolean itemUsing) {
+        this.itemUsing = itemUsing;
+    }
+
+    public void setItemRentalDate(LocalDateTime itemRentalDate) {
+        this.itemRentalDate = itemRentalDate;
+    }
 }
