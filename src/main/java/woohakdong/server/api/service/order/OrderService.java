@@ -82,7 +82,7 @@ public class OrderService {
         orderRepository.save(order);
 
         return GroupJoinOrderResponse.builder()
-                .orderId(order.getId())
+                .orderId(order.getOrderId())
                 .build();
     }
 

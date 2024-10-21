@@ -26,12 +26,12 @@ import woohakdong.server.domain.payment.Payment;
 @Entity
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
-@Table(name = "orders")
+@Table(name = "\"order\"")
 public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long orderId;
 
     @Column(nullable = false, unique = true)
     private String orderMerchantUid;
@@ -59,9 +59,9 @@ public class Order {
     private Payment payment;
 
     @Builder
-    public Order(Long id, String orderMerchantUid, LocalDateTime orderAt, Integer orderAmount, Member member,
+    public Order(Long orderId, String orderMerchantUid, LocalDateTime orderAt, Integer orderAmount, Member member,
                  Group group) {
-        this.id = id;
+        this.orderId = orderId;
         this.orderMerchantUid = orderMerchantUid;
         this.orderAt = orderAt;
         this.orderStatus = INIT;

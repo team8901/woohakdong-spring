@@ -24,7 +24,7 @@ import woohakdong.server.domain.order.Order;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Table(name = "groups")
+@Table(name = "\"group\"")
 public class Group {
 
     @Id

@@ -112,6 +112,9 @@ jobs:
             echo "ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}" >> .env
             echo "PORTONE_REST_API_KEY=${{ secrets.PORTONE_REST_API_KEY }}" >> .env
             echo "PORTONE_REST_API_SECRET=${{ secrets.PORTONE_REST_API_SECRET }}" >> .env
+            echo "NH_ISCD=${{ secrets.NH_ISCD }}" >> .env
+            echo "NH_ACCESS_TOKEN=${{ secrets.NH_ACCESS_TOKEN }}" >> .env
+            echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
             
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.ap-northeast-2.amazonaws.com
             

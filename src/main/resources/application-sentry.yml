@@ -1,0 +1,20 @@
+---
+spring:
+  config:
+    activate:
+      on-profile: sentry-dev
+sentry:
+  dsn: ${SENTRY_DSN}
+  environment: dev
+  exception-resolver-order: -2147483647
+  traces-sample-rate: 0
+---
+spring:
+  config:
+    activate:
+      on-profile: sentry-prod
+sentry:
+    dsn: ${SENTRY_DSN}
+    environment: prod
+    exception-resolver-order: -2147483647
+    traces-sample-rate: 0.1
