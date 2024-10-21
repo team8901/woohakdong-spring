@@ -4,24 +4,34 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
-import woohakdong.server.api.controller.item.dto.ItemListResponse;
-import woohakdong.server.api.controller.item.dto.ItemRegisterRequest;
-import woohakdong.server.api.controller.item.dto.ItemRegisterResponse;
+import woohakdong.server.api.controller.item.dto.*;
+import woohakdong.server.common.exception.CustomException;
+import woohakdong.server.common.security.jwt.CustomUserDetails;
+import woohakdong.server.domain.ItemHistory.ItemHistory;
+import woohakdong.server.domain.ItemHistory.ItemHistoryRepository;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.item.Item;
 import woohakdong.server.domain.item.ItemCategory;
 import woohakdong.server.domain.item.ItemRepository;
+import woohakdong.server.domain.member.Member;
+import woohakdong.server.domain.member.MemberGender;
+import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
+import static woohakdong.server.common.exception.CustomErrorInfo.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 
 @ActiveProfiles("test")
@@ -36,6 +46,12 @@ class ItemServiceTest {
 
     @Autowired
     private ItemRepository itemRepository;
+
+    @Autowired
+    private MemberRepository memberRepository;
+
+    @Autowired
+    private ItemHistoryRepository itemHistoryRepository;
 
     @DisplayName("물품을 등록하면 물품을 확인할 수 있다.")
     @Test
@@ -90,5 +106,151 @@ class ItemServiceTest {
         assertThat(items).hasSize(2);
         assertThat(items.get(0).itemName()).isEqualTo("축구공");
         assertThat(items.get(1).itemName()).isEqualTo("농구공");
+    }
+
+    @DisplayName("물품 대여를 성공적으로 할 수 있다.")
+    @Test
+    void borrowItemSuccess() {
+        // given
+        Club club = Club.builder()
+                .clubName("테스트동아리")
+                .clubEnglishName("testClub")
+                .build();
+        clubRepository.save(club);
+
+        String provideId = "testProvideId";
+        Member member = Member.builder()
+                .memberProvideId(provideId)
+                .memberName("John Doe")
+                .memberEmail("john.doe@example.com")
+                .build();
+        memberRepository.save(member);
+
+        Item item = itemRepository.save(Item.builder()
+                .club(club)
+                .itemName("축구공")
+                .itemPhoto("http://example.com/soccer_ball.png")
+                .itemDescription("A standard size 5 soccer ball")
+                .itemLocation("Club Storage Room")
+                .itemCategory(ItemCategory.SPORTS)
+                .itemRentalMaxDay(7)
+                .itemAvailable(true)
+                .itemUsing(false)
+                .itemRentalTime(0)
+                .build());
+
+        String role = "USER_ROLE";
+        CustomUserDetails customUserDetails = new CustomUserDetails(provideId, role);
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        // when
+        itemService.borrowItem(club.getClubId(), item.getItemId());
+
+        //then
+        Item borrowedItem = itemRepository.findById(item.getItemId()).orElseThrow();
+        assertThat(borrowedItem.getItemUsing()).isTrue();
+        assertThat(borrowedItem.getItemAvailable()).isTrue(); // 여전히 대여 가능 상태 (단, 현재 사용 중)
+
+        // 대여 기록이 잘 생성되었는지 확인 (대여 시간 확인)
+        assertThat(borrowedItem.getItemRentalDate()).isBefore(LocalDateTime.now());
+    }
+
+    @DisplayName("이미 대여된 물품은 대여를 할 수 없다.")
+    @Test
+    void borrowItemAlreadyInUseFailure() {
+        // given
+        Club club = Club.builder()
+                .clubName("테스트동아리")
+                .clubEnglishName("testClub")
+                .build();
+        clubRepository.save(club);
+
+        String provideId = "testProvideId";
+        Member member = Member.builder()
+                .memberProvideId(provideId)
+                .memberName("John Doe")
+                .memberEmail("john.doe@example.com")
+                .build();
+        memberRepository.save(member);
+
+        Item item = itemRepository.save(Item.builder()
+                .club(club)
+                .itemName("축구공")
+                .itemPhoto("http://example.com/soccer_ball.png")
+                .itemDescription("A standard size 5 soccer ball")
+                .itemLocation("Club Storage Room")
+                .itemCategory(ItemCategory.SPORTS)
+                .itemRentalMaxDay(7)
+                .itemAvailable(true)
+                .itemUsing(true)
+                .itemRentalTime(0)
+                .build());
+
+        String role = "USER_ROLE";
+        CustomUserDetails customUserDetails = new CustomUserDetails(provideId, role);
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        // when & then
+        assertThatThrownBy(() -> itemService.borrowItem(club.getClubId(), item.getItemId()))
+                .isInstanceOf(CustomException.class)
+                .hasMessage(ITEM_USING.getMessage());
+    }
+
+    @DisplayName("물품을 성공적으로 반납할 수 있다.")
+    @Test
+    void returnItemSuccess() {
+        // given
+        Club club = Club.builder()
+                .clubName("테스트동아리")
+                .clubEnglishName("testClub")
+                .build();
+        clubRepository.save(club);
+
+        String provideId = "testProvideId";
+        Member member = Member.builder()
+                .memberProvideId(provideId)
+                .memberName("John Doe")
+                .memberEmail("john.doe@example.com")
+                .build();
+        memberRepository.save(member);
+
+        Item item = itemRepository.save(Item.builder()
+                .club(club)
+                .itemName("축구공")
+                .itemPhoto("http://example.com/soccer_ball.png")
+                .itemDescription("A standard size 5 soccer ball")
+                .itemLocation("Club Storage Room")
+                .itemCategory(ItemCategory.SPORTS)
+                .itemRentalMaxDay(7)
+                .itemAvailable(true)
+                .itemUsing(false)
+                .itemRentalTime(0)
+                .build());
+
+        String role = "USER_ROLE";
+        CustomUserDetails customUserDetails = new CustomUserDetails(provideId, role);
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        ItemReturnRequest request = new ItemReturnRequest("http://example.com/return_photo.png");
+
+        itemService.borrowItem(club.getClubId(), item.getItemId());
+
+        // when
+        ItemReturnResponse itemReturnResponse = itemService.returnItem(club.getClubId(), item.getItemId(), request);
+
+        // then
+        Item returnedItem = itemRepository.findById(item.getItemId()).orElseThrow();
+        assertThat(returnedItem.getItemUsing()).isFalse();
+        assertThat(returnedItem.getItemAvailable()).isTrue();
+
+        // 반납 기록이 잘 저장되었는지 확인
+        ItemHistory history = itemHistoryRepository.findById(itemReturnResponse.itemHistoryId()).orElseThrow();
+        assertThat(history.getItemReturnDate()).isBefore(LocalDateTime.now());
     }
 }

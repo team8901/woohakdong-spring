@@ -7,9 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import woohakdong.server.api.controller.ListWrapperResponse;
-import woohakdong.server.api.controller.item.dto.ItemListResponse;
-import woohakdong.server.api.controller.item.dto.ItemRegisterRequest;
-import woohakdong.server.api.controller.item.dto.ItemRegisterResponse;
+import woohakdong.server.api.controller.item.dto.*;
 
 @Tag(name = "Item", description = "물품 관련 API")
 public interface ItemControllerDocs {
@@ -23,4 +21,14 @@ public interface ItemControllerDocs {
     @Operation(summary = "물품 리스트 반환", description = "물품 리스트를 반환한다.")
     @ApiResponse(responseCode = "200", description = "물품 리스트 반환 성공", useReturnTypeSchema = true)
     public ListWrapperResponse<ItemListResponse> getItems(@PathVariable Long clubId);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "물품 대여", description = "물품이 사용중이 아니라면 대여할 수 있다.")
+    @ApiResponse(responseCode = "200", description = "물품 대여 성공", useReturnTypeSchema = true)
+    public ItemBorrowResponse borrowItem(@PathVariable Long clubId, @PathVariable Long itemId);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "물품 반납", description = "물품을 반납할 수 있다.")
+    @ApiResponse(responseCode = "200", description = "물품 반납 성공", useReturnTypeSchema = true)
+    public ItemReturnResponse returnItem(@PathVariable Long clubId, @PathVariable Long itemId, @RequestBody ItemReturnRequest request);
 }
