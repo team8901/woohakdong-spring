@@ -9,6 +9,6 @@ import woohakdong.server.domain.member.Member;
 import java.util.Optional;
 
 public interface ItemHistoryRepository extends JpaRepository<ItemHistory, Long> {
-    @Query("SELECT ih FROM ItemHistory ih WHERE ih.item = :item AND ih.member = :member AND ih.itemReturnDate IS NULL")
-    Optional<ItemHistory> findActiveBorrowingRecord(@Param("item") Item item, @Param("member") Member member);
+    @Query("SELECT ih FROM ItemHistory ih WHERE ih.item.itemId = :itemId AND ih.member.memberId = :memberId AND ih.itemReturnDate IS NULL")
+    Optional<ItemHistory> findActiveBorrowingRecord(@Param("itemId") Long itemId, @Param("memberId") Long memberId);
 }

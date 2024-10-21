@@ -32,9 +32,8 @@ public class ItemController implements ItemControllerDocs {
     }
 
     @PostMapping("/{clubId}/items/{itemId}/return")
-    public void returnItem(@PathVariable Long clubId, @PathVariable Long itemId,
+    public ItemReturnResponse returnItem(@PathVariable Long clubId, @PathVariable Long itemId,
                            @RequestBody ItemReturnRequest request) {
-
-        itemService.returnItem(clubId, itemId, request);
+        return itemService.returnItem(clubId, itemId, request);
     }
 }
