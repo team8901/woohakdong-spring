@@ -105,8 +105,7 @@ public class ItemService {
         }
 
         // 물품 대여 처리
-        item.setItemUsing(true);  // 물품 대여 중으로 설정
-        item.setItemRentalDate(LocalDateTime.now());
+        item.setBorrow(true, LocalDateTime.now());
 
         // 대여 기록 추가
         ItemHistory itemHistory = ItemHistory.builder()
@@ -167,7 +166,6 @@ public class ItemService {
                 .build();
     }
 
-    @Transactional
     public ListWrapperResponse<ItemHistoryResponse> getItemHistory(Long clubId, Long itemId) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
