@@ -6,8 +6,8 @@ spring:
     default: dev
     group:
       test: h2-test, payment-test
-      dev: mysql-dev, payment-portone, payment-nh, sentry
-      prod: mysql-prod, payment-portone, payment-nh, sentry
+      dev: mysql-dev, payment-portone, payment-nh, sentry-dev
+      prod: mysql-prod, payment-portone, payment-nh, sentry-prod
 
   config:
     import: "application-db.yml,application-payment.yml, application-sentry.yml"
