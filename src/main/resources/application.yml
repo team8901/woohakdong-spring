@@ -14,3 +14,10 @@ spring:
 
   jwt:
     secret: fklwnvndfjlsdkjevealkekfnkevkenflwjkfjlsdjvoiwenbfklhaedsf
+
+management:
+  endpoints:
+    web:
+      base-path: /
+      path-mapping:
+        health: /health-check
