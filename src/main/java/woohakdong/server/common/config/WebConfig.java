@@ -17,12 +17,12 @@ public class WebConfig implements WebMvcConfigurer {
 
     private String[] getAllowedOrigins() {
         return new String[]{
-                "https://d1r973zpg8hnu4.cloudfront.net",
+                "https://www.woohakdong.com",
                 "http://localhost:3000",
                 "http://localhost",
-                "http://52.78.100.19",
-                "http://52.78.48.223",
-                "http://52.78.5.241"
+                "http://52.78.100.19", // portone
+                "http://52.78.48.223", // portone
+                "http://52.78.5.241"   // portone
         };
     }
 }
