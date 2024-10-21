@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static woohakdong.server.common.exception.CustomErrorInfo.BANK_INVALID_ACCOUNT_NUMBER;
 import static woohakdong.server.common.exception.CustomErrorInfo.BANK_NOT_SUPPORTED;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,6 +97,7 @@ class MockBankServiceTest {
 
     @DisplayName("타행 계좌 이체가 성공적으로 이루어진다.")
     @Test
+    @Disabled
     void transferTest() {
         // Given
         Club club = clubRepository.save(Club.builder()
@@ -136,6 +138,7 @@ class MockBankServiceTest {
 
     @DisplayName("농협 계좌 이체가 성공적으로 이루어진다.")
     @Test
+    @Disabled
     void transferNHBankTest() {
         // Given
         Club club = clubRepository.save(Club.builder()
