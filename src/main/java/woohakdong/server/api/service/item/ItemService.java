@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.item.dto.*;
 import woohakdong.server.common.exception.CustomErrorInfo;
 import woohakdong.server.common.exception.CustomException;
@@ -126,6 +127,7 @@ public class ItemService {
                 .build();
     }
 
+    @Transactional
     public ItemReturnResponse returnItem(Long clubId, Long itemId, ItemReturnRequest request) {
         Member member = getMemberFromJwtInformation();
 
@@ -163,6 +165,29 @@ public class ItemService {
                 .itemId(item.getItemId())
                 .itemReturnDate(itemHistory.getItemReturnDate())
                 .build();
+    }
+
+    @Transactional
+    public ListWrapperResponse<ItemHistoryResponse> getItemHistory(Long clubId, Long itemId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
+
+        List<ItemHistoryResponse> historyResponses = itemHistoryRepository.findByItemAndClub(itemId, clubId).stream()
+                .map(history -> ItemHistoryResponse.builder()
+                        .itemHistoryId(history.getItemHistoryId())
+                        .memberId(history.getMember().getMemberId())
+                        .memberName(history.getMember().getMemberName())
+                        .itemRentalDate(history.getItemRentalDate())
+                        .itemDueDate(history.getItemDueDate())
+                        .itemReturnDate(history.getItemReturnDate())
+                        .itemReturnImage(history.getItemReturnImage())
+                        .build())
+                .collect(Collectors.toList());
+
+        return ListWrapperResponse.of(historyResponses);
     }
 
     private Member getMemberFromJwtInformation() {

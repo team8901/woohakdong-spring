@@ -31,4 +31,9 @@ public interface ItemControllerDocs {
     @Operation(summary = "물품 반납", description = "물품을 반납할 수 있다.")
     @ApiResponse(responseCode = "200", description = "물품 반납 성공", useReturnTypeSchema = true)
     public ItemReturnResponse returnItem(@PathVariable Long clubId, @PathVariable Long itemId, @RequestBody ItemReturnRequest request);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "물품 대여 기록 조회", description = "물품 대여 기록을 조회할 수 있다.")
+    @ApiResponse(responseCode = "200", description = "물품 대여 기록 조회 성공", useReturnTypeSchema = true)
+    public ListWrapperResponse<ItemHistoryResponse> getItemHistory(@PathVariable Long clubId, @PathVariable Long itemId);
 }

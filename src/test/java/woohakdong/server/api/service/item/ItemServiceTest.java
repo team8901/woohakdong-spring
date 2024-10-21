@@ -8,6 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
 import woohakdong.server.api.controller.item.dto.*;
@@ -253,4 +254,78 @@ class ItemServiceTest {
         ItemHistory history = itemHistoryRepository.findById(itemReturnResponse.itemHistoryId()).orElseThrow();
         assertThat(history.getItemReturnDate()).isBefore(LocalDateTime.now());
     }
+
+    @DisplayName("물품대여 기록을 조회할 수 있다.")
+    @Test
+    void getItemHistorySuccess() {
+        // given
+        Club club = Club.builder()
+                .clubName("테스트동아리")
+                .clubEnglishName("testClub")
+                .build();
+        clubRepository.save(club);
+
+        String provideId = "testProvideId";
+        Member member = Member.builder()
+                .memberProvideId(provideId)
+                .memberName("John Doe")
+                .memberEmail("john.doe@example.com")
+                .build();
+        memberRepository.save(member);
+
+        Item item = itemRepository.save(Item.builder()
+                .club(club)
+                .itemName("축구공")
+                .itemPhoto("http://example.com/soccer_ball.png")
+                .itemDescription("A standard size 5 soccer ball")
+                .itemLocation("Club Storage Room")
+                .itemCategory(ItemCategory.SPORTS)
+                .itemRentalMaxDay(7)
+                .itemAvailable(true)
+                .itemUsing(false)
+                .itemRentalTime(0)
+                .build());
+
+        // 대여 기록 생성
+        itemHistoryRepository.save(ItemHistory.builder()
+                .item(item)
+                .member(member)
+                .itemRentalDate(LocalDateTime.now().minusDays(10)) // 10일 전 대여
+                .itemDueDate(LocalDateTime.now().minusDays(3))     // 3일 전에 반납 예정
+                .itemReturnDate(LocalDateTime.now().minusDays(2))  // 2일 전에 반납됨
+                .itemReturnImage("http://example.com/return_photo.png")
+                .build());
+
+        itemHistoryRepository.save(ItemHistory.builder()
+                .item(item)
+                .member(member)
+                .itemRentalDate(LocalDateTime.now())
+                .itemDueDate(LocalDateTime.now().plusDays(7))
+                .build());
+
+        // when
+        ListWrapperResponse<ItemHistoryResponse> response = itemService.getItemHistory(club.getClubId(), item.getItemId());
+
+        // then
+        assertThat(response).isNotNull();
+        assertThat(response.result()).hasSize(2);
+
+        // 첫 번째 기록 (반납된 기록)
+        ItemHistoryResponse returnedHistory = response.result().get(0);
+        assertThat(returnedHistory.itemHistoryId()).isNotNull();
+        assertThat(returnedHistory.memberName()).isEqualTo("John Doe");
+        assertThat(returnedHistory.itemRentalDate()).isBefore(LocalDateTime.now());
+        assertThat(returnedHistory.itemDueDate()).isBefore(LocalDateTime.now());
+        assertThat(returnedHistory.itemReturnDate()).isNotNull();  // 반납된 기록
+        assertThat(returnedHistory.itemReturnImage()).isEqualTo("http://example.com/return_photo.png");
+
+        // 두 번째 기록 (대여 중인 기록)
+        ItemHistoryResponse borrowingHistory = response.result().get(1);
+        assertThat(borrowingHistory.itemHistoryId()).isNotNull();
+        assertThat(borrowingHistory.memberName()).isEqualTo("John Doe");
+        assertThat(borrowingHistory.itemRentalDate()).isBefore(LocalDateTime.now());
+        assertThat(borrowingHistory.itemDueDate()).isAfter(LocalDateTime.now());
+        assertThat(borrowingHistory.itemReturnDate()).isNull();  // 아직 반납되지 않음
+    }
+
 }
