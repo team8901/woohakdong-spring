@@ -112,6 +112,7 @@ public class ItemService {
                 .item(item)
                 .member(member)
                 .itemRentalDate(LocalDateTime.now())
+                .itemReturnDate(null)
                 .itemDueDate(LocalDateTime.now().plusDays(item.getItemRentalMaxDay()))  // 대여 기간 설정
                 .build();
 
@@ -125,7 +126,7 @@ public class ItemService {
                 .build();
     }
 
-    public void returnItem(Long clubId, Long itemId, ItemReturnRequest request) {
+    public ItemReturnResponse returnItem(Long clubId, Long itemId, ItemReturnRequest request) {
         Member member = getMemberFromJwtInformation();
 
         Club club = clubRepository.findById(clubId)
@@ -139,7 +140,7 @@ public class ItemService {
         }
 
         // 대여 기록 찾기 (반납 기록이 없는 대여 기록을 찾음)
-        ItemHistory itemHistory = itemHistoryRepository.findActiveBorrowingRecord(item, member)
+        ItemHistory itemHistory = itemHistoryRepository.findActiveBorrowingRecord(item.getItemId(), member.getMemberId())
                 .orElseThrow(() -> new CustomException(ITEM_HISTORY_NOT_FOUND));
 
         // 반납 처리
@@ -156,6 +157,12 @@ public class ItemService {
         if (LocalDateTime.now().isAfter(itemHistory.getItemDueDate())) {
             // 연체 처리 로직 추가 가능
         }
+
+        return ItemReturnResponse.builder()
+                .itemHistoryId(itemHistory.getItemHistoryId())
+                .itemId(item.getItemId())
+                .itemReturnDate(itemHistory.getItemReturnDate())
+                .build();
     }
 
     private Member getMemberFromJwtInformation() {
