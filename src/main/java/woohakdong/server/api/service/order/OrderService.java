@@ -24,6 +24,7 @@ import woohakdong.server.api.controller.group.dto.GroupJoinOrderRequest;
 import woohakdong.server.api.controller.group.dto.GroupJoinOrderResponse;
 import woohakdong.server.api.controller.group.dto.PortOnePaymentResponse;
 import woohakdong.server.api.controller.group.dto.PortOneWebhookRequest;
+import woohakdong.server.api.service.email.EmailService;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
@@ -48,6 +49,7 @@ public class OrderService {
     private final GroupRepository groupRepository;
     private final OrderRepository orderRepository;
     private final IamportClient iamportClient;
+    private final EmailService emailService;
 
     @Transactional
     public GroupJoinOrderResponse registerOrder(Long groupId, GroupJoinOrderRequest request) {
@@ -58,16 +60,15 @@ public class OrderService {
 
         Club club = group.getClub();
 
-        if ( orderRepository.existsByOrderMerchantUid(request.merchantUid()) ) {
+        if (orderRepository.existsByOrderMerchantUid(request.merchantUid())) {
             throw new CustomException(ORDER_ALREADY_EXIST);
         }
 
-        switch ( group.getGroupType() )
-        {
+        switch (group.getGroupType()) {
             case JOIN:
-                 if (clubMemberRepository.existsByClubAndMember(club, member)) {
+                if (clubMemberRepository.existsByClubAndMember(club, member)) {
                     throw new CustomException(CLUB_ALREADY_JOINED);
-                 }
+                }
                 break;
             case EVENT:
                 if (!clubMemberRepository.existsByClubAndMember(club, member)) {
@@ -91,16 +92,16 @@ public class OrderService {
         Member member = getMemberFromJwtInformation();
 
         Order order = orderRepository.findById(request.orderId())
-                .orElseThrow(() ->  new CustomException(ORDER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ORDER_NOT_FOUND));
 
-        if ( order.isOrderComplete() ) {
+        if (order.isOrderComplete()) {
             return;
         }
 
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new CustomException(GROUP_NOT_FOUND));
 
-        if ( !order.getGroup().equals(group) | !order.getMember().equals(member)) {
+        if (!order.getGroup().equals(group) | !order.getMember().equals(member)) {
             throw new CustomException(ORDER_NOT_FOUND);
         }
 
@@ -110,32 +111,26 @@ public class OrderService {
             throw new CustomException(ORDER_NOT_FOUND);
         }
 
-        Payment payment = Payment.builder()
-                .paymentAmount(paymentResponse.amount())
-                .paymentMerchantUid(paymentResponse.merchantUid())
-                .paymentImpUid(paymentResponse.impUid())
-                .paymentStatus(PaymentStatus.PAYMENT)
-                .build();
+        Payment payment = createPayment(paymentResponse);
 
         order.completeOrder(payment);
         orderRepository.save(order);
 
-        ClubMember clubMember = ClubMember.builder()
-                .club(order.getGroup().getClub())
-                .member(order.getMember())
-                .clubJoinedDate(LocalDateTime.now().toLocalDate())
-                .clubMemberRole(MEMBER)
-                .clubMemberAssignedTerm(getAssignedTerm())
-                .build();
+        ClubMember clubMember = createClubMemberWithOrder(order);
         clubMemberRepository.save(clubMember);
+
+        emailService.sendEmailForGroupJoin(order.getMember().getMemberName(), order.getMember().getMemberEmail(),
+                order.getGroup().getClub().getClubName(), order.getGroup().getGroupChatLink(),
+                order.getGroup().getGroupChatPassword());
     }
+
 
     @Transactional
     public void portOnePaymentComplete(PortOneWebhookRequest request) {
         Order order = orderRepository.findByOrderMerchantUid(request.merchantUid())
                 .orElseThrow(() -> new CustomException(ORDER_NOT_FOUND));
 
-        if ( order.isOrderComplete() ) {
+        if (order.isOrderComplete()) {
             return;
         }
 
@@ -145,24 +140,17 @@ public class OrderService {
             throw new CustomException(ORDER_NOT_FOUND);
         }
 
-        Payment payment = Payment.builder()
-                .paymentAmount(paymentResponse.amount())
-                .paymentMerchantUid(paymentResponse.merchantUid())
-                .paymentImpUid(paymentResponse.impUid())
-                .paymentStatus(PaymentStatus.PAYMENT)
-                .build();
+        Payment payment = createPayment(paymentResponse);
 
         order.completeOrder(payment);
         orderRepository.save(order);
 
-        ClubMember clubMember = ClubMember.builder()
-                .club(order.getGroup().getClub())
-                .member(order.getMember())
-                .clubJoinedDate(LocalDateTime.now().toLocalDate())
-                .clubMemberRole(MEMBER)
-                .clubMemberAssignedTerm(getAssignedTerm())
-                .build();
+        ClubMember clubMember = createClubMemberWithOrder(order);
         clubMemberRepository.save(clubMember);
+
+        emailService.sendEmailForGroupJoin(order.getMember().getMemberName(), order.getMember().getMemberEmail(),
+                order.getGroup().getClub().getClubName(), order.getGroup().getGroupChatLink(),
+                order.getGroup().getGroupChatPassword());
     }
 
     private PortOnePaymentResponse getPaymentInfoFromPortOne(String impUid) {
@@ -197,5 +185,24 @@ public class OrderService {
         int year = now.getYear();
         int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
         return LocalDate.of(year, semester, 1);
+    }
+
+    private ClubMember createClubMemberWithOrder(Order order) {
+        return ClubMember.builder()
+                .club(order.getGroup().getClub())
+                .member(order.getMember())
+                .clubJoinedDate(LocalDateTime.now().toLocalDate())
+                .clubMemberRole(MEMBER)
+                .clubMemberAssignedTerm(getAssignedTerm())
+                .build();
+    }
+
+    private static Payment createPayment(PortOnePaymentResponse paymentResponse) {
+        return Payment.builder()
+                .paymentAmount(paymentResponse.amount())
+                .paymentMerchantUid(paymentResponse.merchantUid())
+                .paymentImpUid(paymentResponse.impUid())
+                .paymentStatus(PaymentStatus.PAYMENT)
+                .build();
     }
 }
