@@ -99,6 +99,7 @@ class ClubServiceTest {
         assertThat(club.getGroups().size()).isEqualTo(1);
         assertThat(club.getGroups().get(0).getGroupAmount()).isEqualTo(10000);
         assertThat(club.getGroups().get(0).getGroupType()).isEqualTo(JOIN);
+        assertThat(club.getGroups().get(0).getGroupChatLink()).isEqualTo(clubCreateRequest.clubGroupChatLink());
     }
 
     @DisplayName("동아리를 등록하면, 등록한 사람이 회장으로 등록된다.")
