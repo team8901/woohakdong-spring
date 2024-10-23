@@ -42,7 +42,8 @@ public enum CustomErrorInfo {
     CLUB_NAME_DUPLICATION(409, "Duplicate club name", 409001),
 
     // 500 INTERNAL_SERVER_ERROR
-    INTERNAL_SERVER_ERROR(500, "Internal server error", 500001);
+    INTERNAL_SERVER_ERROR(500, "Internal server error", 500001),
+    MAIL_SEND_ERROR(500, "Mail send error", 500002);
 
     private final int statusCode;
     private final String message;
