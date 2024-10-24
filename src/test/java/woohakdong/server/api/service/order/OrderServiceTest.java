@@ -176,11 +176,11 @@ class OrderServiceTest {
 
     private Group createGroup(Club club, int amount, GroupType type) {
         Group group = Group.builder()
-                .groupLink(club.getClubName() + " 동아리 가입")
+                .groupDescription(club.getClubName() + " 동아리 가입")
                 .groupName(club.getClubGeneration() + " 모집")
                 .groupAmount(amount)
                 .groupType(type)
-                .groupLink("woohakdong.com/club/doit/gathering/13")
+                .groupJoinLink("https://woohakdong.com/" + club.getClubEnglishName())
                 .club(club)
                 .build();
         return groupRepository.save(group);

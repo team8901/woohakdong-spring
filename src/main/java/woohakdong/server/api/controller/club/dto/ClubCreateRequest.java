@@ -16,6 +16,9 @@ public record ClubCreateRequest(
         String clubRoom,
 
         String clubGeneration,
-        Integer clubDues
+        Integer clubDues,
+
+        String clubGroupChatLink,
+        String clubGroupChatPassword
 ){
 }

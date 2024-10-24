@@ -7,7 +7,7 @@ import woohakdong.server.domain.group.Group;
 public record ClubJoinGroupInfoResponse(
         Long groupId,
         String groupName,
-        String groupLink,
+        String groupJoinLink,
         String groupDescription,
         Integer groupAmount
 ) {
@@ -16,7 +16,7 @@ public record ClubJoinGroupInfoResponse(
         return ClubJoinGroupInfoResponse.builder()
                 .groupId(group.getGroupId())
                 .groupName(group.getGroupName())
-                .groupLink(group.getGroupLink())
+                .groupJoinLink(group.getGroupJoinLink())
                 .groupDescription(group.getGroupDescription())
                 .groupAmount(group.getGroupAmount())
                 .build();

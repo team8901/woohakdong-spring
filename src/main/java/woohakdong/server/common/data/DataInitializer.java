@@ -80,7 +80,9 @@ public class DataInitializer implements CommandLineRunner {
                     .groupDescription("두잇 가입 그룹")
                     .club(club)
                     .groupType(GroupType.JOIN)
-                    .groupLink("http://woohakdong.com/clubs/doit")
+                    .groupJoinLink("http://woohakdong.com/clubs/doit")
+                    .groupChatLink("https://open.kakao.com/o/gUEMLKVg")
+                    .groupChatPassword("1234")
                     .groupAmount(10000)
                     .build();
             groupRepository.save(group);

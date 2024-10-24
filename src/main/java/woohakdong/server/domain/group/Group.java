@@ -39,10 +39,14 @@ public class Group {
     private int groupAmount;
 
     @Column(nullable = false)
-    private String groupLink;
+    private String groupJoinLink;
 
     @Enumerated(EnumType.STRING)
     private GroupType groupType;
+
+    private String groupChatLink;
+
+    private String groupChatPassword;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id")
@@ -52,12 +56,14 @@ public class Group {
     private List<Order> orders = new ArrayList<>();
 
     @Builder
-    public Group(String groupName, String groupDescription, int groupAmount, String groupLink,
-                 GroupType groupType, Club club) {
+    public Group(String groupName, String groupDescription, int groupAmount, String groupJoinLink,
+                 String groupChatLink, String groupChatPassword, GroupType groupType, Club club) {
         this.groupName = groupName;
         this.groupDescription = groupDescription;
         this.groupAmount = groupAmount;
-        this.groupLink = groupLink;
+        this.groupJoinLink = groupJoinLink;
+        this.groupChatLink = groupChatLink;
+        this.groupChatPassword = groupChatPassword;
         this.groupType = groupType;
         this.club = club;
     }

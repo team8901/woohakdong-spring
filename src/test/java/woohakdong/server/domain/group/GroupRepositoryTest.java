@@ -41,14 +41,14 @@ class GroupRepositoryTest {
                 .club(club)
                 .groupName("가입용 모임")
                 .groupType(JOIN)
-                .groupLink("https://test.com")
+                .groupJoinLink("https://test.com")
                 .build();
 
         Group group2 = Group.builder()
                 .club(club)
                 .groupType(EVENT)
                 .groupName("이벤트용 모임")
-                .groupLink("https://test.com")
+                .groupJoinLink("https://test.com")
                 .build();
         groupRepository.saveAll(List.of(group1, group2));
 
@@ -77,7 +77,7 @@ class GroupRepositoryTest {
                 .club(club)
                 .groupName("가입용 모임")
                 .groupType(JOIN)
-                .groupLink("https://test.com")
+                .groupJoinLink("https://test.com")
                 .build();
 
         Group group2 = Group.builder()
@@ -85,7 +85,7 @@ class GroupRepositoryTest {
                 .groupType(EVENT)
                 .groupName("MT")
                 .groupAmount(15000)
-                .groupLink("https://test.com")
+                .groupJoinLink("https://test.com")
                 .build();
 
         Group group3 = Group.builder()
@@ -93,7 +93,7 @@ class GroupRepositoryTest {
                 .groupType(EVENT)
                 .groupName("스터디")
                 .groupAmount(5000)
-                .groupLink("https://test.com")
+                .groupJoinLink("https://test.com")
                 .build();
 
         groupRepository.saveAll(List.of(group1, group2, group3));
