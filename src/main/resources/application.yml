@@ -26,3 +26,10 @@ spring:
           auth: true
           starttls:
             enable: true
+
+management:
+  endpoints:
+    web:
+      base-path: /
+      path-mapping:
+        health: /health-checkq
