@@ -6,8 +6,9 @@ spring:
 sentry:
   dsn: ${SENTRY_DSN}
   environment: dev
-  exception-resolver-order: -2147483647
+  exception-resolver-order: 2147483647
   traces-sample-rate: 0
+  send-default-pii: true
 ---
 spring:
   config:
@@ -16,5 +17,6 @@ spring:
 sentry:
     dsn: ${SENTRY_DSN}
     environment: prod
-    exception-resolver-order: -2147483647
+    exception-resolver-order: 2147483647
     traces-sample-rate: 0.1
+    send-default-pii: true
