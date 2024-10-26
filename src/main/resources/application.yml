@@ -32,4 +32,4 @@ management:
     web:
       base-path: /
       path-mapping:
-        health: /health-checkq
+        health: /health-check
