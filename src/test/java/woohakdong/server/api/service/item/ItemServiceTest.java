@@ -9,8 +9,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.ListWrapperResponse;
-import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
-import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
 import woohakdong.server.api.controller.item.dto.*;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
@@ -22,18 +20,15 @@ import woohakdong.server.domain.item.Item;
 import woohakdong.server.domain.item.ItemCategory;
 import woohakdong.server.domain.item.ItemRepository;
 import woohakdong.server.domain.member.Member;
-import woohakdong.server.domain.member.MemberGender;
 import woohakdong.server.domain.member.MemberRepository;
-import woohakdong.server.domain.school.School;
+
 import static woohakdong.server.common.exception.CustomErrorInfo.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static woohakdong.server.domain.group.GroupType.JOIN;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -66,7 +61,7 @@ class ItemServiceTest {
 
         ItemRegisterRequest request = new ItemRegisterRequest(
                 "축구공", "http://example.com/soccer_ball.png", "A standard soccer ball",
-                "Club Storage Room", ItemCategory.SPORTS, 7
+                "Club Storage Room", ItemCategory.SPORT, 7
         );
 
         // When
@@ -93,11 +88,11 @@ class ItemServiceTest {
 
         itemService.registerItem(club.getClubId(), new ItemRegisterRequest(
                 "축구공", "http://example.com/soccer_ball.png", "A standard soccer ball",
-                "Club Storage Room", ItemCategory.SPORTS, 7
+                "Club Storage Room", ItemCategory.SPORT, 7
         ));
         itemService.registerItem(club.getClubId(), new ItemRegisterRequest(
                 "농구공", "http://example.com/basketball.png", "A standard basketball",
-                "Gym", ItemCategory.SPORTS, 5
+                "Gym", ItemCategory.SPORT, 5
         ));
 
         // When: 클럽 ID로 물품 리스트 조회
@@ -133,7 +128,7 @@ class ItemServiceTest {
                 .itemPhoto("http://example.com/soccer_ball.png")
                 .itemDescription("A standard size 5 soccer ball")
                 .itemLocation("Club Storage Room")
-                .itemCategory(ItemCategory.SPORTS)
+                .itemCategory(ItemCategory.SPORT)
                 .itemRentalMaxDay(7)
                 .itemAvailable(true)
                 .itemUsing(false)
@@ -182,7 +177,7 @@ class ItemServiceTest {
                 .itemPhoto("http://example.com/soccer_ball.png")
                 .itemDescription("A standard size 5 soccer ball")
                 .itemLocation("Club Storage Room")
-                .itemCategory(ItemCategory.SPORTS)
+                .itemCategory(ItemCategory.SPORT)
                 .itemRentalMaxDay(7)
                 .itemAvailable(true)
                 .itemUsing(true)
@@ -225,7 +220,7 @@ class ItemServiceTest {
                 .itemPhoto("http://example.com/soccer_ball.png")
                 .itemDescription("A standard size 5 soccer ball")
                 .itemLocation("Club Storage Room")
-                .itemCategory(ItemCategory.SPORTS)
+                .itemCategory(ItemCategory.SPORT)
                 .itemRentalMaxDay(7)
                 .itemAvailable(true)
                 .itemUsing(false)
@@ -279,7 +274,7 @@ class ItemServiceTest {
                 .itemPhoto("http://example.com/soccer_ball.png")
                 .itemDescription("A standard size 5 soccer ball")
                 .itemLocation("Club Storage Room")
-                .itemCategory(ItemCategory.SPORTS)
+                .itemCategory(ItemCategory.SPORT)
                 .itemRentalMaxDay(7)
                 .itemAvailable(true)
                 .itemUsing(false)
