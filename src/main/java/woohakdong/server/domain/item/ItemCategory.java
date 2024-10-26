@@ -6,8 +6,10 @@ import lombok.RequiredArgsConstructor;
 public enum ItemCategory {
 
     BOOK("book"),
-    SPORTS("sports"),
-    SUPPLIES("supplies"),
+    SPORT("sports"),
+    DIGITAL("digital"),
+    CLOTHES("clothes"),
+    STATIONERY("stationery"),
     ETC("etc");
 
     private final String category;
