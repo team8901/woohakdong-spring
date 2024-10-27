@@ -16,6 +16,7 @@ public record ItemListResponse(
         Integer itemRentalMaxDay,
         Boolean itemAvailable,
         Boolean itemUsing,
-        LocalDateTime itemRentalDate
+        LocalDateTime itemRentalDate,
+        Integer itemRentalTime
 ) {
 }
