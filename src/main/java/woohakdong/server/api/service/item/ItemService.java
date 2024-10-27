@@ -83,6 +83,7 @@ public class ItemService {
                         .itemAvailable(item.getItemAvailable())
                         .itemUsing(item.getItemUsing())
                         .itemRentalDate(item.getItemRentalDate())
+                        .itemRentalTime(item.getItemRentalTime())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -105,7 +106,7 @@ public class ItemService {
         }
 
         // 물품 대여 처리
-        item.setBorrow(true, LocalDateTime.now());
+        item.setBorrow(true, LocalDateTime.now(), item.getItemRentalTime() + 1);
 
         // 대여 기록 추가
         ItemHistory itemHistory = ItemHistory.builder()
