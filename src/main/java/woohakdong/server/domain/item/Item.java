@@ -69,9 +69,10 @@ public class Item {
         this.itemName = itemName;
     }
 
-    public void setBorrow(Boolean itemUsing, LocalDateTime itemRentalDate) {
+    public void setBorrow(Boolean itemUsing, LocalDateTime itemRentalDate, Integer itemRentalTime) {
         this.itemUsing = itemUsing;
         this.itemRentalDate = itemRentalDate;
+        this.itemRentalTime = itemRentalTime;
     }
 
     public void setItemUsing(Boolean itemUsing) {
