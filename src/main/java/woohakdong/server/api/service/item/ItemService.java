@@ -216,6 +216,40 @@ public class ItemService {
         itemRepository.delete(item);
     }
 
+    @Transactional
+    public void updateItemAvailability(Long clubId, Long itemId, ItemAvailableUpdateRequest request) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
+
+        item.setItemAvailable(request.itemAvailable());
+    }
+
+    public List<ItemListResponse> searchItemsByName(Long clubId, String itemName) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+
+        List<Item> items = itemRepository.findItemsByClubIdAndNameContaining(clubId, itemName);
+
+        return items.stream()
+                .map(item -> ItemListResponse.builder()
+                        .itemId(item.getItemId())
+                        .itemName(item.getItemName())
+                        .itemPhoto(item.getItemPhoto())
+                        .itemDescription(item.getItemDescription())
+                        .itemLocation(item.getItemLocation())
+                        .itemCategory(item.getItemCategory())
+                        .itemRentalMaxDay(item.getItemRentalMaxDay())
+                        .itemAvailable(item.getItemAvailable())
+                        .itemUsing(item.getItemUsing())
+                        .itemRentalDate(item.getItemRentalDate())
+                        .itemRentalTime(item.getItemRentalTime())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
     private Member getMemberFromJwtInformation() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
