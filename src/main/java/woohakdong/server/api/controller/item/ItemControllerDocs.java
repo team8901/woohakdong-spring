@@ -19,9 +19,11 @@ public interface ItemControllerDocs {
     public ItemRegisterResponse registerItem(@PathVariable Long clubId, @RequestBody ItemRegisterRequest request);
 
     @SecurityRequirement(name = "accessToken")
-    @Operation(summary = "물품 리스트 반환", description = "물품 리스트를 반환한다.")
+    @Operation(summary = "물품 리스트 반환", description = "카테고리, 물품 검색에 따른 물품 리스트를 반환한다. 없을 경우 물품 리스트 전부 반환")
     @ApiResponse(responseCode = "200", description = "물품 리스트 반환 성공", useReturnTypeSchema = true)
-    public ListWrapperResponse<ItemListResponse> getItems(@PathVariable Long clubId);
+    public ListWrapperResponse<ItemListResponse> getItems(@PathVariable Long clubId,
+                                                          @RequestParam(required = false) String keyword,
+                                                          @RequestParam(required = false) String category);
 
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "물품 대여", description = "물품이 사용중이 아니라면 대여할 수 있다.")
@@ -54,9 +56,4 @@ public interface ItemControllerDocs {
     public void updateItemAvailability(@PathVariable Long clubId,
                                        @PathVariable Long itemId,
                                        @RequestBody ItemAvailableUpdateRequest request);
-
-    @SecurityRequirement(name = "accessToken")
-    @Operation(summary = "물품 이름 검색", description = "물품 이름을 검색할 수 있다.")
-    @ApiResponse(responseCode = "200", description = "물품 이름 검색 성공", useReturnTypeSchema = true)
-    public ListWrapperResponse<ItemListResponse> searchItemsByName(@PathVariable Long clubId, @RequestParam String keyword, @RequestParam String category);
 }

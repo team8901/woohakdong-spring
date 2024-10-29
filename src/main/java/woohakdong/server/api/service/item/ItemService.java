@@ -66,12 +66,30 @@ public class ItemService {
                 .build();
     }
 
-    @Transactional
-    public List<ItemListResponse> getItemsByClubId(Long clubId) {
+    @Transactional(readOnly = true)
+    public List<ItemListResponse> getItemsByFilters(Long clubId, String keyword, String category) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
 
-        List<Item> items = itemRepository.findByClubClubId(clubId);
+        List<Item> items;
+
+        // 조건에 따른 분기 처리
+        if ((keyword == null || keyword.isEmpty()) && (category == null || category.isEmpty())) {
+            // 카테고리와 검색어 모두 없을 경우, 모든 물품 반환
+            items = itemRepository.findByClubClubId(clubId);
+        } else if (keyword == null || keyword.isEmpty()) {
+            // 카테고리는 있고 검색어는 없을 경우, 카테고리로만 필터링
+            ItemCategory itemCategory = ItemCategory.valueOf(category.toUpperCase());
+            items = itemRepository.findByClubClubIdAndItemCategory(clubId, itemCategory);
+        } else if (category == null || category.isEmpty()) {
+            // 검색어는 있고 카테고리는 없을 경우, 검색어로만 필터링
+            items = itemRepository.findItemsByClubIdAndNameContaining(clubId, keyword);
+        } else {
+            // 카테고리와 검색어 둘 다 있을 경우, 둘 다 필터링
+            ItemCategory itemCategory = ItemCategory.valueOf(category.toUpperCase());
+            items = itemRepository.findByClubIdAndItemNameContainingAndItemCategory(clubId, keyword, itemCategory);
+        }
+
         return items.stream()
                 .map(item -> ItemListResponse.builder()
                         .itemId(item.getItemId())
@@ -226,37 +244,6 @@ public class ItemService {
                 .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
 
         item.setItemAvailable(request.itemAvailable());
-    }
-
-    public List<ItemListResponse> searchItemsByName(Long clubId, String keyword, String category) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
-
-        List<Item> items;
-
-        // 카테고리가 있을 때와 없을 때 필터링 분기
-        if (category == null || category.isEmpty()) {
-            items = itemRepository.findItemsByClubIdAndNameContaining(clubId, keyword);
-        } else {
-            ItemCategory itemCategory = ItemCategory.valueOf(category.toUpperCase());
-            items = itemRepository.findByClubIdAndItemNameContainingAndItemCategory(clubId, keyword, itemCategory);
-        }
-
-        return items.stream()
-                .map(item -> ItemListResponse.builder()
-                        .itemId(item.getItemId())
-                        .itemName(item.getItemName())
-                        .itemPhoto(item.getItemPhoto())
-                        .itemDescription(item.getItemDescription())
-                        .itemLocation(item.getItemLocation())
-                        .itemCategory(item.getItemCategory())
-                        .itemRentalMaxDay(item.getItemRentalMaxDay())
-                        .itemAvailable(item.getItemAvailable())
-                        .itemUsing(item.getItemUsing())
-                        .itemRentalDate(item.getItemRentalDate())
-                        .itemRentalTime(item.getItemRentalTime())
-                        .build())
-                .collect(Collectors.toList());
     }
 
     private Member getMemberFromJwtInformation() {

@@ -96,7 +96,7 @@ class ItemServiceTest {
         ));
 
         // When: 클럽 ID로 물품 리스트 조회
-        List<ItemListResponse> items = itemService.getItemsByClubId(club.getClubId());
+        List<ItemListResponse> items = itemService.getItemsByFilters(club.getClubId(), null, null);
 
         // Then: 물품 리스트가 제대로 조회되었는지 확인
         assertThat(items).hasSize(2);
@@ -367,7 +367,7 @@ class ItemServiceTest {
                 .build());
 
         // when
-        List<ItemListResponse> items = itemService.searchItemsByName(club.getClubId(), "공", "");
+        List<ItemListResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "");
 
         // then
         assertThat(items).hasSize(2);
