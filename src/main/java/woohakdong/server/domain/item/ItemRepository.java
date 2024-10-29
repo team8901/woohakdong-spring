@@ -18,4 +18,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     @Query("SELECT i FROM Item i WHERE i.club.clubId = :clubId AND i.itemName LIKE %:itemName%")
     List<Item> findItemsByClubIdAndNameContaining(@Param("clubId") Long clubId, @Param("itemName") String itemName);
+
+    @Query("SELECT i FROM Item i WHERE i.club.clubId = :clubId AND i.itemName LIKE %:keyword% AND i.itemCategory = :category")
+    List<Item> findByClubIdAndItemNameContainingAndItemCategory(@Param("clubId") Long clubId, @Param("keyword") String keyword, @Param("category") ItemCategory category);
+
 }
