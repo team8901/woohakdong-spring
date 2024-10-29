@@ -78,4 +78,14 @@ public class Item {
     public void setItemUsing(Boolean itemUsing) {
         this.itemUsing = itemUsing;
     }
+
+    public void updateItem(String itemName, String itemPhoto, String itemDescription,
+                           String itemLocation, ItemCategory itemCategory, Integer itemRentalMaxDay) {
+        this.itemName = itemName;
+        this.itemPhoto = itemPhoto;
+        this.itemDescription = itemDescription;
+        this.itemLocation = itemLocation;
+        this.itemCategory = itemCategory;
+        this.itemRentalMaxDay = itemRentalMaxDay;
+    }
 }

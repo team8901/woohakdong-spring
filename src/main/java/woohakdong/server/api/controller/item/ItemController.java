@@ -41,4 +41,16 @@ public class ItemController implements ItemControllerDocs {
     public ListWrapperResponse<ItemHistoryResponse> getItemHistory(@PathVariable Long clubId, @PathVariable Long itemId) {
         return itemService.getItemHistory(clubId, itemId);
     }
+
+    @PutMapping("/{clubId}/items/{itemId}")
+    public ItemUpdateResponse updateItem(@PathVariable Long clubId, @PathVariable Long itemId, @RequestBody ItemUpdateRequest request) {
+        return itemService.updateItem(clubId, itemId, request);
+    }
+
+    @DeleteMapping("/{clubId}/items/{itemId}")
+    public void deleteItem(@PathVariable Long clubId, @PathVariable Long itemId) {
+        itemService.deleteItem(clubId, itemId);
+    }
+
+
 }
