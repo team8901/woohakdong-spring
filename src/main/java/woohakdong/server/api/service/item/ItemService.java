@@ -197,8 +197,8 @@ public class ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
 
-        item.updateItem(item.getItemName(), item.getItemPhoto(), item.getItemDescription(), item.getItemLocation(),
-                item.getItemCategory(), item.getItemRentalMaxDay());
+        item.updateItem(request.itemName(), request.itemPhoto(), request.itemDescription(),
+                request.itemLocation(), request.itemCategory(), request.itemRentalMaxDay());
 
         return ItemUpdateResponse.builder()
                 .itemId(item.getItemId())
