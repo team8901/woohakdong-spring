@@ -52,5 +52,16 @@ public class ItemController implements ItemControllerDocs {
         itemService.deleteItem(clubId, itemId);
     }
 
+    @PostMapping("/{clubId}/items/{itemId}/availability")
+    public void updateItemAvailability(@PathVariable Long clubId,
+                                       @PathVariable Long itemId,
+                                       @RequestBody ItemAvailableUpdateRequest request) {
+        itemService.updateItemAvailability(clubId, itemId, request);
+    }
 
+    @GetMapping("/{clubId}/items/search")
+    public ListWrapperResponse<ItemListResponse> searchItemsByName(@PathVariable Long clubId, @RequestParam String itemName) {
+        List<ItemListResponse> items = itemService.searchItemsByName(clubId, itemName);
+        return ListWrapperResponse.of(items);
+    }
 }
