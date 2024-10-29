@@ -60,8 +60,8 @@ public class ItemController implements ItemControllerDocs {
     }
 
     @GetMapping("/{clubId}/items/search")
-    public ListWrapperResponse<ItemListResponse> searchItemsByName(@PathVariable Long clubId, @RequestParam String itemName) {
-        List<ItemListResponse> items = itemService.searchItemsByName(clubId, itemName);
+    public ListWrapperResponse<ItemListResponse> searchItemsByName(@PathVariable Long clubId, @RequestParam String keyword, @RequestParam String category) {
+        List<ItemListResponse> items = itemService.searchItemsByName(clubId, keyword, category);
         return ListWrapperResponse.of(items);
     }
 }
