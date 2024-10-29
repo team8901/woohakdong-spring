@@ -21,8 +21,10 @@ public class ItemController implements ItemControllerDocs {
     }
 
     @GetMapping("/{clubId}/items")
-    public ListWrapperResponse<ItemListResponse> getItems(@PathVariable Long clubId) {
-        List<ItemListResponse> items = itemService.getItemsByClubId(clubId);
+    public ListWrapperResponse<ItemListResponse> getItems(@PathVariable Long clubId,
+                                                          @RequestParam(required = false) String keyword,
+                                                          @RequestParam(required = false) String category) {
+        List<ItemListResponse> items = itemService.getItemsByFilters(clubId, keyword, category);
         return ListWrapperResponse.of(items);
     }
 
@@ -57,11 +59,5 @@ public class ItemController implements ItemControllerDocs {
                                        @PathVariable Long itemId,
                                        @RequestBody ItemAvailableUpdateRequest request) {
         itemService.updateItemAvailability(clubId, itemId, request);
-    }
-
-    @GetMapping("/{clubId}/items/search")
-    public ListWrapperResponse<ItemListResponse> searchItemsByName(@PathVariable Long clubId, @RequestParam String keyword, @RequestParam String category) {
-        List<ItemListResponse> items = itemService.searchItemsByName(clubId, keyword, category);
-        return ListWrapperResponse.of(items);
     }
 }
