@@ -38,8 +38,8 @@ public class ClubController implements ClubControllerDocs {
     }
 
     @PutMapping("/{clubId}")
-    public ClubInfoResponse updateClubInfo(@PathVariable Long clubId, @RequestBody ClubCreateRequest request) {
-        return null;
+    public ClubInfoResponse updateClubInfo(@PathVariable Long clubId, @RequestBody ClubUpdateRequest request) {
+        return clubService.updateClubInfo(clubId, request);
     }
 
     @PostMapping("/{clubId}/accounts")

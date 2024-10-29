@@ -95,7 +95,6 @@ public class ClubService {
         clubAccountRepository.save(clubAccount);
     }
 
-    @Transactional
     public ListWrapperResponse<ClubHistoryTermResponse> getClubHistory(Long clubId) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
@@ -116,7 +115,7 @@ public class ClubService {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
 
-        Group group = groupRepository.findByClubAndGroupType(club, JOIN)
+        Group group = groupRepository.findByClubAndGroupTypeAndGroupIsAvailable(club, JOIN, true)
                 .orElseThrow(() -> new CustomException(GROUP_NOT_FOUND));
 
         return ClubJoinGroupInfoResponse.builder()
@@ -152,6 +151,23 @@ public class ClubService {
         return ClubInfoResponse.from(club);
     }
 
+    @Transactional
+    public ClubInfoResponse updateClubInfo(Long clubId, ClubUpdateRequest clubUpdateRequest) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+        club.updateClubInfo(clubUpdateRequest.clubImage(), clubUpdateRequest.clubDescription(),
+                clubUpdateRequest.clubRoom(), clubUpdateRequest.clubGeneration(), clubUpdateRequest.clubDues());
+
+        Group group = groupRepository.findByClubAndGroupTypeAndGroupIsAvailable(club, JOIN, true)
+                .orElseThrow(() -> new CustomException(GROUP_NOT_FOUND));
+        group.disableGroup();
+
+        Group newGroup = createJoinGroup(club, clubUpdateRequest);
+        club.addGroup(newGroup);
+
+        return ClubInfoResponse.from(club);
+    }
+
     private Club createClub(ClubCreateRequest clubCreateRequest, School school) {
         validateClubWithNames(clubCreateRequest.clubName(), clubCreateRequest.clubEnglishName());
         return Club.builder()
@@ -176,6 +192,19 @@ public class ClubService {
                 .groupDescription(club.getClubName() + "의 " + club.getClubGeneration() + "기 동아리 가입하기")
                 .groupChatLink(clubCreateRequest.clubGroupChatLink())
                 .groupChatPassword(clubCreateRequest.clubGroupChatPassword())
+                .build();
+    }
+
+    private Group createJoinGroup(Club club, ClubUpdateRequest clubUpdateRequest) {
+        return Group.builder()
+                .groupJoinLink("https://woohakdong.com/clubs/" + club.getClubEnglishName())
+                .club(club)
+                .groupAmount(club.getClubDues())
+                .groupType(JOIN)
+                .groupName(club.getClubName())
+                .groupDescription(club.getClubName() + "의 " + club.getClubGeneration() + "기 동아리 가입하기")
+                .groupChatLink(clubUpdateRequest.clubGroupChatLink())
+                .groupChatPassword(clubUpdateRequest.clubGroupChatPassword())
                 .build();
     }
 
