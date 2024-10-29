@@ -17,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 import woohakdong.server.domain.clubHistory.ClubHistory;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.group.Group;
@@ -81,5 +82,14 @@ public class Club {
 
     public void addClubHistory(ClubHistory clubHistory) {
         this.clubHistorys.add(clubHistory);
+    }
+
+    public void updateClubInfo(String clubImage, String clubDescription, String clubRoom, String clubGeneration,
+                               Integer clubDues) {
+        this.clubImage = clubImage;
+        this.clubDescription = clubDescription;
+        this.clubRoom = clubRoom;
+        this.clubGeneration = clubGeneration;
+        this.clubDues = clubDues;
     }
 }

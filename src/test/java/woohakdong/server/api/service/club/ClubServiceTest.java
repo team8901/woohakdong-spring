@@ -19,7 +19,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.ListWrapperResponse;
-import woohakdong.server.api.controller.club.dto.*;
+import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
+import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
+import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
+import woohakdong.server.api.controller.club.dto.ClubHistoryTermResponse;
+import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
+import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
@@ -27,6 +32,7 @@ import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubAccount.ClubAccount;
 import woohakdong.server.domain.clubAccount.ClubAccountRepository;
 import woohakdong.server.domain.clubHistory.ClubHistory;
+import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
@@ -317,6 +323,83 @@ class ClubServiceTest {
         assertThat(result.result().get(1).clubHistoryUsageDate()).isEqualTo(LocalDate.of(2024, 1, 1));
     }
 
+    @DisplayName("동아리 정보를 수정할 수 있다.")
+    @Test
+    void updateClubInfo() {
+        // Given
+        School school = School.builder()
+                .schoolDomain("ajou.ac.kr")
+                .schoolName("아주대학교")
+                .build();
+        schoolRepository.save(school);
+
+        Club club = Club.builder()
+                .clubName("두리안")
+                .clubEnglishName("Durian")
+                .school(school)
+                .build();
+        Group group = Group.builder()
+                .club(club)
+                .groupType(JOIN)
+                .groupName("가입용 모임")
+                .groupJoinLink("https://test.com")
+                .build();
+        club.addGroup(group);
+        Club saved = clubRepository.save(club);
+
+        ClubUpdateRequest clubUpdateRequest = createClubUpdateRequest();
+
+        // When
+        clubService.updateClubInfo(saved.getClubId(), clubUpdateRequest);
+
+        // Then
+        Optional<Club> optionalClub = clubRepository.findById(saved.getClubId());
+        assertThat(optionalClub).isPresent();
+
+        Club updatedClub = optionalClub.get();
+        assertThat(updatedClub.getClubImage()).isEqualTo(clubUpdateRequest.clubImage());
+        assertThat(updatedClub.getClubDescription()).isEqualTo(clubUpdateRequest.clubDescription());
+    }
+
+    @DisplayName("동아리 정보를 수정하면, 기존 그룹이 disable되고 새로운 그룹이 생성된다.")
+    @Test
+    void updateClubInfoWithGroup() {
+        // Given
+        School school = School.builder()
+                .schoolDomain("ajou.ac.kr")
+                .schoolName("아주대학교")
+                .build();
+        schoolRepository.save(school);
+
+        Club club = Club.builder()
+                .clubName("두리안")
+                .clubEnglishName("Durian")
+                .school(school)
+                .build();
+        Group group = Group.builder()
+                .club(club)
+                .groupType(JOIN)
+                .groupName("가입용 모임")
+                .groupJoinLink("https://test.com")
+                .build();
+        club.addGroup(group);
+        Club saved = clubRepository.save(club);
+
+        ClubUpdateRequest clubUpdateRequest = createClubUpdateRequest();
+
+        // When
+        clubService.updateClubInfo(saved.getClubId(), clubUpdateRequest);
+
+        // Then
+        Optional<Club> optionalClub = clubRepository.findById(saved.getClubId());
+        assertThat(optionalClub).isPresent();
+
+        Club updatedClub = optionalClub.get();
+        assertThat(updatedClub.getGroups().size()).isEqualTo(2);
+        assertThat(updatedClub.getGroups().get(0).getGroupIsAvailable()).isFalse();
+        assertThat(updatedClub.getGroups().get(1).getGroupIsAvailable()).isTrue();
+        assertThat(updatedClub.getGroups().get(1).getGroupAmount()).isEqualTo(clubUpdateRequest.clubDues());
+    }
 
     private ClubCreateRequest createClubCreateRequest() {
         return ClubCreateRequest.builder()
@@ -324,6 +407,15 @@ class ClubServiceTest {
                 .clubEnglishName("Durian")
                 .clubDues(10000)
                 .clubGeneration("33")
+                .build();
+    }
+
+    private static ClubUpdateRequest createClubUpdateRequest() {
+        return ClubUpdateRequest.builder()
+                .clubImage("https://test.com")
+                .clubDescription("새로운 동아리 설명")
+                .clubGroupChatLink("https://group-chat.com")
+                .clubDues(20000)
                 .build();
     }
 }
