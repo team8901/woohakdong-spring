@@ -58,7 +58,7 @@ public class DataInitializer implements CommandLineRunner {
                     .memberName("박상준")
                     .memberProvideId("google_test")
                     .memberMajor("소프트웨어학과")
-                    .memberPhoneNumber("010-1234-5678")
+                    .memberPhoneNumber("01012345678")
                     .memberStudentNumber("202020736")
                     .memberGender(MAN)
                     .school(school)
@@ -70,7 +70,7 @@ public class DataInitializer implements CommandLineRunner {
                     .memberName("박준")
                     .memberProvideId("google_test2")
                     .memberMajor("소프트웨어학과")
-                    .memberPhoneNumber("010-1111-5678")
+                    .memberPhoneNumber("01011115678")
                     .memberStudentNumber("202020737")
                     .memberGender(MAN)
                     .school(school)
@@ -82,7 +82,7 @@ public class DataInitializer implements CommandLineRunner {
                     .memberName("김지원")
                     .memberProvideId("google_test3")
                     .memberMajor("디지털미디어학과")
-                    .memberPhoneNumber("010-1234-3333")
+                    .memberPhoneNumber("01012343333")
                     .memberStudentNumber("202020738")
                     .memberGender(WOMAN)
                     .school(school)
@@ -107,6 +107,7 @@ public class DataInitializer implements CommandLineRunner {
                     .member(member1)
                     .clubMemberRole(ClubMemberRole.PRESIDENT)
                     .clubMemberAssignedTerm(LocalDate.of(2024, 7, 1))
+                    .clubJoinedDate(LocalDate.of(2024, 7, 1))
                     .build();
             clubMemberRepository.save(clubMember);
 
@@ -115,6 +116,7 @@ public class DataInitializer implements CommandLineRunner {
                     .member(member2)
                     .clubMemberRole(ClubMemberRole.OFFICER)
                     .clubMemberAssignedTerm(LocalDate.of(2024, 7, 1))
+                    .clubJoinedDate(LocalDate.of(2024, 7, 2))
                     .build();
             clubMemberRepository.save(clubMember2);
 
@@ -123,6 +125,7 @@ public class DataInitializer implements CommandLineRunner {
                     .member(member3)
                     .clubMemberRole(ClubMemberRole.MEMBER)
                     .clubMemberAssignedTerm(LocalDate.of(2024, 7, 1))
+                    .clubJoinedDate(LocalDate.of(2024, 7, 3))
                     .build();
             clubMemberRepository.save(clubMember3);
 
