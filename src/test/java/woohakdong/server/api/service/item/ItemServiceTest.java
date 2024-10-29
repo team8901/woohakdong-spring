@@ -323,4 +323,146 @@ class ItemServiceTest {
         assertThat(borrowingHistory.itemReturnDate()).isNull();  // 아직 반납되지 않음
     }
 
+    @DisplayName("물품이름으로 검색할 수 있다.")
+    @Test
+    void searchItemsByName_success() {
+        // given
+        Club club = Club.builder()
+                .clubName("테스트동아리")
+                .clubEnglishName("testClub")
+                .build();
+        clubRepository.save(club);
+
+        String provideId = "testProvideId";
+        Member member = Member.builder()
+                .memberProvideId(provideId)
+                .memberName("John Doe")
+                .memberEmail("john.doe@example.com")
+                .build();
+        memberRepository.save(member);
+
+        Item item = itemRepository.save(Item.builder()
+                .club(club)
+                .itemName("축구공")
+                .itemPhoto("http://example.com/soccer_ball.png")
+                .itemDescription("A standard size 5 soccer ball")
+                .itemLocation("Club Storage Room")
+                .itemCategory(ItemCategory.SPORT)
+                .itemRentalMaxDay(7)
+                .itemAvailable(true)
+                .itemUsing(false)
+                .itemRentalTime(0)
+                .build());
+
+        itemRepository.save(Item.builder()
+                .club(club)
+                .itemName("농구공")
+                .itemPhoto("http://example.com/basketball.png")
+                .itemDescription("A standard size basketball")
+                .itemLocation("Storage Room B")
+                .itemCategory(ItemCategory.SPORT)
+                .itemAvailable(true)
+                .itemUsing(false)
+                .itemRentalMaxDay(7)
+                .build());
+
+        // when
+        List<ItemListResponse> items = itemService.searchItemsByName(club.getClubId(), "공");
+
+        // then
+        assertThat(items).hasSize(2);
+        assertThat(items).extracting("itemName").containsExactlyInAnyOrder("축구공", "농구공");
+    }
+
+    @DisplayName("물품 이용 가능을 수정할 수 있다.")
+    @Test
+    void updateItemAvailability_success() {
+        // given
+        Club club = Club.builder()
+                .clubName("테스트동아리")
+                .clubEnglishName("testClub")
+                .build();
+        clubRepository.save(club);
+
+        String provideId = "testProvideId";
+        Member member = Member.builder()
+                .memberProvideId(provideId)
+                .memberName("John Doe")
+                .memberEmail("john.doe@example.com")
+                .build();
+        memberRepository.save(member);
+
+        Item item = itemRepository.save(Item.builder()
+                .club(club)
+                .itemName("축구공")
+                .itemPhoto("http://example.com/soccer_ball.png")
+                .itemDescription("A standard size 5 soccer ball")
+                .itemLocation("Club Storage Room")
+                .itemCategory(ItemCategory.SPORT)
+                .itemRentalMaxDay(7)
+                .itemAvailable(true)
+                .itemUsing(false)
+                .itemRentalTime(0)
+                .build());
+
+
+        // when
+        itemService.updateItemAvailability(club.getClubId(), item.getItemId(), new ItemAvailableUpdateRequest(false));
+
+        // Then
+        Item updatedItem = itemRepository.findById(item.getItemId()).orElseThrow();
+        assertThat(updatedItem.getItemAvailable()).isFalse();
+    }
+
+    @Test
+    void updateItem_success() {
+        // given
+        Club club = Club.builder()
+                .clubName("테스트동아리")
+                .clubEnglishName("testClub")
+                .build();
+        clubRepository.save(club);
+
+        String provideId = "testProvideId";
+        Member member = Member.builder()
+                .memberProvideId(provideId)
+                .memberName("John Doe")
+                .memberEmail("john.doe@example.com")
+                .build();
+        memberRepository.save(member);
+
+        Item item = itemRepository.save(Item.builder()
+                .club(club)
+                .itemName("축구공")
+                .itemPhoto("http://example.com/soccer_ball.png")
+                .itemDescription("A standard size 5 soccer ball")
+                .itemLocation("Club Storage Room")
+                .itemCategory(ItemCategory.SPORT)
+                .itemRentalMaxDay(7)
+                .itemAvailable(true)
+                .itemUsing(false)
+                .itemRentalTime(0)
+                .build());
+
+        ItemUpdateRequest updateRequest = new ItemUpdateRequest(
+                "새로운 축구공",
+                "http://example.com/new_soccer_ball.png",
+                "Updated soccer ball description",
+                "Updated Location",
+                ItemCategory.SPORT,
+                9
+        );
+
+        // When
+        itemService.updateItem(club.getClubId(), item.getItemId(), updateRequest);
+
+        // Then
+        Item updatedItem = itemRepository.findById(item.getItemId()).orElseThrow();
+        assertThat(updatedItem.getItemName()).isEqualTo("새로운 축구공");
+        assertThat(updatedItem.getItemPhoto()).isEqualTo("http://example.com/new_soccer_ball.png");
+        assertThat(updatedItem.getItemDescription()).isEqualTo("Updated soccer ball description");
+        assertThat(updatedItem.getItemLocation()).isEqualTo("Updated Location");
+        assertThat(updatedItem.getItemRentalMaxDay()).isEqualTo(9);
+    }
+
 }
