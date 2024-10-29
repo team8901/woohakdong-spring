@@ -16,7 +16,7 @@ public record ClubMemberInfoResponse(
         String memberMajor,
         String memberStudentNumber,
         String clubMemberRole,
-        String clubJoinedDate,
+        LocalDate clubJoinedDate,
         LocalDate clubMemberAssignedTerm
 ) {
 

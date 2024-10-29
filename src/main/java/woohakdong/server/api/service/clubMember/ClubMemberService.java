@@ -42,6 +42,7 @@ public class ClubMemberService {
                     .memberStudentNumber(member.getMemberStudentNumber())
                     .memberGender(member.getMemberGender())
                     .clubMemberRole(clubMember.getClubMemberRole().name())
+                    .clubJoinedDate(clubMember.getClubJoinedDate())
                     .clubMemberAssignedTerm(clubMember.getClubMemberAssignedTerm())
                     .build();
         }).collect(Collectors.toList());
@@ -65,6 +66,7 @@ public class ClubMemberService {
                     .memberStudentNumber(member.getMemberStudentNumber())
                     .memberGender(member.getMemberGender())
                     .clubMemberRole(clubMember.getClubMemberRole().name())
+                    .clubJoinedDate(clubMember.getClubJoinedDate())
                     .clubMemberAssignedTerm(clubMember.getClubMemberAssignedTerm())
                     .build();
         }).collect(Collectors.toList());
