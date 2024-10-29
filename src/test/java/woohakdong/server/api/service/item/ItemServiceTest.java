@@ -367,7 +367,7 @@ class ItemServiceTest {
                 .build());
 
         // when
-        List<ItemListResponse> items = itemService.searchItemsByName(club.getClubId(), "공");
+        List<ItemListResponse> items = itemService.searchItemsByName(club.getClubId(), "공", "");
 
         // then
         assertThat(items).hasSize(2);

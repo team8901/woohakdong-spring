@@ -58,5 +58,5 @@ public interface ItemControllerDocs {
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "물품 이름 검색", description = "물품 이름을 검색할 수 있다.")
     @ApiResponse(responseCode = "200", description = "물품 이름 검색 성공", useReturnTypeSchema = true)
-    public ListWrapperResponse<ItemListResponse> searchItemsByName(@PathVariable Long clubId, @RequestParam String itemName);
+    public ListWrapperResponse<ItemListResponse> searchItemsByName(@PathVariable Long clubId, @RequestParam String keyword, @RequestParam String category);
 }

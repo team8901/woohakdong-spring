@@ -15,6 +15,7 @@ import woohakdong.server.domain.ItemHistory.ItemHistoryRepository;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.item.Item;
+import woohakdong.server.domain.item.ItemCategory;
 import woohakdong.server.domain.item.ItemRepository;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
@@ -227,11 +228,19 @@ public class ItemService {
         item.setItemAvailable(request.itemAvailable());
     }
 
-    public List<ItemListResponse> searchItemsByName(Long clubId, String itemName) {
+    public List<ItemListResponse> searchItemsByName(Long clubId, String keyword, String category) {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
 
-        List<Item> items = itemRepository.findItemsByClubIdAndNameContaining(clubId, itemName);
+        List<Item> items;
+
+        // 카테고리가 있을 때와 없을 때 필터링 분기
+        if (category == null || category.isEmpty()) {
+            items = itemRepository.findItemsByClubIdAndNameContaining(clubId, keyword);
+        } else {
+            ItemCategory itemCategory = ItemCategory.valueOf(category.toUpperCase());
+            items = itemRepository.findByClubIdAndItemNameContainingAndItemCategory(clubId, keyword, itemCategory);
+        }
 
         return items.stream()
                 .map(item -> ItemListResponse.builder()
