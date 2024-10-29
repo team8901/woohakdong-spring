@@ -8,7 +8,7 @@ import woohakdong.server.domain.club.Club;
 public interface GroupRepository extends JpaRepository<Group, Long> {
 
     // JOIN에 해당하는 Gathering을 찾는 메소드
-    Optional<Group> findByClubAndGroupType(Club club, GroupType groupType);
+    Optional<Group> findByClubAndGroupTypeAndGroupIsAvailable(Club club, GroupType groupType, Boolean groupIsAvailable);
 
     // Event에 해당하는 Gathering을 찾는 메소드
     List<Group> findAllByClubAndGroupType(Club club, GroupType groupType);

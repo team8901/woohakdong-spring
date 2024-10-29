@@ -48,6 +48,8 @@ public class Group {
 
     private String groupChatPassword;
 
+    private Boolean groupIsAvailable;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id")
     private Club club;
@@ -64,7 +66,12 @@ public class Group {
         this.groupJoinLink = groupJoinLink;
         this.groupChatLink = groupChatLink;
         this.groupChatPassword = groupChatPassword;
+        this.groupIsAvailable = true;
         this.groupType = groupType;
         this.club = club;
+    }
+
+    public void disableGroup() {
+        this.groupIsAvailable = false;
     }
 }

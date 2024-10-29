@@ -29,7 +29,7 @@ class GroupRepositoryTest {
 
     @DisplayName("동아리의 가입용 그룹을 조회할 수 있다.")
     @Test
-    void findByClubAndGroupType() {
+    void findByClubAndGroupTypeAndGroupIsAvailable() {
         // Given
         Club club = Club.builder()
                 .clubName("테스트 동아리")
@@ -53,7 +53,8 @@ class GroupRepositoryTest {
         groupRepository.saveAll(List.of(group1, group2));
 
         // When
-        Optional<Group> optionalGathering = groupRepository.findByClubAndGroupType(savedClub, JOIN);
+        Optional<Group> optionalGathering = groupRepository.findByClubAndGroupTypeAndGroupIsAvailable(savedClub, JOIN,
+                true);
 
         // Then
         assertThat(optionalGathering).isPresent();
