@@ -213,6 +213,7 @@ public class ClubService {
                 .member(member)
                 .club(club)
                 .clubMemberAssignedTerm(getAssignedTerm())
+                .clubJoinedDate(LocalDate.now())
                 .build();
     }
 
