@@ -27,9 +27,9 @@ public interface ClubControllerDocs {
     public ClubInfoResponse getClubInfo(Long clubId);
 
     @SecurityRequirement(name = "accessToken")
-    @Operation(summary = "동아리 정보 수정 (진행 중)", description = "수정할 동아리 정보를 제공하면, 해당 동아리의 정보를 수정합니다.")
+    @Operation(summary = "동아리 정보 수정", description = "수정할 동아리 정보를 제공하면, 해당 동아리의 정보를 수정합니다.")
     @ApiResponse(responseCode = "200", description = "동아리 정보 수정 성공", useReturnTypeSchema = true)
-    public ClubInfoResponse updateClubInfo(Long clubId, ClubCreateRequest clubCreateRequest);
+    public ClubInfoResponse updateClubInfo(Long clubId, ClubUpdateRequest clubCreateRequest);
 
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "동아리 계좌 등록", description = "동아리에서 사용하는 계좌 정보를 등록합니다.")
