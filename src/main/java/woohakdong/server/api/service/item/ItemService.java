@@ -189,6 +189,33 @@ public class ItemService {
         return ListWrapperResponse.of(historyResponses);
     }
 
+    @Transactional
+    public ItemUpdateResponse updateItem(Long clubId, Long itemId, ItemUpdateRequest request) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
+
+        item.updateItem(item.getItemName(), item.getItemPhoto(), item.getItemDescription(), item.getItemLocation(),
+                item.getItemCategory(), item.getItemRentalMaxDay());
+
+        return ItemUpdateResponse.builder()
+                .itemId(item.getItemId())
+                .build();
+    }
+
+    @Transactional
+    public void deleteItem(Long clubId, Long itemId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
+
+        itemRepository.delete(item);
+    }
+
     private Member getMemberFromJwtInformation() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
