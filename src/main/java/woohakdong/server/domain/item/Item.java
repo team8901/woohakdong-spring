@@ -79,6 +79,10 @@ public class Item {
         this.itemUsing = itemUsing;
     }
 
+    public void setItemAvailable(Boolean itemAvailable) {
+        this.itemAvailable = itemAvailable;
+    }
+
     public void updateItem(String itemName, String itemPhoto, String itemDescription,
                            String itemLocation, ItemCategory itemCategory, Integer itemRentalMaxDay) {
         this.itemName = itemName;

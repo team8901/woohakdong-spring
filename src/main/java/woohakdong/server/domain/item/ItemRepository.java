@@ -15,4 +15,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT i FROM Item i WHERE i.itemId = :itemId")
     Optional<Item> findByIdForUpdate(@Param("itemId") Long itemId);
+
+    @Query("SELECT i FROM Item i WHERE i.club.clubId = :clubId AND i.itemName LIKE %:itemName%")
+    List<Item> findItemsByClubIdAndNameContaining(@Param("clubId") Long clubId, @Param("itemName") String itemName);
 }
