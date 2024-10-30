@@ -30,6 +30,8 @@ public enum CustomErrorInfo {
     ITEM_USING(400, "item using", 400022),
     ITEM_NOT_USING(400, "item not using", 400023),
     ITEM_HISTORY_NOT_FOUND(400, "item history not found", 400024),
+    CLUB_ACCOUNT_NOT_FOUND(400, "club account not found", 400025),
+    GET_TRANSACTION_FAILED(400, "get transaction failed", 400026),
 
     // 401 UNAUTHORIZED
     INVALID_ACCESS_TOKEN(401, "Invaild access token", 401001),

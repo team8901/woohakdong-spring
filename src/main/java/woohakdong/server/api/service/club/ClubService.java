@@ -11,6 +11,7 @@ import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -232,6 +233,7 @@ public class ClubService {
                 .clubAccountNumber(clubAccountRegisterRequest.clubAccountNumber())
                 .clubAccountPinTechNumber(clubAccountRegisterRequest.clubAccountPinTechNumber())
                 .clubAccountBankCode(bankCode)
+                .clubAccountLastUpdateDate(LocalDateTime.now())
                 .club(club)
                 .build();
     }
