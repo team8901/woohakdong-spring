@@ -35,6 +35,7 @@ import static woohakdong.server.common.exception.CustomErrorInfo.*;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class MockBankService implements BankService {
 
     private final static Map<String, Map<String, String>> certifiedBanks = new HashMap<>();
@@ -171,6 +172,7 @@ public class MockBankService implements BankService {
         adminAccountRepository.save(adminAccount);  // 업데이트된 계좌 정보 저장
     }
 
+    @Transactional
     public List<ClubAccountHistory> fetchTransactions(ClubAccount clubAccount, LocalDate startDate, LocalDate endDate) {
         // 이체 요청 JSON 데이터 생성
         Map<String, Object> request = new HashMap<>();
