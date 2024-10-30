@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import woohakdong.server.domain.admin.adminAccount.AdminAccount;
 import woohakdong.server.domain.admin.adminAccount.AdminAccountRepository;
@@ -26,6 +27,7 @@ import woohakdong.server.domain.school.SchoolRepository;
 
 @RequiredArgsConstructor
 @Component
+@Profile("dev")
 public class DataInitializer implements CommandLineRunner {
 
     private final SchoolRepository schoolRepository;
