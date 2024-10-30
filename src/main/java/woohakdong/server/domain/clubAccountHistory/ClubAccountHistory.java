@@ -10,6 +10,7 @@ import woohakdong.server.domain.admin.adminAccount.AccountType;
 import woohakdong.server.domain.clubAccount.ClubAccount;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,7 +25,7 @@ public class ClubAccountHistory {
     private AccountType clubAccountHistoryInOutType;
 
     @Column(nullable = false)
-    private LocalDate clubAccountHistoryTranDate;
+    private LocalDateTime clubAccountHistoryTranDate;
 
     @Column(nullable = false)
     private Long clubAccountHistoryBalanceAmount;
@@ -40,7 +41,7 @@ public class ClubAccountHistory {
     private ClubAccount clubAccount;
 
     @Builder
-    public ClubAccountHistory(AccountType clubAccountHistoryInOutType, LocalDate clubAccountHistoryTranDate,
+    public ClubAccountHistory(AccountType clubAccountHistoryInOutType, LocalDateTime clubAccountHistoryTranDate,
                               Long clubAccountHistoryBalanceAmount, Long clubAccountHistoryTranAmount,
                               String clubAccountHistoryContent, ClubAccount clubAccount) {
         this.clubAccountHistoryInOutType = clubAccountHistoryInOutType;

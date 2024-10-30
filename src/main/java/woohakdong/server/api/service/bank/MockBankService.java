@@ -4,10 +4,10 @@ import java.sql.SQLOutput;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -29,6 +29,7 @@ import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubAccount.ClubAccount;
 import woohakdong.server.domain.clubAccount.ClubAccountRepository;
+import woohakdong.server.domain.clubAccountHistory.ClubAccountHistory;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 
@@ -44,6 +45,7 @@ public class MockBankService implements BankService {
     private final MemberRepository memberRepository;
     private final AdminAccountRepository adminAccountRepository;
     private final AdminAccountHistoryRepository adminAccountHistoryRepository;
+    private final ObjectMapper objectMapper;
 
     @Value("${nh.iscd}")
     private String iscd;
@@ -53,6 +55,7 @@ public class MockBankService implements BankService {
 
     private static final String NH_OTHER_BANK_TRANSFER_API_URL = "https://developers.nonghyup.com/ReceivedTransferOtherBank.nh";
     private static final String NH_TRANSFER_API_URL = "https://developers.nonghyup.com/ReceivedTransferAccountNumber.nh";
+    private static final String NH_TRANSACTIONS_API_URL = "https://developers.nonghyup.com/InquireTransactionHistory.nh";
 
     static {
         Map<String, String> kbBank = new HashMap<>();
@@ -168,6 +171,98 @@ public class MockBankService implements BankService {
         // 4. AdminAccount의 잔액 업데이트 후 저장
         adminAccount.setAdminAccountAmount(updatedBalance);  // AdminAccount의 잔액 설정
         adminAccountRepository.save(adminAccount);  // 업데이트된 계좌 정보 저장
+    }
+
+    public List<ClubAccountHistory> fetchTransactions(ClubAccount clubAccount, LocalDate startDate, LocalDate endDate) {
+        // 이체 요청 JSON 데이터 생성
+        Map<String, Object> request = new HashMap<>();
+        Map<String, String> header = new HashMap<>();
+
+        LocalDateTime now = LocalDateTime.now();
+        String transferDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String transferTime = now.format(DateTimeFormatter.ofPattern("HHmmss"));
+
+        // Header 설정
+        header.put("Tsymd", transferDate); // 거래일자
+        header.put("Trtm", transferTime);  // 거래시간
+        header.put("Iscd", iscd);          // 환경변수로 설정된 ISCD
+        header.put("FintechApsno", "001");
+        header.put("ApiSvcCd", "ReceivedTransferA");
+        header.put("IsTuno", generateUniqueTransferId()); // 무작위 생성된 고유번호
+        header.put("AccessToken", accessToken);           // 환경변수로 설정된 AccessToken
+        header.put("ApiNm", "InquireTransactionHistory");
+
+        String sDate = startDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String eDate = endDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        // Body 설정
+        request.put("Header", header);
+        request.put("Bncd", clubAccount.getClubAccountBankCode());  // 은행코드
+        request.put("Acno", clubAccount.getClubAccountNumber());    // 계좌번호
+        request.put("Insymd", sDate);
+        request.put("Ineymd", eDate);
+        request.put("TrnsDsnc", "A");
+        request.put("Lnsq", "DESC");
+        request.put("PageNo", "1");
+        request.put("Dmcnt", "100");
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                NH_TRANSACTIONS_API_URL,
+                HttpMethod.POST,
+                entity,
+                Map.class
+        );
+
+        Map<String, Object> responseBody = response.getBody();
+        if (responseBody == null || !responseBody.containsKey("Header")) {
+            throw new CustomException(GET_TRANSACTION_FAILED); // 예외 처리
+        }
+
+        Map<String, Object> responseHeader = (Map<String, Object>) responseBody.get("Header");
+        if (!"00000".equals(responseHeader.get("Rpcd"))) {
+            throw new CustomException(GET_TRANSACTION_FAILED); // 예외 처리
+        }
+
+        NHTransactionResponse nhResponse = objectMapper.convertValue(responseBody, NHTransactionResponse.class);
+        if (nhResponse == null || nhResponse.getREC() == null) {
+            return Collections.emptyList(); // null인 경우 빈 리스트 반환
+        }
+
+        LocalDateTime lastUpdateDate = clubAccount.getClubAccountLastUpdateDate();
+
+        List<ClubAccountHistory> histories = new ArrayList<>();
+
+        // NH 응답 데이터를 순회하면서 필요한 조건에 맞는 ClubAccountHistory 객체를 생성하고 추가
+        for (NHTransactionResponse.Record record : nhResponse.getREC()) {
+            // Trdd와 Txtm을 합쳐 LocalDateTime으로 변환
+            LocalDateTime transactionDateTime = LocalDateTime.parse(
+                    record.getTrdd() + "T" + record.getTxtm(),
+                    DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss")
+            );
+
+            // lastUpdateDate 이후의 거래만 추가
+            if (transactionDateTime.isAfter(lastUpdateDate)) {
+                ClubAccountHistory history = ClubAccountHistory.builder()
+                        .clubAccountHistoryInOutType(
+                                record.getTrnsAfAcntBlncSmblCd().equals("+") ? AccountType.DEPOSIT : AccountType.WITHDRAW)
+                        .clubAccountHistoryTranDate(transactionDateTime)
+                        .clubAccountHistoryBalanceAmount(Long.parseLong(record.getAftrBlnc()))
+                        .clubAccountHistoryTranAmount(Long.parseLong(record.getTram()))
+                        .clubAccountHistoryContent(record.getBnprCntn())
+                        .clubAccount(clubAccount)
+                        .build();
+
+                histories.add(history);
+            }
+        }
+
+        return histories;
     }
 
     private void sendOtherBankTransferRequest(Map<String, Object> request) {
