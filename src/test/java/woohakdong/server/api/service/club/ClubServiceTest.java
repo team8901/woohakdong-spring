@@ -297,6 +297,7 @@ class ClubServiceTest {
                 .clubEnglishName("Durian")
                 .clubGeneration("33")
                 .clubDues(10000)
+                .clubGroupChatLink("https://group-chat.com")
                 .school(school)
                 .build();
         return clubRepository.save(club);
@@ -308,6 +309,9 @@ class ClubServiceTest {
                 .groupType(JOIN)
                 .groupName(club.getClubName())
                 .groupJoinLink("https://wooahakdong.com/clubs/" + club.getClubEnglishName())
+                .groupAmount(club.getClubDues())
+                .groupChatLink(club.getClubGroupChatLink())
+                .groupChatPassword(club.getClubGroupChatPassword())
                 .build();
         club.addGroup(group);
         return group;
@@ -321,6 +325,8 @@ class ClubServiceTest {
                 .clubEnglishName("Durian")
                 .clubDues(10000)
                 .clubGeneration("33")
+                .clubGroupChatLink("https://group-chat.com")
+                .clubGroupChatPassword("1234")
                 .build();
     }
 
@@ -329,6 +335,7 @@ class ClubServiceTest {
                 .clubDescription("새로운 동아리 설명")
                 .clubImage("https://new-club-image.com")
                 .clubGroupChatLink("https://new-group-chat.com")
+                .clubGroupChatPassword("5678")
                 .clubDues(20000)
                 .build();
     }

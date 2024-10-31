@@ -12,6 +12,8 @@ public record ClubInfoResponse(
         String clubDescription,
         String clubRoom,
         String clubGeneration,
+        String clubGroupChatLink,
+        String clubGroupChatPassword,
         Integer clubDues
 ) {
     public static ClubInfoResponse from(Club club) {
@@ -23,6 +25,8 @@ public record ClubInfoResponse(
                 .clubDescription(club.getClubDescription())
                 .clubRoom(club.getClubRoom())
                 .clubGeneration(club.getClubGeneration())
+                .clubGroupChatLink(club.getClubGroupChatLink())
+                .clubGroupChatPassword(club.getClubGroupChatPassword())
                 .clubDues(club.getClubDues())
                 .build();
     }

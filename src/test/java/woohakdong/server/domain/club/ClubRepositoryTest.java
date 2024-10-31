@@ -36,12 +36,14 @@ class ClubRepositoryTest {
         Club club1 = Club.builder()
                 .clubName("테스트동아리")
                 .clubEnglishName("testClub")
+                .clubGroupChatLink("https://club-group-chat-link.com")
                 .school(school)
                 .build();
 
         Club club2 = Club.builder()
                 .clubName("테스트동아리2")
                 .clubEnglishName("testClub2")
+                .clubGroupChatLink("https://club-group-chat-link.com")
                 .school(school)
                 .build();
         clubRepository.saveAll(List.of(club1, club2));

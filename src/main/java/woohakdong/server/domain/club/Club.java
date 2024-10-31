@@ -39,10 +39,20 @@ public class Club {
     private String clubEnglishName;
 
     private String clubDescription;
+
     private String clubImage;
+
     private LocalDate clubEstablishmentDate;
+
     private String clubRoom;
+
     private String clubGeneration;
+
+    @Column(nullable = false)
+    private String clubGroupChatLink;
+
+    private String clubGroupChatPassword;
+
     private Integer clubDues;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -60,7 +70,8 @@ public class Club {
 
     @Builder
     public Club(String clubDescription, String clubEnglishName, LocalDate clubEstablishmentDate, String clubImage,
-                String clubName, String clubRoom, String clubGeneration, Integer clubDues, School school) {
+                String clubName, String clubRoom, String clubGeneration, Integer clubDues, String clubGroupChatLink,
+                String clubGroupChatPassword, School school) {
         this.clubDescription = clubDescription;
         this.clubEnglishName = clubEnglishName;
         this.clubEstablishmentDate = clubEstablishmentDate;
@@ -69,6 +80,8 @@ public class Club {
         this.clubRoom = clubRoom;
         this.clubGeneration = clubGeneration;
         this.clubDues = clubDues;
+        this.clubGroupChatLink = clubGroupChatLink;
+        this.clubGroupChatPassword = clubGroupChatPassword;
         this.school = school;
     }
 

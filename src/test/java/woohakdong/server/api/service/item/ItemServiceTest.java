@@ -56,6 +56,7 @@ class ItemServiceTest {
         Club club = Club.builder()
                 .clubName("테스트동아리")
                 .clubEnglishName("testClub")
+                .clubGroupChatLink("https://club-group-chat-link.com")
                 .build();
         clubRepository.save(club);
 
@@ -83,6 +84,7 @@ class ItemServiceTest {
         Club club = Club.builder()
                 .clubName("테스트동아리")
                 .clubEnglishName("testClub")
+                .clubGroupChatLink("https://club-group-chat-link.com")
                 .build();
         clubRepository.save(club);
 
@@ -111,6 +113,7 @@ class ItemServiceTest {
         Club club = Club.builder()
                 .clubName("테스트동아리")
                 .clubEnglishName("testClub")
+                .clubGroupChatLink("https://club-group-chat-link.com")
                 .build();
         clubRepository.save(club);
 
@@ -160,6 +163,7 @@ class ItemServiceTest {
         Club club = Club.builder()
                 .clubName("테스트동아리")
                 .clubEnglishName("testClub")
+                .clubGroupChatLink("https://club-group-chat-link.com")
                 .build();
         clubRepository.save(club);
 
@@ -203,6 +207,7 @@ class ItemServiceTest {
         Club club = Club.builder()
                 .clubName("테스트동아리")
                 .clubEnglishName("testClub")
+                .clubGroupChatLink("https://club-group-chat-link.com")
                 .build();
         clubRepository.save(club);
 
@@ -257,6 +262,7 @@ class ItemServiceTest {
         Club club = Club.builder()
                 .clubName("테스트동아리")
                 .clubEnglishName("testClub")
+                .clubGroupChatLink("https://club-group-chat-link.com")
                 .build();
         clubRepository.save(club);
 
@@ -330,6 +336,7 @@ class ItemServiceTest {
         Club club = Club.builder()
                 .clubName("테스트동아리")
                 .clubEnglishName("testClub")
+                .clubGroupChatLink("https://club-group-chat-link.com")
                 .build();
         clubRepository.save(club);
 
@@ -381,6 +388,7 @@ class ItemServiceTest {
         Club club = Club.builder()
                 .clubName("테스트동아리")
                 .clubEnglishName("testClub")
+                .clubGroupChatLink("https://club-group-chat-link.com")
                 .build();
         clubRepository.save(club);
 
@@ -420,6 +428,7 @@ class ItemServiceTest {
         Club club = Club.builder()
                 .clubName("테스트동아리")
                 .clubEnglishName("testClub")
+                .clubGroupChatLink("https://club-group-chat-link.com")
                 .build();
         clubRepository.save(club);
 
