@@ -267,19 +267,18 @@ class ClubServiceTest {
         Club club = createClub(school);
         Group group = createGroupForClub(club);
 
-        ClubUpdateRequest clubUpdateRequest = createClubUpdateRequest();
+        ClubUpdateRequest request = createClubUpdateRequest();
 
         // When
-        clubService.updateClubInfo(club.getClubId(), clubUpdateRequest);
+        clubService.updateClubInfo(club.getClubId(), request);
 
         // Then
         List<Group> groups = groupRepository.findAll();
         assertThat(groups).hasSize(2)
-                .extracting("groupAmount", "groupIsAvailable")
+                .extracting("groupAmount", "groupIsAvailable", "groupChatLink", "groupChatPassword")
                 .containsExactlyInAnyOrder(
-                        tuple(group.getGroupAmount(), false),
-                        tuple(clubUpdateRequest.clubDues(), true)
-                );
+                        tuple(group.getGroupAmount(), false, group.getGroupChatLink(), group.getGroupChatPassword()),
+                        tuple(request.clubDues(), true, request.clubGroupChatLink(), request.clubGroupChatPassword()));
     }
 
     private School createSchool() {

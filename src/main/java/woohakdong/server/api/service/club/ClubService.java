@@ -157,7 +157,8 @@ public class ClubService {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
         club.updateClubInfo(clubUpdateRequest.clubImage(), clubUpdateRequest.clubDescription(),
-                clubUpdateRequest.clubRoom(), clubUpdateRequest.clubGeneration(), clubUpdateRequest.clubDues());
+                clubUpdateRequest.clubRoom(), clubUpdateRequest.clubGeneration(), clubUpdateRequest.clubGroupChatLink(),
+                clubUpdateRequest.clubGroupChatPassword(), clubUpdateRequest.clubDues());
 
         Group group = groupRepository.findByClubAndGroupTypeAndGroupIsAvailable(club, JOIN, true)
                 .orElseThrow(() -> new CustomException(GROUP_NOT_FOUND));
