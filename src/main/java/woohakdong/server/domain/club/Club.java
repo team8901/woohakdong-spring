@@ -98,7 +98,7 @@ public class Club {
     }
 
     public void updateClubInfo(String clubImage, String clubDescription, String clubRoom, String clubGeneration,
-                               Integer clubDues) {
+                               String clubGroupChatLink, String clubGroupChatPassword, Integer clubDues) {
         this.clubImage = clubImage;
         this.clubDescription = clubDescription;
         this.clubRoom = clubRoom;
