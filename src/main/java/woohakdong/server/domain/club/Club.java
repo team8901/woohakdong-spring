@@ -104,5 +104,7 @@ public class Club {
         this.clubRoom = clubRoom;
         this.clubGeneration = clubGeneration;
         this.clubDues = clubDues;
+        this.clubGroupChatLink = clubGroupChatLink;
+        this.clubGroupChatPassword = clubGroupChatPassword;
     }
 }
