@@ -34,6 +34,7 @@ class GroupRepositoryTest {
         Club club = Club.builder()
                 .clubName("테스트 동아리")
                 .clubEnglishName("test_club")
+                .clubGroupChatLink("https://club-group-chat-link.com")
                 .build();
         Club savedClub = clubRepository.save(club);
 
@@ -71,6 +72,7 @@ class GroupRepositoryTest {
         Club club = Club.builder()
                 .clubName("테스트 동아리")
                 .clubEnglishName("test_club")
+                .clubGroupChatLink("https://club-group-chat-link.com")
                 .build();
         Club savedClub = clubRepository.save(club);
 

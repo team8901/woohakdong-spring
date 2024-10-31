@@ -181,6 +181,7 @@ class OrderServiceTest {
                 .groupAmount(amount)
                 .groupType(type)
                 .groupJoinLink("https://woohakdong.com/" + club.getClubEnglishName())
+                .groupChatLink(club.getClubGroupChatLink())
                 .club(club)
                 .build();
         return groupRepository.save(group);
@@ -192,6 +193,9 @@ class OrderServiceTest {
                 .clubEnglishName("doit")
                 .clubDescription("Do it! 동아리입니다.")
                 .clubGeneration("34")
+                .clubGroupChatLink("https://club-group-chat-link.com")
+                .clubGroupChatPassword("1234")
+                .clubDues(10000)
                 .school(school)
                 .build();
         return clubRepository.save(club);
