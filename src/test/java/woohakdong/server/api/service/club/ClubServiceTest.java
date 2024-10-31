@@ -246,16 +246,16 @@ class ClubServiceTest {
         Club club = createClub(school);
         Group group = createGroupForClub(club);
 
-        ClubUpdateRequest clubUpdateRequest = createClubUpdateRequest();
+        ClubUpdateRequest request = createClubUpdateRequest();
 
         // When
-        clubService.updateClubInfo(club.getClubId(), clubUpdateRequest);
+        clubService.updateClubInfo(club.getClubId(), request);
 
         // Then
         Optional<Club> optionalClub = clubRepository.findById(club.getClubId());
         assertThat(optionalClub).isPresent().get()
-                .extracting("clubImage", "clubDescription")
-                .containsExactly(clubUpdateRequest.clubImage(), clubUpdateRequest.clubDescription());
+                .extracting("clubImage", "clubDescription", "clubGroupChatLink")
+                .containsExactly(request.clubImage(), request.clubDescription(), request.clubGroupChatLink());
     }
 
 

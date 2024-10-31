@@ -164,7 +164,7 @@ public class ClubService {
                 .orElseThrow(() -> new CustomException(GROUP_NOT_FOUND));
         group.disableGroup();
 
-        Group newGroup = createJoinGroup(club, clubUpdateRequest);
+        Group newGroup = createJoinGroup(club);
         club.addGroup(newGroup);
 
         return ClubInfoResponse.from(club);
@@ -196,19 +196,6 @@ public class ClubService {
                 .groupDescription(club.getClubName() + "의 " + club.getClubGeneration() + "기 동아리 가입하기")
                 .groupChatLink(club.getClubGroupChatLink())
                 .groupChatPassword(club.getClubGroupChatPassword())
-                .build();
-    }
-
-    private Group createJoinGroup(Club club, ClubUpdateRequest clubUpdateRequest) {
-        return Group.builder()
-                .groupJoinLink("https://woohakdong.com/clubs/" + club.getClubEnglishName())
-                .club(club)
-                .groupAmount(club.getClubDues())
-                .groupType(JOIN)
-                .groupName(club.getClubName())
-                .groupDescription(club.getClubName() + "의 " + club.getClubGeneration() + "기 동아리 가입하기")
-                .groupChatLink(clubUpdateRequest.clubGroupChatLink())
-                .groupChatPassword(clubUpdateRequest.clubGroupChatPassword())
                 .build();
     }
 
