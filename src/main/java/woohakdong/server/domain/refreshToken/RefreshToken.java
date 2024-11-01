@@ -1,4 +1,4 @@
-package woohakdong.server.domain.refresh;
+package woohakdong.server.domain.refreshToken;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
