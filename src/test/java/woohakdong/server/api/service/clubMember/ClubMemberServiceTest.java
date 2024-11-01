@@ -94,7 +94,8 @@ class ClubMemberServiceTest {
                 .member(member2)
                 .clubMemberRole(OFFICER)
                 .build();
-        clubMemberRepository.saveAll(List.of(clubMember1, clubMember2));
+        clubMemberRepository.save(clubMember1);
+        clubMemberRepository.save(clubMember2);
 
         // when
         List<ClubMemberInfoResponse> responses = clubMemberService.getMembers(club.getClubId());
@@ -152,7 +153,8 @@ class ClubMemberServiceTest {
                 .member(member2)
                 .clubMemberRole(OFFICER)
                 .build();
-        clubMemberRepository.saveAll(List.of(clubMember1, clubMember2));
+        clubMemberRepository.save(clubMember1);
+        clubMemberRepository.save(clubMember2);
 
         // when
         List<ClubMemberInfoResponse> responses = clubMemberService.getTermMembers(club.getClubId(), getAssignedTerm());

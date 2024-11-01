@@ -116,7 +116,7 @@ class ClubServiceTest {
         ClubCreateResponse clubCreateResponse = clubService.registerClub(clubCreateRequest);
 
         // Then
-        List<ClubMember> clubMembers = clubMemberRepository.findAll();
+        List<ClubMember> clubMembers = clubMemberRepository.getAll();
         assertThat(clubMembers).hasSize(1);
         assertThat(clubMembers.get(0)).extracting("clubMemberRole", "club.clubId")
                 .containsExactly(PRESIDENT, clubCreateResponse.clubId());

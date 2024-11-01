@@ -2,7 +2,6 @@ package woohakdong.server.api.service.club;
 
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_MEMBER_ROLE_NOT_ALLOWED;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NAME_DUPLICATION;
-import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_NOT_FOUND;
 import static woohakdong.server.common.exception.CustomErrorInfo.INVALID_BANK_NAME;
 import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
 import static woohakdong.server.common.exception.CustomErrorInfo.SCHOOL_NOT_FOUND;
@@ -13,14 +12,19 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.ListWrapperResponse;
-import woohakdong.server.api.controller.club.dto.*;
+import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
+import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
+import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
+import woohakdong.server.api.controller.club.dto.ClubHistoryTermResponse;
+import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
+import woohakdong.server.api.controller.club.dto.ClubJoinGroupInfoResponse;
+import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
@@ -123,7 +127,7 @@ public class ClubService {
 
     public List<ClubInfoResponse> getJoinedClubInfos() {
         Member member = getMemberFromJwtInformation();
-        List<ClubMember> clubMembers = clubMemberRepository.findAllByMember(member);
+        List<ClubMember> clubMembers = clubMemberRepository.getAllByMember(member);
 
         return clubMembers.stream()
                 .map(ClubMember::getClub)

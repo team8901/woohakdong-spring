@@ -1,7 +1,6 @@
 package woohakdong.server.api.service.order;
 
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_ALREADY_JOINED;
-import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_NOT_FOUND;
 import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_TYPE_NOT_FOUND;
 import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
 import static woohakdong.server.common.exception.CustomErrorInfo.ORDER_ALREADY_EXIST;
