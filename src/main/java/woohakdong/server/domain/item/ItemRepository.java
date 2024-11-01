@@ -1,27 +1,22 @@
 package woohakdong.server.domain.item;
 
-import jakarta.persistence.LockModeType;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-
 import java.util.List;
-import java.util.Optional;
+import woohakdong.server.domain.club.Club;
 
-public interface ItemRepository extends JpaRepository<Item, Long> {
-    List<Item> findByClubClubId(Long clubId);
+public interface ItemRepository {
+    Item save(Item item);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT i FROM Item i WHERE i.itemId = :itemId")
-    Optional<Item> findByIdForUpdate(@Param("itemId") Long itemId);
+    Item getById(Long itemId);
 
-    List<Item> findByClubClubIdAndItemCategory(Long clubId, ItemCategory category);
+    void delete(Item item);
 
-    @Query("SELECT i FROM Item i WHERE i.club.clubId = :clubId AND i.itemName LIKE %:itemName%")
-    List<Item> findItemsByClubIdAndNameContaining(@Param("clubId") Long clubId, @Param("itemName") String itemName);
+    List<Item> getAllByClub(Club club);
 
-    @Query("SELECT i FROM Item i WHERE i.club.clubId = :clubId AND i.itemName LIKE %:keyword% AND i.itemCategory = :category")
-    List<Item> findByClubIdAndItemNameContainingAndItemCategory(@Param("clubId") Long clubId, @Param("keyword") String keyword, @Param("category") ItemCategory category);
+    Item getByIdForUpdate(Long itemId);
 
+    List<Item> getAllByClubAndItemCategory(Club club, ItemCategory category);
+
+    List<Item> getAllByClubAndNameContaining(Club club, String itemName);
+
+    List<Item> getAllByClubAndItemNameAndItemCategoryContaining(Club club, ItemCategory category, String keyword);
 }
