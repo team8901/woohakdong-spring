@@ -1,6 +1,9 @@
 package woohakdong.server.domain.admin.adminAccountHistory;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
 
-public interface AdminAccountHistoryRepository extends JpaRepository<AdminAccountHistory, Long> {
+public interface AdminAccountHistoryRepository {
+    AdminAccountHistory save(AdminAccountHistory adminAccountHistory);
+
+    List<AdminAccountHistory> getAll();
 }
