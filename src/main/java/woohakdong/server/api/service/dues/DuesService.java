@@ -12,7 +12,6 @@ import woohakdong.server.domain.clubAccount.ClubAccount;
 import woohakdong.server.domain.clubAccount.ClubAccountRepository;
 import woohakdong.server.domain.clubAccountHistory.ClubAccountHistory;
 import woohakdong.server.domain.clubAccountHistory.ClubAccountHistoryRepository;
-import woohakdong.server.domain.member.MemberRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,9 +32,7 @@ public class DuesService {
     private final MockBankService mockBankService;
 
     public void fetchAndSaveRecentTransactions(Long clubId) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
-
+        Club club = clubRepository.getById(clubId);
         ClubAccount clubAccount = clubAccountRepository.findByClub(club)
                 .orElseThrow(() -> new CustomException(CLUB_ACCOUNT_NOT_FOUND));
 
@@ -55,9 +52,7 @@ public class DuesService {
     }
 
     public List<ClubAccountHistoryListResponse> getMonthlyTransactions(Long clubId, int year, int month) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
-
+        Club club = clubRepository.getById(clubId);
         ClubAccount clubAccount = clubAccountRepository.findByClub(club)
                 .orElseThrow(() -> new CustomException(CLUB_ACCOUNT_NOT_FOUND));
 
