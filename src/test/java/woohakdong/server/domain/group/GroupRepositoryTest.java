@@ -51,18 +51,15 @@ class GroupRepositoryTest {
                 .groupName("이벤트용 모임")
                 .groupJoinLink("https://test.com")
                 .build();
-        groupRepository.saveAll(List.of(group1, group2));
+        groupRepository.save(group1);
+        groupRepository.save(group2);
 
         // When
-        Optional<Group> optionalGathering = groupRepository.findByClubAndGroupTypeAndGroupIsAvailable(savedClub, JOIN,
-                true);
+        Group group = groupRepository.getByClubAndGroupTypeAndGroupIsAvailable(savedClub, JOIN, true);
 
         // Then
-        assertThat(optionalGathering).isPresent();
-
-        Group foundGroup = optionalGathering.get();
-        assertThat(foundGroup.getGroupType()).isEqualTo(JOIN);
-        assertThat(foundGroup.getGroupName()).isEqualTo("가입용 모임");
+        assertThat(group.getGroupType()).isEqualTo(JOIN);
+        assertThat(group.getGroupName()).isEqualTo("가입용 모임");
     }
 
     @DisplayName("동아리의 이벤트용 그룹을 조회할 수 있다.")
@@ -99,9 +96,12 @@ class GroupRepositoryTest {
                 .groupJoinLink("https://test.com")
                 .build();
 
-        groupRepository.saveAll(List.of(group1, group2, group3));
+        groupRepository.save(group1);
+        groupRepository.save(group2);
+        groupRepository.save(group3);
+
         // When
-        List<Group> groups = groupRepository.findAllByClubAndGroupType(savedClub, EVENT);
+        List<Group> groups = groupRepository.getAllByClubAndGroupType(savedClub, EVENT);
 
         // Then
         assertThat(groups).hasSize(2)

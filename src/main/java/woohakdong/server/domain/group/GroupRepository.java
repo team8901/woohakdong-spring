@@ -1,15 +1,16 @@
 package woohakdong.server.domain.group;
 
 import java.util.List;
-import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
 import woohakdong.server.domain.club.Club;
 
-public interface GroupRepository extends JpaRepository<Group, Long> {
+public interface GroupRepository {
+    Group save(Group group);
 
-    // JOIN에 해당하는 Gathering을 찾는 메소드
-    Optional<Group> findByClubAndGroupTypeAndGroupIsAvailable(Club club, GroupType groupType, Boolean groupIsAvailable);
+    Group getById(Long groupId);
 
-    // Event에 해당하는 Gathering을 찾는 메소드
-    List<Group> findAllByClubAndGroupType(Club club, GroupType groupType);
+    List<Group> getAll();
+
+    Group getByClubAndGroupTypeAndGroupIsAvailable(Club club, GroupType groupType, Boolean groupIsAvailable);
+
+    List<Group> getAllByClubAndGroupType(Club club, GroupType groupType);
 }
