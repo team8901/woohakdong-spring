@@ -97,8 +97,7 @@ public class MockBankService implements BankService {
         // clubId로 동아리 계좌 정보 조회
         ClubAccount clubAccount = clubAccountRepository.getByClub(club);
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+        Member member = memberRepository.getById(memberId);
 
         // 현재 날짜와 시간 구하기 (형식: yyyyMMdd HHmmss)
         LocalDateTime now = LocalDateTime.now();

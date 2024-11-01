@@ -6,7 +6,6 @@ import static woohakdong.server.domain.clubmember.ClubMemberRole.OFFICER;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 
 import java.time.LocalDate;
-import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +67,8 @@ class ClubMemberRepositoryTest {
                 .memberEmail("president@ajou.ac.kr")
                 .school(school)
                 .build();
-        memberRepository.saveAll(List.of(member1, member2));
+        memberRepository.save(member1);
+        memberRepository.save(member2);
 
         ClubMember clubMember1 = ClubMember.builder()
                 .clubMemberAssignedTerm(LocalDate.now())
