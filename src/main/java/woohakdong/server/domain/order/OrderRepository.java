@@ -1,10 +1,11 @@
 package woohakdong.server.domain.order;
 
-import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
+public interface OrderRepository {
+    Order save(Order order);
 
-public interface OrderRepository extends JpaRepository<Order, Long> {
+    Order getById(Long orderId);
+
     boolean existsByOrderMerchantUid(String orderMerchantUid);
 
-    Optional<Order> findByOrderMerchantUid(String orderMerchantUid);
+    Order getByOrderMerchantUid(String orderMerchantUid);
 }

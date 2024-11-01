@@ -14,7 +14,6 @@ import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -113,13 +112,10 @@ class OrderServiceTest {
         assertThat(response).isNotNull();
 
         // order 생겼는지 확안하기
-        Optional<Order> optionalOrder = orderRepository.findById(response.orderId());
-        assertThat(optionalOrder).isPresent();
-        Order order = optionalOrder.get();
-
-        assertThat(order).extracting("orderMerchantUid", "orderAmount", "orderStatus")
-                .containsExactly("m-12315", 10000, INIT);
-        assertThat(order.getMember().getMemberId()).isEqualTo(member.getMemberId());
+        Order order = orderRepository.getById(response.orderId());
+        assertThat(order)
+                .extracting("orderMerchantUid", "orderAmount", "orderStatus", "member.memberId")
+                .containsExactly("m-12315", 10000, INIT, member.getMemberId());
     }
 
     @DisplayName("동아리 가입 요청에 대해서 완료되면, clubMember에 추가한다.")
@@ -152,11 +148,9 @@ class OrderServiceTest {
         // Then
         assertThat(clubMemberRepository.existsByClubAndMember(club, member)).isTrue();
 
-        Optional<Order> optionalOrder = orderRepository.findById(confirmRequest.orderId());
-        assertThat(optionalOrder).isPresent();
-        Order order = optionalOrder.get();
-
-        assertThat(order).extracting("orderStatus", "orderMerchantUid", "orderAmount")
+        Order order = orderRepository.getById(confirmRequest.orderId());
+        assertThat(order)
+                .extracting("orderStatus", "orderMerchantUid", "orderAmount")
                 .containsExactly(COMPLETE, "m-12315", 10000);
     }
 
