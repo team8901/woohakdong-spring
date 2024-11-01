@@ -21,11 +21,10 @@ public class ItemController implements ItemControllerDocs {
     }
 
     @GetMapping("/{clubId}/items")
-    public ListWrapperResponse<ItemListResponse> getItems(@PathVariable Long clubId,
-                                                          @RequestParam(required = false) String keyword,
-                                                          @RequestParam(required = false) String category) {
-        List<ItemListResponse> items = itemService.getItemsByFilters(clubId, keyword, category);
-        return ListWrapperResponse.of(items);
+    public ListWrapperResponse<ItemResponse> getItems(@PathVariable Long clubId,
+                                                      @RequestParam(required = false) String keyword,
+                                                      @RequestParam(required = false) String category) {
+        return ListWrapperResponse.of(itemService.getItemsByFilters(clubId, keyword, category));
     }
 
     @PostMapping("/{clubId}/items/{itemId}/borrow")
@@ -35,17 +34,19 @@ public class ItemController implements ItemControllerDocs {
 
     @PostMapping("/{clubId}/items/{itemId}/return")
     public ItemReturnResponse returnItem(@PathVariable Long clubId, @PathVariable Long itemId,
-                           @RequestBody ItemReturnRequest request) {
+                                         @RequestBody ItemReturnRequest request) {
         return itemService.returnItem(clubId, itemId, request);
     }
 
     @GetMapping("/{clubId}/items/{itemId}/history")
-    public ListWrapperResponse<ItemHistoryResponse> getItemHistory(@PathVariable Long clubId, @PathVariable Long itemId) {
-        return itemService.getItemHistory(clubId, itemId);
+    public ListWrapperResponse<ItemHistoryResponse> getItemHistory(@PathVariable Long clubId,
+                                                                   @PathVariable Long itemId) {
+        return ListWrapperResponse.of(itemService.getItemHistory(clubId, itemId));
     }
 
     @PutMapping("/{clubId}/items/{itemId}")
-    public ItemUpdateResponse updateItem(@PathVariable Long clubId, @PathVariable Long itemId, @RequestBody ItemUpdateRequest request) {
+    public ItemUpdateResponse updateItem(@PathVariable Long clubId, @PathVariable Long itemId,
+                                         @RequestBody ItemUpdateRequest request) {
         return itemService.updateItem(clubId, itemId, request);
     }
 

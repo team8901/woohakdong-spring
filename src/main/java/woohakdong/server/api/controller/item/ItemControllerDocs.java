@@ -21,9 +21,9 @@ public interface ItemControllerDocs {
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "물품 리스트 반환", description = "카테고리, 물품 검색에 따른 물품 리스트를 반환한다. 없을 경우 물품 리스트 전부 반환")
     @ApiResponse(responseCode = "200", description = "물품 리스트 반환 성공", useReturnTypeSchema = true)
-    public ListWrapperResponse<ItemListResponse> getItems(@PathVariable Long clubId,
-                                                          @RequestParam(required = false) String keyword,
-                                                          @RequestParam(required = false) String category);
+    public ListWrapperResponse<ItemResponse> getItems(@PathVariable Long clubId,
+                                                      @RequestParam(required = false) String keyword,
+                                                      @RequestParam(required = false) String category);
 
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "물품 대여", description = "물품이 사용중이 아니라면 대여할 수 있다.")
