@@ -85,8 +85,7 @@ public class ClubService {
     @Transactional
     public void registerClubAccount(Long clubId, ClubAccountRegisterRequest clubAccountRegisterRequest) {
         Member member = getMemberFromJwtInformation();
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+        Club club = clubRepository.getById(clubId);
 
         if (!clubMemberRepository.existsByClubAndMemberAndClubMemberRole(club, member, PRESIDENT)) {
             throw new CustomException(CLUB_MEMBER_ROLE_NOT_ALLOWED);
@@ -97,9 +96,7 @@ public class ClubService {
     }
 
     public ListWrapperResponse<ClubHistoryTermResponse> getClubHistory(Long clubId) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
-
+        Club club = clubRepository.getById(clubId);
         List<ClubHistory> clubHistories = clubHistoryRepository.findByClub_ClubId(clubId);
 
         // ClubHistory를 ClubHistoryTermResponse로 변환
@@ -113,9 +110,7 @@ public class ClubService {
     }
 
     public ClubJoinGroupInfoResponse getClubJoinInfo(Long clubId) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
-
+        Club club = clubRepository.getById(clubId);
         Group group = groupRepository.findByClubAndGroupTypeAndGroupIsAvailable(club, JOIN, true)
                 .orElseThrow(() -> new CustomException(GROUP_NOT_FOUND));
 
@@ -139,23 +134,18 @@ public class ClubService {
     }
 
     public ClubInfoResponse findClubInfo(Long clubId) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
-
+        Club club = clubRepository.getById(clubId);
         return ClubInfoResponse.from(club);
     }
 
     public ClubInfoResponse findClubInfoWithEnglishName(String clubName) {
-        Club club = clubRepository.findByClubEnglishName(clubName)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
-
+        Club club = clubRepository.getByClubEnglishName(clubName);
         return ClubInfoResponse.from(club);
     }
 
     @Transactional
     public ClubInfoResponse updateClubInfo(Long clubId, ClubUpdateRequest clubUpdateRequest) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+        Club club = clubRepository.getById(clubId);
         club.updateClubInfo(clubUpdateRequest.clubImage(), clubUpdateRequest.clubDescription(),
                 clubUpdateRequest.clubRoom(), clubUpdateRequest.clubGeneration(), clubUpdateRequest.clubGroupChatLink(),
                 clubUpdateRequest.clubGroupChatPassword(), clubUpdateRequest.clubDues());

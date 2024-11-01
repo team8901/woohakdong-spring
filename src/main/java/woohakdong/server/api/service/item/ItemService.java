@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.item.dto.*;
-import woohakdong.server.common.exception.CustomErrorInfo;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.ItemHistory.ItemHistory;
@@ -38,8 +37,7 @@ public class ItemService {
 
     @Transactional
     public ItemRegisterResponse registerItem(Long clubId, ItemRegisterRequest request) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+        Club club = clubRepository.getById(clubId);
 
         // Item 엔티티 생성
         Item item = Item.builder()
@@ -68,8 +66,7 @@ public class ItemService {
 
     @Transactional(readOnly = true)
     public List<ItemListResponse> getItemsByFilters(Long clubId, String keyword, String category) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+        Club club = clubRepository.getById(clubId);
 
         List<Item> items;
 
@@ -110,9 +107,7 @@ public class ItemService {
     @Transactional
     public ItemBorrowResponse borrowItem(Long clubId, Long itemId) {
         Member member = getMemberFromJwtInformation();
-
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+        Club club = clubRepository.getById(clubId);
 
         Item item = itemRepository.findByIdForUpdate(itemId)
                 .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
@@ -150,8 +145,7 @@ public class ItemService {
     public ItemReturnResponse returnItem(Long clubId, Long itemId, ItemReturnRequest request) {
         Member member = getMemberFromJwtInformation();
 
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+        Club club = clubRepository.getById(clubId);
 
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
@@ -187,9 +181,7 @@ public class ItemService {
     }
 
     public ListWrapperResponse<ItemHistoryResponse> getItemHistory(Long clubId, Long itemId) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
-
+        Club club = clubRepository.getById(clubId);
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
 
@@ -210,9 +202,7 @@ public class ItemService {
 
     @Transactional
     public ItemUpdateResponse updateItem(Long clubId, Long itemId, ItemUpdateRequest request) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
-
+        Club club = clubRepository.getById(clubId);
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
 
@@ -226,9 +216,7 @@ public class ItemService {
 
     @Transactional
     public void deleteItem(Long clubId, Long itemId) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
-
+        Club club = clubRepository.getById(clubId);
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
 
@@ -237,9 +225,7 @@ public class ItemService {
 
     @Transactional
     public void updateItemAvailability(Long clubId, Long itemId, ItemAvailableUpdateRequest request) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
-
+        Club club = clubRepository.getById(clubId);
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
 

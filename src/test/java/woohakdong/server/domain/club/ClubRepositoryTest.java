@@ -2,7 +2,6 @@ package woohakdong.server.domain.club;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +45,8 @@ class ClubRepositoryTest {
                 .clubGroupChatLink("https://club-group-chat-link.com")
                 .school(school)
                 .build();
-        clubRepository.saveAll(List.of(club1, club2));
+        clubRepository.save(club1);
+        clubRepository.save(club2);
 
         // When
         Boolean result1 = clubRepository.existsByClubNameOrClubEnglishName(club1.getClubName(), "nonexistent");
