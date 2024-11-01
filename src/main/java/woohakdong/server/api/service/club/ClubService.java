@@ -110,8 +110,7 @@ public class ClubService {
 
     public ClubJoinGroupInfoResponse getClubJoinInfo(Long clubId) {
         Club club = clubRepository.getById(clubId);
-        Group group = groupRepository.findByClubAndGroupTypeAndGroupIsAvailable(club, JOIN, true)
-                .orElseThrow(() -> new CustomException(GROUP_NOT_FOUND));
+        Group group = groupRepository.getByClubAndGroupTypeAndGroupIsAvailable(club, JOIN, true);
 
         return ClubJoinGroupInfoResponse.builder()
                 .groupId(group.getGroupId())
@@ -149,8 +148,7 @@ public class ClubService {
                 clubUpdateRequest.clubRoom(), clubUpdateRequest.clubGeneration(), clubUpdateRequest.clubGroupChatLink(),
                 clubUpdateRequest.clubGroupChatPassword(), clubUpdateRequest.clubDues());
 
-        Group group = groupRepository.findByClubAndGroupTypeAndGroupIsAvailable(club, JOIN, true)
-                .orElseThrow(() -> new CustomException(GROUP_NOT_FOUND));
+        Group group = groupRepository.getByClubAndGroupTypeAndGroupIsAvailable(club, JOIN, true);
         group.disableGroup();
 
         Group newGroup = createJoinGroup(club);
