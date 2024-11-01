@@ -96,7 +96,7 @@ public class ClubService {
 
     public ListWrapperResponse<ClubHistoryTermResponse> getClubHistory(Long clubId) {
         Club club = clubRepository.getById(clubId);
-        List<ClubHistory> clubHistories = clubHistoryRepository.findByClub_ClubId(clubId);
+        List<ClubHistory> clubHistories = clubHistoryRepository.getAllByClub(club);
 
         // ClubHistory를 ClubHistoryTermResponse로 변환
         List<ClubHistoryTermResponse> clubHistoryResponses = clubHistories.stream()
