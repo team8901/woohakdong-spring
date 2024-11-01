@@ -95,8 +95,7 @@ public class MockBankService implements BankService {
         Club club = clubRepository.getById(clubId);
 
         // clubId로 동아리 계좌 정보 조회
-        ClubAccount clubAccount = clubAccountRepository.findByClub(club)
-                .orElseThrow(() -> new CustomException(BANK_INVALID_ACCOUNT_NUMBER));
+        ClubAccount clubAccount = clubAccountRepository.getByClub(club);
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
