@@ -146,8 +146,7 @@ public class MockBankService implements BankService {
         Long adminAccountId = 1L;
 
         // 1. AdminAccount 조회
-        AdminAccount adminAccount = adminAccountRepository.findById(adminAccountId)
-                .orElseThrow(() -> new CustomException(ADMIN_ACCOUNT_NOT_FOUND));
+        AdminAccount adminAccount = adminAccountRepository.getById(adminAccountId);
 
         // 2. 잔액 업데이트 (입금/출금에 따라 다르게 처리)
         Long updatedBalance = adminAccount.getAdminAccountAmount();

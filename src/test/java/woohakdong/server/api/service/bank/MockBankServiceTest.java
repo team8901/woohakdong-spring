@@ -120,13 +120,13 @@ class MockBankServiceTest {
                 .memberProvideId("1")
                 .build());
 
-        AdminAccount adminAccount = adminAccountRepository.findById(1L).get();
+        AdminAccount adminAccount = adminAccountRepository.getById(1L);
 
         // When: 이체 서비스 호출
         mockBankService.transferClubFee(member.getMemberId(), club.getClubId());
 
         // Then: 이체 후 잔액과 히스토리 검증
-        AdminAccount updatedAdminAccount = adminAccountRepository.findById(adminAccount.getAdminAccountId()).orElse(null);
+        AdminAccount updatedAdminAccount = adminAccountRepository.getById(adminAccount.getAdminAccountId());
         assertThat(updatedAdminAccount).isNotNull();
         assertThat(updatedAdminAccount.getAdminAccountAmount()).isEqualTo(9990000L); // 잔액 확인
 
@@ -161,13 +161,13 @@ class MockBankServiceTest {
                 .memberProvideId("1")
                 .build());
 
-        AdminAccount adminAccount = adminAccountRepository.findById(1L).get();
+        AdminAccount adminAccount = adminAccountRepository.getById(1L);
 
         // When: 이체 서비스 호출
         mockBankService.transferClubFee(member.getMemberId(), club.getClubId());
 
         // Then: 이체 후 잔액과 히스토리 검증
-        AdminAccount updatedAdminAccount = adminAccountRepository.findById(adminAccount.getAdminAccountId()).orElse(null);
+        AdminAccount updatedAdminAccount = adminAccountRepository.getById(adminAccount.getAdminAccountId());
         assertThat(updatedAdminAccount).isNotNull();
         assertThat(updatedAdminAccount.getAdminAccountAmount()).isEqualTo(9990000L); // 잔액 확인
 
