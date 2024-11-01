@@ -153,11 +153,7 @@ public class AuthService {
     public School checkSchoolDomain(String email) {
         // 학교 이메일 검증
         String emailDomain = email.split("@")[1];
-
-        School school = schoolRepository.findBySchoolDomain(emailDomain)
-                .orElseThrow(() -> new CustomException(INVALID_SCHOOL_DOMAIN));
-
-        return school;
+        return schoolRepository.getBySchoolDomain(emailDomain);
     }
 
     private void addRefreshEntity(String provideId, String refresh, Long expiredMs) {
