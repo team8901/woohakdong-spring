@@ -10,7 +10,6 @@ import static woohakdong.server.domain.group.GroupType.JOIN;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -62,8 +61,10 @@ class ClubServiceTest {
 
     @Autowired
     private ClubAccountRepository clubAccountRepository;
+
     @Autowired
     private GroupRepository groupRepository;
+
     @Autowired
     private ClubMemberRepository clubMemberRepository;
 
@@ -139,8 +140,8 @@ class ClubServiceTest {
         clubService.registerClubAccount(clubId, clubAccountRegisterRequest);
 
         // Then
-        Optional<ClubAccount> clubAccount = clubAccountRepository.findByClub(club);
-        assertThat(clubAccount).isPresent().get()
+        ClubAccount clubAccount = clubAccountRepository.getByClub(club);
+        assertThat(clubAccount)
                 .extracting("clubAccountBankName", "clubAccountNumber")
                 .containsExactly("국민은행", "1234567890");
     }

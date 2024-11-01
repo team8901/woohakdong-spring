@@ -2,7 +2,6 @@ package woohakdong.server.api.service.club;
 
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_MEMBER_ROLE_NOT_ALLOWED;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NAME_DUPLICATION;
-import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
 import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_NOT_FOUND;
 import static woohakdong.server.common.exception.CustomErrorInfo.INVALID_BANK_NAME;
 import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
