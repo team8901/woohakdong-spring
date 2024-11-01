@@ -87,9 +87,7 @@ public class OrderService {
     @Transactional
     public void confirmJoinOrder(Long groupId, GroupJoinConfirmRequest request) {
         Member member = getMemberFromJwtInformation();
-
-        Order order = orderRepository.findById(request.orderId())
-                .orElseThrow(() -> new CustomException(ORDER_NOT_FOUND));
+        Order order = orderRepository.getById(request.orderId());
 
         if (order.isOrderComplete()) {
             return;
@@ -123,8 +121,7 @@ public class OrderService {
 
     @Transactional
     public void portOnePaymentComplete(PortOneWebhookRequest request) {
-        Order order = orderRepository.findByOrderMerchantUid(request.merchantUid())
-                .orElseThrow(() -> new CustomException(ORDER_NOT_FOUND));
+        Order order = orderRepository.getByOrderMerchantUid(request.merchantUid());
 
         if (order.isOrderComplete()) {
             return;
