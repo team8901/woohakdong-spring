@@ -7,7 +7,7 @@ import woohakdong.server.api.controller.clubMember.dto.ClubMemberInfoResponse;
 import woohakdong.server.api.service.clubMember.ClubMemberService;
 
 import java.time.LocalDate;
-import java.util.List;
+import woohakdong.server.domain.clubmember.ClubMemberRole;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +26,18 @@ public class ClubMemberController implements ClubMemberControllerDocs{
             // 모든 멤버 조회
             return ListWrapperResponse.of(clubMemberService.getMembers(clubId));
         }
+    }
+
+    @GetMapping("/{clubId}/members/me")
+    public ClubMemberInfoResponse getMyInfo(@PathVariable Long clubId) {
+        return null;
+    }
+
+    @PutMapping("/{clubId}/members/{clubMemberId}/role")
+    public void changeRole(@PathVariable Long clubId,
+                           @PathVariable Long clubMemberId,
+                           @RequestParam ClubMemberRole clubMemberRole) {
+
     }
 
 }
