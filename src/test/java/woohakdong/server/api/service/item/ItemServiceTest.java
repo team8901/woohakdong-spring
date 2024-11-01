@@ -256,7 +256,7 @@ class ItemServiceTest {
         assertThat(returnedItem.getItemAvailable()).isTrue();
 
         // 반납 기록이 잘 저장되었는지 확인
-        ItemHistory history = itemHistoryRepository.findById(itemReturnResponse.itemHistoryId()).orElseThrow();
+        ItemHistory history = itemHistoryRepository.getById(itemReturnResponse.itemHistoryId());
         assertThat(history.getItemReturnDate()).isBefore(LocalDateTime.now());
     }
 
@@ -310,7 +310,8 @@ class ItemServiceTest {
                 .build());
 
         // when
-        ListWrapperResponse<ItemHistoryResponse> response = itemService.getItemHistory(club.getClubId(), item.getItemId());
+        ListWrapperResponse<ItemHistoryResponse> response = itemService.getItemHistory(club.getClubId(),
+                item.getItemId());
 
         // then
         assertThat(response).isNotNull();
@@ -418,7 +419,6 @@ class ItemServiceTest {
                 .itemRentalTime(0)
                 .build());
 
-
         // when
         itemService.updateItemAvailability(club.getClubId(), item.getItemId(), new ItemAvailableUpdateRequest(false));
 
@@ -427,6 +427,7 @@ class ItemServiceTest {
         assertThat(updatedItem.getItemAvailable()).isFalse();
     }
 
+    @DisplayName("물품을 수정할 수 있다.")
     @Test
     void updateItem_success() {
         // given
