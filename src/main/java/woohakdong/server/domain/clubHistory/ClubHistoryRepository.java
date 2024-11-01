@@ -1,9 +1,10 @@
 package woohakdong.server.domain.clubHistory;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
+import woohakdong.server.domain.club.Club;
 
-public interface ClubHistoryRepository extends JpaRepository<ClubHistory, Long> {
-    List<ClubHistory> findByClub_ClubId(Long clubId);
+public interface ClubHistoryRepository {
+    ClubHistory save(ClubHistory clubHistory);
+
+    List<ClubHistory> getAllByClub(Club club);
 }
