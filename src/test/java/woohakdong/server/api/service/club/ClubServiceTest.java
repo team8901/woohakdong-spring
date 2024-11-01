@@ -127,7 +127,7 @@ class ClubServiceTest {
         // Given
         ClubCreateRequest clubCreateRequest = createClubCreateRequest();
         Long clubId = clubService.registerClub(clubCreateRequest).clubId();
-        Club club = clubRepository.findById(clubId).get();
+        Club club = clubRepository.getById(clubId);
 
         ClubAccountRegisterRequest clubAccountRegisterRequest = ClubAccountRegisterRequest.builder()
                 .clubAccountBankName("국민은행")
@@ -252,9 +252,8 @@ class ClubServiceTest {
         clubService.updateClubInfo(club.getClubId(), request);
 
         // Then
-        Optional<Club> optionalClub = clubRepository.findById(club.getClubId());
-        assertThat(optionalClub).isPresent().get()
-                .extracting("clubImage", "clubDescription", "clubGroupChatLink")
+        Club updatedClub = clubRepository.getById(club.getClubId());
+        assertThat(updatedClub).extracting("clubImage", "clubDescription", "clubGroupChatLink")
                 .containsExactly(request.clubImage(), request.clubDescription(), request.clubGroupChatLink());
     }
 

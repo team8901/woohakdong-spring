@@ -92,8 +92,7 @@ public class MockBankService implements BankService {
     @Transactional
     public void transferClubFee(Long memberId, Long clubId) {
         // clubId로 동아리 정보 조회
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+        Club club = clubRepository.getById(clubId);
 
         // clubId로 동아리 계좌 정보 조회
         ClubAccount clubAccount = clubAccountRepository.findByClub(club)
