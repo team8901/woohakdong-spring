@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import woohakdong.server.domain.ItemHistory.ItemHistory;
 import woohakdong.server.domain.club.Club;
-import woohakdong.server.domain.clubAccountHistory.ClubAccountHistory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -53,7 +52,7 @@ public class Item {
     private List<ItemHistory> itemHistories;
 
     @Builder
-    public Item(Club club, LocalDateTime itemRentalDate, Integer itemRentalTime, String itemLocation,
+    private Item(Club club, LocalDateTime itemRentalDate, Integer itemRentalTime, String itemLocation,
                 ItemCategory itemCategory, Integer itemRentalMaxDay, Boolean itemAvailable,
                 Boolean itemUsing, String itemDescription, String itemPhoto, String itemName) {
         this.club = club;
@@ -67,6 +66,23 @@ public class Item {
         this.itemDescription = itemDescription;
         this.itemPhoto = itemPhoto;
         this.itemName = itemName;
+    }
+
+    public static Item create(Club club, String itemName, String itemPhoto, String itemDescription, String itemLocation,
+                              ItemCategory itemCategory, Integer itemRentalMaxDay) {
+        return Item.builder()
+                .club(club)
+                .itemAvailable(true)
+                .itemUsing(false)
+                .itemRentalDate(null)
+                .itemRentalTime(0)
+                .itemLocation(itemLocation)
+                .itemCategory(itemCategory)
+                .itemRentalMaxDay(itemRentalMaxDay)
+                .itemDescription(itemDescription)
+                .itemPhoto(itemPhoto)
+                .itemName(itemName)
+                .build();
     }
 
     public void setBorrow(Boolean itemUsing, LocalDateTime itemRentalDate, Integer itemRentalTime) {

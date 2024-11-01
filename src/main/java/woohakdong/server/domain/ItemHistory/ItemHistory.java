@@ -41,14 +41,27 @@ public class ItemHistory {
     private Item item;
 
     @Builder
-    public ItemHistory(String itemReturnImage, LocalDateTime itemRentalDate, LocalDateTime itemReturnDate,
-                       LocalDateTime itemDueDate, Member member, Item item) {
+    private ItemHistory(String itemReturnImage, LocalDateTime itemRentalDate, LocalDateTime itemReturnDate,
+                        LocalDateTime itemDueDate, Member member, Item item) {
         this.itemReturnImage = itemReturnImage;
         this.itemRentalDate = itemRentalDate;
         this.itemReturnDate = itemReturnDate;
         this.itemDueDate = itemDueDate;
         this.member = member;
         this.item = item;
+    }
+
+    public static ItemHistory create(Member member, Item item, LocalDateTime itemRentalDate,
+                                     LocalDateTime itemDueDate) {
+        return ItemHistory.builder()
+                .itemReturnImage(null)
+                .itemRentalDate(itemRentalDate)
+                .itemReturnDate(null)
+                .itemDueDate(itemDueDate)
+                .member(member)
+                .item(item)
+                .build();
+
     }
 
     public void setItemReturnImage(String itemReturnImage) {

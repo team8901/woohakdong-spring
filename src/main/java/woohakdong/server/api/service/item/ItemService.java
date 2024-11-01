@@ -13,13 +13,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.item.dto.ItemAvailableUpdateRequest;
 import woohakdong.server.api.controller.item.dto.ItemBorrowResponse;
 import woohakdong.server.api.controller.item.dto.ItemHistoryResponse;
-import woohakdong.server.api.controller.item.dto.ItemListResponse;
 import woohakdong.server.api.controller.item.dto.ItemRegisterRequest;
 import woohakdong.server.api.controller.item.dto.ItemRegisterResponse;
+import woohakdong.server.api.controller.item.dto.ItemResponse;
 import woohakdong.server.api.controller.item.dto.ItemReturnRequest;
 import woohakdong.server.api.controller.item.dto.ItemReturnResponse;
 import woohakdong.server.api.controller.item.dto.ItemUpdateRequest;
@@ -50,33 +49,16 @@ public class ItemService {
     public ItemRegisterResponse registerItem(Long clubId, ItemRegisterRequest request) {
         Club club = clubRepository.getById(clubId);
 
-        // Item 엔티티 생성
-        Item item = Item.builder()
-                .club(club)
-                .itemRentalDate(null)  // 대여 기록이 없으므로 null
-                .itemRentalTime(0)      // 초기 대여 횟수 0
-                .itemLocation(request.itemLocation())
-                .itemCategory(request.itemCategory())
-                .itemRentalMaxDay(request.itemRentalMaxDay())
-                .itemAvailable(true)    // 기본적으로 대여 가능 상태
-                .itemUsing(false)       // 현재 대여 중이 아님
-                .itemDescription(request.itemDescription())
-                .itemPhoto(request.itemPhoto())
-                .itemName(request.itemName())
-                .build();
+        Item item = Item.create(club, request.itemName(), request.itemPhoto(), request.itemDescription(),
+                request.itemLocation(), request.itemCategory(), request.itemRentalMaxDay());
 
-        // Item 저장
         Item savedItem = itemRepository.save(item);
 
-        // Response 반환
-        return ItemRegisterResponse.builder()
-                .itemId(savedItem.getItemId())
-                .itemName(savedItem.getItemName())
-                .build();
+        return ItemRegisterResponse.of(savedItem);
     }
 
     @Transactional(readOnly = true)
-    public List<ItemListResponse> getItemsByFilters(Long clubId, String keyword, String category) {
+    public List<ItemResponse> getItemsByFilters(Long clubId, String keyword, String category) {
         Club club = clubRepository.getById(clubId);
 
         List<Item> items;
@@ -99,19 +81,7 @@ public class ItemService {
         }
 
         return items.stream()
-                .map(item -> ItemListResponse.builder()
-                        .itemId(item.getItemId())
-                        .itemName(item.getItemName())
-                        .itemPhoto(item.getItemPhoto())
-                        .itemDescription(item.getItemDescription())
-                        .itemLocation(item.getItemLocation())
-                        .itemCategory(item.getItemCategory())
-                        .itemRentalMaxDay(item.getItemRentalMaxDay())
-                        .itemAvailable(item.getItemAvailable())
-                        .itemUsing(item.getItemUsing())
-                        .itemRentalDate(item.getItemRentalDate())
-                        .itemRentalTime(item.getItemRentalTime())
-                        .build())
+                .map(ItemResponse::of)
                 .collect(Collectors.toList());
     }
 
@@ -132,14 +102,9 @@ public class ItemService {
         item.setBorrow(true, LocalDateTime.now(), item.getItemRentalTime() + 1);
 
         // 대여 기록 추가
-        ItemHistory itemHistory = ItemHistory.builder()
-                .item(item)
-                .member(member)
-                .itemRentalDate(LocalDateTime.now())
-                .itemReturnDate(null)
-                .itemDueDate(LocalDateTime.now().plusDays(item.getItemRentalMaxDay()))  // 대여 기간 설정
-                .build();
-
+        LocalDateTime borrowDate = LocalDateTime.now();
+        LocalDateTime dueDate = borrowDate.plusDays(item.getItemRentalMaxDay());
+        ItemHistory itemHistory = ItemHistory.create(member, item, borrowDate, dueDate);
         itemHistoryRepository.save(itemHistory);
 
         return ItemBorrowResponse.builder()
@@ -186,7 +151,7 @@ public class ItemService {
                 .build();
     }
 
-    public ListWrapperResponse<ItemHistoryResponse> getItemHistory(Long clubId, Long itemId) {
+    public List<ItemHistoryResponse> getItemHistory(Long clubId, Long itemId) {
         Club club = clubRepository.getById(clubId);
         Item item = itemRepository.getById(itemId);
 
@@ -202,7 +167,7 @@ public class ItemService {
                         .build())
                 .collect(Collectors.toList());
 
-        return ListWrapperResponse.of(historyResponses);
+        return historyResponses;
     }
 
     @Transactional
