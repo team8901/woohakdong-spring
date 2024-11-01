@@ -1,25 +1,20 @@
 package woohakdong.server.api.service.dues;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.dues.dto.ClubAccountHistoryListResponse;
 import woohakdong.server.api.service.bank.MockBankService;
-import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubAccount.ClubAccount;
 import woohakdong.server.domain.clubAccount.ClubAccountRepository;
 import woohakdong.server.domain.clubAccountHistory.ClubAccountHistory;
 import woohakdong.server.domain.clubAccountHistory.ClubAccountHistoryRepository;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_ACCOUNT_NOT_FOUND;
-import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,8 +28,7 @@ public class DuesService {
 
     public void fetchAndSaveRecentTransactions(Long clubId) {
         Club club = clubRepository.getById(clubId);
-        ClubAccount clubAccount = clubAccountRepository.findByClub(club)
-                .orElseThrow(() -> new CustomException(CLUB_ACCOUNT_NOT_FOUND));
+        ClubAccount clubAccount = clubAccountRepository.getByClub(club);
 
         LocalDateTime lastUpdateDate = clubAccount.getClubAccountLastUpdateDate() != null
                 ? clubAccount.getClubAccountLastUpdateDate()
@@ -53,8 +47,7 @@ public class DuesService {
 
     public List<ClubAccountHistoryListResponse> getMonthlyTransactions(Long clubId, int year, int month) {
         Club club = clubRepository.getById(clubId);
-        ClubAccount clubAccount = clubAccountRepository.findByClub(club)
-                .orElseThrow(() -> new CustomException(CLUB_ACCOUNT_NOT_FOUND));
+        ClubAccount clubAccount = clubAccountRepository.getByClub(club);
 
         List<ClubAccountHistory> histories = clubAccountHistoryRepository.findMonthlyTransactions(
                 clubAccount, year, month);
