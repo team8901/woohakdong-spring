@@ -55,4 +55,8 @@ public class ClubMember {
         this.clubMemberRole = clubMemberRole;
         this.member = member;
     }
+
+    public void changeRole(ClubMemberRole clubMemberRole) {
+        this.clubMemberRole = clubMemberRole;
+    }
 }
