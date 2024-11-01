@@ -1,9 +1,11 @@
 package woohakdong.server.domain.school;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+public interface SchoolRepository {
+    School save(School school);
 
-import java.util.Optional;
+    School getById(Long schoolId);
 
-public interface SchoolRepository extends JpaRepository<School, Long> {
-    Optional<School> findBySchoolDomain(String schoolDomain);
+    School getBySchoolDomain(String schoolDomain);
+
+    long count();
 }

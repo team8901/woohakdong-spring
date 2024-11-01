@@ -50,7 +50,6 @@ public class ClubService {
 
     private final ClubRepository clubRepository;
     private final MemberRepository memberRepository;
-    private final SchoolRepository schoolRepository;
     private final ClubAccountRepository clubAccountRepository;
     private final ClubMemberRepository clubMemberRepository;
     private final GroupRepository groupRepository;
@@ -65,8 +64,7 @@ public class ClubService {
     @Transactional
     public ClubCreateResponse registerClub(ClubCreateRequest clubCreateRequest) {
         Member member = getMemberFromJwtInformation();
-        School school = schoolRepository.findById(member.getSchool().getSchoolId())
-                .orElseThrow(() -> new CustomException(SCHOOL_NOT_FOUND));
+        School school = member.getSchool();
 
         Club club = createClub(clubCreateRequest, school);
         club.addGroup(createJoinGroup(club));
