@@ -20,7 +20,6 @@ import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.group.GroupRepository;
 import woohakdong.server.domain.group.GroupType;
 import woohakdong.server.domain.member.Member;
-import woohakdong.server.domain.member.MemberGender;
 import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
@@ -89,7 +88,9 @@ public class DataInitializer implements CommandLineRunner {
                     .memberGender(WOMAN)
                     .school(school)
                     .build();
-            memberRepository.saveAll(List.of(member1, member2, member3));
+            memberRepository.save(member1);
+            memberRepository.save(member2);
+            memberRepository.save(member3);
 
             Club club = Club.builder()
                     .school(school)

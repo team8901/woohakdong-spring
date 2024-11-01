@@ -4,7 +4,6 @@ import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_MEMBER_ROL
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NAME_DUPLICATION;
 import static woohakdong.server.common.exception.CustomErrorInfo.INVALID_BANK_NAME;
 import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
-import static woohakdong.server.common.exception.CustomErrorInfo.SCHOOL_NOT_FOUND;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 
@@ -41,7 +40,6 @@ import woohakdong.server.domain.group.GroupRepository;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
-import woohakdong.server.domain.school.SchoolRepository;
 
 @Service
 @Transactional(readOnly = true)
