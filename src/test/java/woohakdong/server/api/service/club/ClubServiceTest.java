@@ -100,7 +100,7 @@ class ClubServiceTest {
         clubService.registerClub(clubCreateRequest);
 
         // Then
-        List<Group> groups = groupRepository.findAll();
+        List<Group> groups = groupRepository.getAll();
         assertThat(groups).hasSize(1);
         assertThat(groups.get(0)).extracting("groupName", "groupType", "groupJoinLink")
                 .containsExactly(clubCreateRequest.clubName(), JOIN, "https://woohakdong.com/clubs/Durian");
@@ -273,7 +273,7 @@ class ClubServiceTest {
         clubService.updateClubInfo(club.getClubId(), request);
 
         // Then
-        List<Group> groups = groupRepository.findAll();
+        List<Group> groups = groupRepository.getAll();
         assertThat(groups).hasSize(2)
                 .extracting("groupAmount", "groupIsAvailable", "groupChatLink", "groupChatPassword")
                 .containsExactlyInAnyOrder(

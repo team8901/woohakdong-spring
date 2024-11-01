@@ -54,9 +54,7 @@ public class OrderService {
     @Transactional
     public GroupJoinOrderResponse registerOrder(Long groupId, GroupJoinOrderRequest request) {
         Member member = getMemberFromJwtInformation();
-
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new CustomException(GROUP_NOT_FOUND));
+        Group group = groupRepository.getById(groupId);
 
         Club club = group.getClub();
 
@@ -98,8 +96,7 @@ public class OrderService {
             return;
         }
 
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new CustomException(GROUP_NOT_FOUND));
+        Group group = groupRepository.getById(groupId);
 
         if (!order.getGroup().equals(group) | !order.getMember().equals(member)) {
             throw new CustomException(ORDER_NOT_FOUND);
