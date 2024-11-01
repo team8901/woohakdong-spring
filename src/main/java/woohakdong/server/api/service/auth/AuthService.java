@@ -12,8 +12,8 @@ import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.JWTUtil;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
-import woohakdong.server.domain.refresh.RefreshToken;
-import woohakdong.server.domain.refresh.RefreshTokenRepository;
+import woohakdong.server.domain.refreshToken.RefreshToken;
+import woohakdong.server.domain.refreshToken.RefreshTokenRepository;
 import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
 
