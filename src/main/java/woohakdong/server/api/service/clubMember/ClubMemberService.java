@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.clubMember.dto.ClubMemberInfoResponse;
-import woohakdong.server.common.exception.CustomException;
+import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
@@ -14,22 +14,20 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
-
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ClubMemberService {
 
     private final ClubMemberRepository clubMemberRepository;
+    private final ClubRepository clubRepository;
 
     public List<ClubMemberInfoResponse> getMembers(Long clubId) {
+        Club club = clubRepository.getById(clubId);
         LocalDate assignedTerm = getAssignedTerm();
 
-        // clubId와 assignedTerm으로 클럽 멤버 조회
-        List<ClubMember> clubMembers = clubMemberRepository.findByClubIdAndAssignedTerm(clubId, assignedTerm);
+        List<ClubMember> clubMembers = clubMemberRepository.getByClubIdAndAssignedTerm(club, assignedTerm);
 
-        // ClubMember를 ClubMemberInfoResponse로 변환하여 반환
         return clubMembers.stream().map(clubMember -> {
             Member member = clubMember.getMember();
             return ClubMemberInfoResponse.builder()
@@ -49,11 +47,9 @@ public class ClubMemberService {
     }
 
     public List<ClubMemberInfoResponse> getTermMembers(Long clubId, LocalDate clubMemberAssignedTerm) {
+        Club club = clubRepository.getById(clubId);
+        List<ClubMember> clubMembers = clubMemberRepository.getByClubIdAndAssignedTerm(club, clubMemberAssignedTerm);
 
-        // clubId와 assignedTerm으로 클럽 멤버 조회
-        List<ClubMember> clubMembers = clubMemberRepository.findByClubIdAndAssignedTerm(clubId, clubMemberAssignedTerm);
-
-        // ClubMember를 ClubMemberInfoResponse로 변환하여 반환
         return clubMembers.stream().map(clubMember -> {
             Member member = clubMember.getMember();
             return ClubMemberInfoResponse.builder()

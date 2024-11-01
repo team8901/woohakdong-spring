@@ -1,14 +1,12 @@
 package woohakdong.server.domain.clubmember;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.MEMBER;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.OFFICER;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 
 import java.time.LocalDate;
 import java.util.List;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,8 +83,8 @@ class ClubMemberRepositoryTest {
                 .member(member2)
                 .clubMemberRole(OFFICER)
                 .build();
-        clubMemberRepository.saveAll(List.of(clubMember1, clubMember2));
-
+        clubMemberRepository.save(clubMember1);
+        clubMemberRepository.save(clubMember2);
 
         // When
         Boolean result1 = clubMemberRepository.existsByClubAndMemberAndClubMemberRole(club, member1, MEMBER);
