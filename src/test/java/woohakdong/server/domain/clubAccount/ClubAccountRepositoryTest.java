@@ -2,7 +2,6 @@ package woohakdong.server.domain.clubAccount;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,13 +77,11 @@ class ClubAccountRepositoryTest {
         clubAccountRepository.save(clubAccount);
 
         // When
-        Optional<ClubAccount> optionalClubAccount = clubAccountRepository.findByClub(club);
+        ClubAccount savedClubAccount = clubAccountRepository.getByClub(club);
 
         // Then
-        assertThat(optionalClubAccount).isPresent();
-        ClubAccount foundClubAccount = optionalClubAccount.get();
-
-        assertThat(foundClubAccount).extracting("clubAccountBankName", "clubAccountPinTechNumber")
+        assertThat(savedClubAccount)
+                .extracting("clubAccountBankName", "clubAccountPinTechNumber")
                 .containsExactly("테스트은행", "PIN-11111111");
     }
 

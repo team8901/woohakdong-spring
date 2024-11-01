@@ -1,11 +1,11 @@
 package woohakdong.server.domain.clubAccount;
 
-import java.util.Optional;
-import org.springframework.data.jpa.repository.JpaRepository;
 import woohakdong.server.domain.club.Club;
 
-public interface ClubAccountRepository extends JpaRepository<ClubAccount, Long> {
+public interface ClubAccountRepository {
     Boolean existsByClubAccountBankNameAndClubAccountNumber(String clubAccountBankName, String clubAccountNumber);
 
-    Optional<ClubAccount> findByClub(Club club);
+    ClubAccount getByClub(Club club);
+
+    ClubAccount save(ClubAccount clubAccount);
 }
