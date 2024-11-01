@@ -1,6 +1,7 @@
 package woohakdong.server.domain.admin.adminAccount;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+public interface AdminAccountRepository {
+    AdminAccount save(AdminAccount adminAccount);
 
-public interface AdminAccountRepository extends JpaRepository<AdminAccount, Long> {
+    AdminAccount getById(Long adminAccountId);
 }
