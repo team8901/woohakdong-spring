@@ -73,18 +73,18 @@ public class ItemService {
         // 조건에 따른 분기 처리
         if ((keyword == null || keyword.isEmpty()) && (category == null || category.isEmpty())) {
             // 카테고리와 검색어 모두 없을 경우, 모든 물품 반환
-            items = itemRepository.findByClubClubId(clubId);
+            items = itemRepository.getAllByClub(club);
         } else if (keyword == null || keyword.isEmpty()) {
             // 카테고리는 있고 검색어는 없을 경우, 카테고리로만 필터링
             ItemCategory itemCategory = ItemCategory.valueOf(category.toUpperCase());
-            items = itemRepository.findByClubClubIdAndItemCategory(clubId, itemCategory);
+            items = itemRepository.getAllByClubAndItemCategory(club, itemCategory);
         } else if (category == null || category.isEmpty()) {
             // 검색어는 있고 카테고리는 없을 경우, 검색어로만 필터링
-            items = itemRepository.findItemsByClubIdAndNameContaining(clubId, keyword);
+            items = itemRepository.getAllByClubAndNameContaining(club, keyword);
         } else {
             // 카테고리와 검색어 둘 다 있을 경우, 둘 다 필터링
             ItemCategory itemCategory = ItemCategory.valueOf(category.toUpperCase());
-            items = itemRepository.findByClubIdAndItemNameContainingAndItemCategory(clubId, keyword, itemCategory);
+            items = itemRepository.getAllByClubAndItemNameAndItemCategoryContaining(club, itemCategory, keyword);
         }
 
         return items.stream()
@@ -108,9 +108,7 @@ public class ItemService {
     public ItemBorrowResponse borrowItem(Long clubId, Long itemId) {
         Member member = getMemberFromJwtInformation();
         Club club = clubRepository.getById(clubId);
-
-        Item item = itemRepository.findByIdForUpdate(itemId)
-                .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
+        Item item = itemRepository.getByIdForUpdate(itemId);
 
         // 물품이 대여 가능 상태인지 확인
         if (!item.getItemAvailable()) {
@@ -146,9 +144,7 @@ public class ItemService {
         Member member = getMemberFromJwtInformation();
 
         Club club = clubRepository.getById(clubId);
-
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
+        Item item = itemRepository.getById(itemId);
 
         if (!item.getItemUsing()) {
             throw new CustomException(ITEM_NOT_USING);
@@ -182,8 +178,7 @@ public class ItemService {
 
     public ListWrapperResponse<ItemHistoryResponse> getItemHistory(Long clubId, Long itemId) {
         Club club = clubRepository.getById(clubId);
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
+        Item item = itemRepository.getById(itemId);
 
         List<ItemHistoryResponse> historyResponses = itemHistoryRepository.findByItemAndClub(itemId, clubId).stream()
                 .map(history -> ItemHistoryResponse.builder()
@@ -203,8 +198,7 @@ public class ItemService {
     @Transactional
     public ItemUpdateResponse updateItem(Long clubId, Long itemId, ItemUpdateRequest request) {
         Club club = clubRepository.getById(clubId);
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
+        Item item = itemRepository.getById(itemId);
 
         item.updateItem(request.itemName(), request.itemPhoto(), request.itemDescription(),
                 request.itemLocation(), request.itemCategory(), request.itemRentalMaxDay());
@@ -217,8 +211,7 @@ public class ItemService {
     @Transactional
     public void deleteItem(Long clubId, Long itemId) {
         Club club = clubRepository.getById(clubId);
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
+        Item item = itemRepository.getById(itemId);
 
         itemRepository.delete(item);
     }
@@ -226,8 +219,7 @@ public class ItemService {
     @Transactional
     public void updateItemAvailability(Long clubId, Long itemId, ItemAvailableUpdateRequest request) {
         Club club = clubRepository.getById(clubId);
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new CustomException(ITEM_NOT_FOUND));
+        Item item = itemRepository.getById(itemId);
 
         item.setItemAvailable(request.itemAvailable());
     }
