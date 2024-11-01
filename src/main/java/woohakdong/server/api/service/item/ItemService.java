@@ -1,12 +1,29 @@
 package woohakdong.server.api.service.item;
 
+import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_NOT_AVAILABLE;
+import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_NOT_USING;
+import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_USING;
+import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.ListWrapperResponse;
-import woohakdong.server.api.controller.item.dto.*;
+import woohakdong.server.api.controller.item.dto.ItemAvailableUpdateRequest;
+import woohakdong.server.api.controller.item.dto.ItemBorrowResponse;
+import woohakdong.server.api.controller.item.dto.ItemHistoryResponse;
+import woohakdong.server.api.controller.item.dto.ItemListResponse;
+import woohakdong.server.api.controller.item.dto.ItemRegisterRequest;
+import woohakdong.server.api.controller.item.dto.ItemRegisterResponse;
+import woohakdong.server.api.controller.item.dto.ItemReturnRequest;
+import woohakdong.server.api.controller.item.dto.ItemReturnResponse;
+import woohakdong.server.api.controller.item.dto.ItemUpdateRequest;
+import woohakdong.server.api.controller.item.dto.ItemUpdateResponse;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.ItemHistory.ItemHistory;
@@ -18,12 +35,6 @@ import woohakdong.server.domain.item.ItemCategory;
 import woohakdong.server.domain.item.ItemRepository;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static woohakdong.server.common.exception.CustomErrorInfo.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -151,8 +162,7 @@ public class ItemService {
         }
 
         // 대여 기록 찾기 (반납 기록이 없는 대여 기록을 찾음)
-        ItemHistory itemHistory = itemHistoryRepository.findActiveBorrowingRecord(item.getItemId(), member.getMemberId())
-                .orElseThrow(() -> new CustomException(ITEM_HISTORY_NOT_FOUND));
+        ItemHistory itemHistory = itemHistoryRepository.getActiveBorrowingRecord(item, member);
 
         // 반납 처리
         itemHistory.setItemReturnDate(LocalDateTime.now());  // 반납 시간 설정
@@ -180,7 +190,7 @@ public class ItemService {
         Club club = clubRepository.getById(clubId);
         Item item = itemRepository.getById(itemId);
 
-        List<ItemHistoryResponse> historyResponses = itemHistoryRepository.findByItemAndClub(itemId, clubId).stream()
+        List<ItemHistoryResponse> historyResponses = itemHistoryRepository.getAllByItem(item).stream()
                 .map(history -> ItemHistoryResponse.builder()
                         .itemHistoryId(history.getItemHistoryId())
                         .memberId(history.getMember().getMemberId())
