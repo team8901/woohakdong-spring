@@ -2,12 +2,15 @@ package woohakdong.server.domain.clubmember;
 
 import java.time.LocalDate;
 import java.util.List;
-import org.springframework.data.repository.query.Param;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.member.Member;
 
 public interface ClubMemberRepository {
     ClubMember save(ClubMember clubMember);
+
+    ClubMember getById(Long clubMemberId);
+
+    ClubMember getByClubAndMember(Club club, Member member);
 
     List<ClubMember> getAllByMember(Member member);
 
@@ -17,8 +20,7 @@ public interface ClubMemberRepository {
 
     Boolean existsByClubAndMember(Club club, Member member);
 
+    List<ClubMember> getByClubAndAssignedTerm(Club club, LocalDate assignedTerm);
 
-    List<ClubMember> getByClubIdAndAssignedTerm(Club club, LocalDate assignedTerm);
-
-    List<ClubMember> findByClubAndClubMemberAssignedTerm(Club club, LocalDate assignedTerm);
+    ClubMember getByClubAndMemberAndAssignedTerm(Club club, Member member, LocalDate assignedTerm);
 }

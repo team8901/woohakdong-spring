@@ -1,5 +1,6 @@
 package woohakdong.server.domain.clubmember;
 
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,4 +19,8 @@ public interface ClubMemberJpaRepository extends JpaRepository<ClubMember, Long>
     List<ClubMember> findByClubAndClubMemberAssignedTerm(Club club, LocalDate assignedTerm);
 
     List<ClubMember> findAllByMember(Member member);
+
+    Optional<ClubMember> findByClubAndMemberAndClubMemberAssignedTerm(Club club, Member member, LocalDate assignedTerm);
+
+    Optional<ClubMember> findByClubAndMember(Club club, Member member);
 }
