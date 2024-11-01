@@ -9,7 +9,7 @@ import woohakdong.server.api.service.member.MemberService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/member")
+@RequestMapping("/v1/members")
 public class MemberController implements MemberControllerDocs {
 
     private final MemberService memberService;
