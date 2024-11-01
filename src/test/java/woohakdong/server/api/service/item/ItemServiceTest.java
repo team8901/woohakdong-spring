@@ -1,5 +1,11 @@
 package woohakdong.server.api.service.item;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_USING;
+
+import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +15,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.ListWrapperResponse;
-import woohakdong.server.api.controller.item.dto.*;
+import woohakdong.server.api.controller.item.dto.ItemAvailableUpdateRequest;
+import woohakdong.server.api.controller.item.dto.ItemHistoryResponse;
+import woohakdong.server.api.controller.item.dto.ItemListResponse;
+import woohakdong.server.api.controller.item.dto.ItemRegisterRequest;
+import woohakdong.server.api.controller.item.dto.ItemRegisterResponse;
+import woohakdong.server.api.controller.item.dto.ItemReturnRequest;
+import woohakdong.server.api.controller.item.dto.ItemReturnResponse;
+import woohakdong.server.api.controller.item.dto.ItemUpdateRequest;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.ItemHistory.ItemHistory;
@@ -21,14 +34,6 @@ import woohakdong.server.domain.item.ItemCategory;
 import woohakdong.server.domain.item.ItemRepository;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
-
-import static woohakdong.server.common.exception.CustomErrorInfo.*;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -74,7 +79,7 @@ class ItemServiceTest {
         assertThat(response.itemName()).isEqualTo("축구공");
 
         // 그리고 DB에 물품이 실제로 저장되었는지 확인
-        assertThat(itemRepository.findById(response.itemId())).isPresent();
+        assertThat(itemRepository.getById(response.itemId())).isNotNull();
     }
 
     @DisplayName("물품리스트를 확인할 수 있다.")
@@ -148,7 +153,7 @@ class ItemServiceTest {
         itemService.borrowItem(club.getClubId(), item.getItemId());
 
         //then
-        Item borrowedItem = itemRepository.findById(item.getItemId()).orElseThrow();
+        Item borrowedItem = itemRepository.getById(item.getItemId());
         assertThat(borrowedItem.getItemUsing()).isTrue();
         assertThat(borrowedItem.getItemAvailable()).isTrue(); // 여전히 대여 가능 상태 (단, 현재 사용 중)
 
@@ -246,7 +251,7 @@ class ItemServiceTest {
         ItemReturnResponse itemReturnResponse = itemService.returnItem(club.getClubId(), item.getItemId(), request);
 
         // then
-        Item returnedItem = itemRepository.findById(item.getItemId()).orElseThrow();
+        Item returnedItem = itemRepository.getById(item.getItemId());
         assertThat(returnedItem.getItemUsing()).isFalse();
         assertThat(returnedItem.getItemAvailable()).isTrue();
 
@@ -418,7 +423,7 @@ class ItemServiceTest {
         itemService.updateItemAvailability(club.getClubId(), item.getItemId(), new ItemAvailableUpdateRequest(false));
 
         // Then
-        Item updatedItem = itemRepository.findById(item.getItemId()).orElseThrow();
+        Item updatedItem = itemRepository.getById(item.getItemId());
         assertThat(updatedItem.getItemAvailable()).isFalse();
     }
 
@@ -466,7 +471,7 @@ class ItemServiceTest {
         itemService.updateItem(club.getClubId(), item.getItemId(), updateRequest);
 
         // Then
-        Item updatedItem = itemRepository.findById(item.getItemId()).orElseThrow();
+        Item updatedItem = itemRepository.getById(item.getItemId());
         assertThat(updatedItem.getItemName()).isEqualTo("새로운 축구공");
         assertThat(updatedItem.getItemPhoto()).isEqualTo("http://example.com/new_soccer_ball.png");
         assertThat(updatedItem.getItemDescription()).isEqualTo("Updated soccer ball description");
