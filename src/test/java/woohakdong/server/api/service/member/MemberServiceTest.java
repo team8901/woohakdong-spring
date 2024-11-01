@@ -32,6 +32,7 @@ class MemberServiceTest {
 
     @Autowired
     private MemberService memberService;
+
     @Autowired
     private SchoolRepository schoolRepository;
 

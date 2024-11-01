@@ -1,11 +1,9 @@
 package woohakdong.server.api.service.clubMember;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.clubMember.dto.ClubMemberInfoResponse;
@@ -13,7 +11,6 @@ import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
-import woohakdong.server.domain.clubmember.ClubMemberRole;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
@@ -79,7 +76,8 @@ class ClubMemberServiceTest {
                 .memberEmail("president@ajou.ac.kr")
                 .school(school)
                 .build();
-        memberRepository.saveAll(List.of(member1, member2));
+        memberRepository.save(member1);
+        memberRepository.save(member2);
 
         ClubMember clubMember1 = ClubMember.builder()
                 .clubMemberAssignedTerm(getAssignedTerm())
@@ -138,7 +136,8 @@ class ClubMemberServiceTest {
                 .memberEmail("president@ajou.ac.kr")
                 .school(school)
                 .build();
-        memberRepository.saveAll(List.of(member1, member2));
+        memberRepository.save(member1);
+        memberRepository.save(member2);
 
         ClubMember clubMember1 = ClubMember.builder()
                 .clubMemberAssignedTerm(getAssignedTerm())
