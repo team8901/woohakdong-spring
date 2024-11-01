@@ -1,9 +1,12 @@
 package woohakdong.server.domain.clubmember;
 
+import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_MEMBER_NOT_FOUND;
+
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.member.Member;
 
@@ -16,6 +19,18 @@ public class ClubMemberRepositoryImpl implements ClubMemberRepository {
     @Override
     public ClubMember save(ClubMember clubMember) {
         return clubMemberJpaRepository.save(clubMember);
+    }
+
+    @Override
+    public ClubMember getById(Long clubMemberId) {
+        return clubMemberJpaRepository.findById(clubMemberId)
+                .orElseThrow(() -> new CustomException(CLUB_MEMBER_NOT_FOUND));
+    }
+
+    @Override
+    public ClubMember getByClubAndMember(Club club, Member member) {
+        return clubMemberJpaRepository.findByClubAndMember(club, member)
+                .orElseThrow(() -> new CustomException(CLUB_MEMBER_NOT_FOUND));
     }
 
     @Override
@@ -39,12 +54,13 @@ public class ClubMemberRepositoryImpl implements ClubMemberRepository {
     }
 
     @Override
-    public List<ClubMember> getByClubIdAndAssignedTerm(Club club, LocalDate assignedTerm) {
+    public List<ClubMember> getByClubAndAssignedTerm(Club club, LocalDate assignedTerm) {
         return clubMemberJpaRepository.findByClubAndClubMemberAssignedTerm(club, assignedTerm);
     }
 
     @Override
-    public List<ClubMember> findByClubAndClubMemberAssignedTerm(Club club, LocalDate assignedTerm) {
-        return clubMemberJpaRepository.findByClubAndClubMemberAssignedTerm(club, assignedTerm);
+    public ClubMember getByClubAndMemberAndAssignedTerm(Club club, Member member, LocalDate assignedTerm) {
+        return clubMemberJpaRepository.findByClubAndMemberAndClubMemberAssignedTerm(club, member, assignedTerm)
+                .orElseThrow(() -> new CustomException(CLUB_MEMBER_NOT_FOUND));
     }
 }
