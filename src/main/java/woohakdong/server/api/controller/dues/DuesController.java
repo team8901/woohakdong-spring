@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/club")
+@RequestMapping("/v1/clubs")
 public class DuesController implements DuesControllerDocs {
 
     private final DuesService duesService;
