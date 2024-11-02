@@ -175,7 +175,7 @@ public class ClubService {
 
     private Group createJoinGroup(Club club) {
         return Group.builder()
-                .groupJoinLink("https://woohakdong.com/clubs/" + club.getClubEnglishName())
+                .groupJoinLink("https://www.woohakdong.com/clubs/" + club.getClubEnglishName())
                 .club(club)
                 .groupAmount(club.getClubDues())
                 .groupType(JOIN)
