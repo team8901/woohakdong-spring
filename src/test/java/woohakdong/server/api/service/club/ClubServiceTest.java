@@ -103,7 +103,7 @@ class ClubServiceTest {
         List<Group> groups = groupRepository.getAll();
         assertThat(groups).hasSize(1);
         assertThat(groups.get(0)).extracting("groupName", "groupType", "groupJoinLink")
-                .containsExactly(clubCreateRequest.clubName(), JOIN, "https://woohakdong.com/clubs/Durian");
+                .containsExactly(clubCreateRequest.clubName(), JOIN, "https://www.woohakdong.com/clubs/Durian");
     }
 
     @DisplayName("동아리를 등록하면, 등록한 사람이 회장으로 등록된다.")
@@ -307,7 +307,7 @@ class ClubServiceTest {
                 .club(club)
                 .groupType(JOIN)
                 .groupName(club.getClubName())
-                .groupJoinLink("https://wooahakdong.com/clubs/" + club.getClubEnglishName())
+                .groupJoinLink("https://www.wooahakdong.com/clubs/" + club.getClubEnglishName())
                 .groupAmount(club.getClubDues())
                 .groupChatLink(club.getClubGroupChatLink())
                 .groupChatPassword(club.getClubGroupChatPassword())
