@@ -55,8 +55,8 @@ public class DataInitializer implements CommandLineRunner {
 
             Member member1 = Member.builder()
                     .memberEmail("sangjun@ajou.ac.kr")
-                    .memberRole("ROLE_USER")
-                    .memberName("박상준")
+                    .memberRole("USER_ROLE")
+                    .memberName("박상")
                     .memberProvideId("google_test")
                     .memberMajor("소프트웨어학과")
                     .memberPhoneNumber("01012345678")
@@ -67,7 +67,7 @@ public class DataInitializer implements CommandLineRunner {
 
             Member member2 = Member.builder()
                     .memberEmail("junpark@ajou.ac.kr")
-                    .memberRole("ROLE_USER")
+                    .memberRole("USER_ROLE")
                     .memberName("박준")
                     .memberProvideId("google_test2")
                     .memberMajor("소프트웨어학과")
@@ -79,7 +79,7 @@ public class DataInitializer implements CommandLineRunner {
 
             Member member3 = Member.builder()
                     .memberEmail("jiwon312@ajou.ac.kr")
-                    .memberRole("ROLE_USER")
+                    .memberRole("USER_ROLE")
                     .memberName("김지원")
                     .memberProvideId("google_test3")
                     .memberMajor("디지털미디어학과")
@@ -102,6 +102,8 @@ public class DataInitializer implements CommandLineRunner {
                     .clubGeneration("34")
                     .clubRoom("구학생회관 201호")
                     .clubEstablishmentDate(LocalDate.of(2017, 7, 1))
+                    .clubGroupChatLink("https://open.kakao.com/o/gUEMLKVg")
+                    .clubGroupChatPassword("1234")
                     .build();
             clubRepository.save(club);
 
@@ -137,7 +139,7 @@ public class DataInitializer implements CommandLineRunner {
                     .groupDescription("두잇 가입 그룹")
                     .club(club)
                     .groupType(GroupType.JOIN)
-                    .groupJoinLink("https://woohakdong.com/clubs/doit")
+                    .groupJoinLink("https://www.woohakdong.com/clubs/" + club.getClubEnglishName())
                     .groupChatLink("https://open.kakao.com/o/gUEMLKVg")
                     .groupChatPassword("1234")
                     .groupAmount(10000)
