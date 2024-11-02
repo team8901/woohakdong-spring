@@ -60,6 +60,7 @@ public class ClubMemberService {
         return ClubMemberInfoResponse.from(clubMember.getMember(), clubMember);
     }
 
+    @Transactional
     public void changeClubMemberRole(Long clubId, Long clubMemberId, ClubMemberRole clubMemberRole) {
         Member member = getMemberFromJwtInformation();
         Club club = clubRepository.getById(clubId);
