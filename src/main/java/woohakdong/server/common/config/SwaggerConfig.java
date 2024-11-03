@@ -7,6 +7,8 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.security.SecurityScheme.Type;
+import io.swagger.v3.oas.models.servers.Server;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,8 +32,21 @@ public class SwaggerConfig {
         Components components = new Components()
                 .addSecuritySchemes("accessToken", securityScheme);
 
+        Server httpsServer = new Server();
+        httpsServer.setUrl("https://dev.woohakdong.com");
+        httpsServer.setDescription("개발 서버");
+
+        Server prodServer = new Server();
+        prodServer.setUrl("https://api.woohakdong.com");
+        prodServer.setDescription("운영 서버");
+
+        Server localServer = new Server();
+        localServer.setUrl("http://localhost:8080");
+        localServer.setDescription("로컬 서버");
+
         return new OpenAPI()
                 .components(components)
+                .servers(List.of(httpsServer, prodServer, localServer))
                 .info(info);
     }
 }
