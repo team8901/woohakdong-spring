@@ -46,13 +46,14 @@ public class ClubAccount {
 
     @Builder
     public ClubAccount(Club club, String clubAccountBankName, String clubAccountNumber,
-                       String clubAccountPinTechNumber, String clubAccountBankCode, LocalDateTime clubAccountLastUpdateDate) {
+                       String clubAccountPinTechNumber, String clubAccountBankCode, LocalDateTime clubAccountLastUpdateDate, Long clubAccountBalance) {
         this.club = club;
         this.clubAccountBankName = clubAccountBankName;
         this.clubAccountNumber = clubAccountNumber;
         this.clubAccountPinTechNumber = clubAccountPinTechNumber;
         this.clubAccountBankCode = clubAccountBankCode;
         this.clubAccountLastUpdateDate = clubAccountLastUpdateDate;
+        this.clubAccountBalance = clubAccountBalance;
     }
 
     public void setClubAccountLastUpdateDate(LocalDateTime clubAccountLastUpdateDate) {

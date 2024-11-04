@@ -42,6 +42,11 @@ public class ClubController implements ClubControllerDocs {
         return clubService.updateClubInfo(clubId, request);
     }
 
+    @GetMapping("/{clubId}/accounts")
+    public ClubAccountResponse getClubAccount(@PathVariable Long clubId) {
+        clubService.getClubAccount(clubId);
+    }
+
     @PostMapping("/{clubId}/accounts")
     public void registerClubAccount(@PathVariable Long clubId, @RequestBody ClubAccountRegisterRequest request) {
         clubService.registerClubAccount(clubId, request);
