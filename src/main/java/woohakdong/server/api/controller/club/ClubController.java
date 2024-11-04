@@ -44,7 +44,7 @@ public class ClubController implements ClubControllerDocs {
 
     @GetMapping("/{clubId}/accounts")
     public ClubAccountResponse getClubAccount(@PathVariable Long clubId) {
-        clubService.getClubAccount(clubId);
+        return clubService.getClubAccount(clubId);
     }
 
     @PostMapping("/{clubId}/accounts")

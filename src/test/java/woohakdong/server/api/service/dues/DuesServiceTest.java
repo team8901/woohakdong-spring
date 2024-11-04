@@ -36,7 +36,12 @@ class DuesServiceTest {
     @DisplayName("특정 클럽의 월별 거래 내역을 조회할 수 있다")
     void findMonthlyTransactions() {
         // given
-        ClubAccount clubAccount = clubAccountRepository.save(new ClubAccount(null, "Test Bank", "1234567890", "0011223344", "011", LocalDateTime.now()));
+        ClubAccount clubAccount = clubAccountRepository.save(ClubAccount.builder()
+                .clubAccountBankName("농협은행")
+                .clubAccountNumber("123456789")
+                .clubAccountPinTechNumber("987654321")
+                .clubAccountBankCode("011")
+                .build());
 
         clubAccountHistoryRepository.save(new ClubAccountHistory(AccountType.DEPOSIT, LocalDateTime.of(2024, 10, 15, 10, 0), 100000L, 10000L, "Test Deposit 1", clubAccount));
         clubAccountHistoryRepository.save(new ClubAccountHistory(AccountType.WITHDRAW, LocalDateTime.of(2024, 10, 20, 15, 30), 90000L, 10000L, "Test Withdraw", clubAccount));
@@ -50,10 +55,5 @@ class DuesServiceTest {
         // then
         assertThat(histories).hasSize(2);
         assertThat(histories).extracting("clubAccountHistoryContent").containsExactlyInAnyOrder("Test Deposit 1", "Test Withdraw");
-    }
-
-    @Test
-    void updateTransaction() {
-        mockBankService.fetchTransactions()
     }
 }
