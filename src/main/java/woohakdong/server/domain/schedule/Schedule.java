@@ -14,7 +14,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import woohakdong.server.api.controller.schedule.dto.ScheduleCreateRequest;
 import woohakdong.server.domain.club.Club;
 
 @Entity
@@ -50,13 +49,20 @@ public class Schedule {
         this.club = club;
     }
 
-    public static Schedule create(ScheduleCreateRequest scheduleCreateRequest, Club club) {
+    public static Schedule create(String title, String content, LocalDateTime dateTime, String color, Club club) {
         return Schedule.builder()
-                .scheduleTitle(scheduleCreateRequest.scheduleTitle())
-                .scheduleContent(scheduleCreateRequest.scheduleContent())
-                .scheduleDateTime(scheduleCreateRequest.scheduleDateTime())
-                .scheduleColor(scheduleCreateRequest.scheduleColor())
+                .scheduleTitle(title)
+                .scheduleContent(content)
+                .scheduleDateTime(dateTime)
+                .scheduleColor(color)
                 .club(club)
                 .build();
+    }
+
+    public void update(String title, String content, LocalDateTime dateTime, String color) {
+        this.scheduleTitle = title;
+        this.scheduleContent = content;
+        this.scheduleDateTime = dateTime;
+        this.scheduleColor = color;
     }
 }
