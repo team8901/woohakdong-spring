@@ -17,4 +17,6 @@ public interface ClubAccountHistoryJpaRepository extends JpaRepository<ClubAccou
     List<ClubAccountHistory> findMonthlyTransactions(@Param("clubAccount") ClubAccount clubAccount,
                                                      @Param("year") int year,
                                                      @Param("month") int month);
+
+    List<ClubAccountHistory> findAllByClubAccountClubClubId(Long clubId);
 }

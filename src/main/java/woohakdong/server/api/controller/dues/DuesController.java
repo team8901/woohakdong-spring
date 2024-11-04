@@ -26,10 +26,9 @@ public class DuesController implements DuesControllerDocs {
     @GetMapping("/{clubId}/dues")
     public ListWrapperResponse<ClubAccountHistoryListResponse> getMonthlyTransactions(
             @PathVariable Long clubId,
-            @RequestParam int year,
-            @RequestParam int month) {
+            @RequestParam(required = false) LocalDate date) {
 
-        List<ClubAccountHistoryListResponse> historys = duesService.getMonthlyTransactions(clubId, year, month);
+        List<ClubAccountHistoryListResponse> historys = duesService.getMonthlyTransactions(clubId, date);
         return ListWrapperResponse.of(historys);
     }
 }

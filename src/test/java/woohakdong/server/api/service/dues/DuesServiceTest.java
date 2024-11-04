@@ -12,6 +12,7 @@ import woohakdong.server.domain.clubAccount.ClubAccountRepository;
 import woohakdong.server.domain.clubAccountHistory.ClubAccountHistory;
 import woohakdong.server.domain.clubAccountHistory.ClubAccountHistoryRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -37,11 +38,10 @@ class DuesServiceTest {
         clubAccountHistoryRepository.save(new ClubAccountHistory(AccountType.WITHDRAW, LocalDateTime.of(2024, 10, 20, 15, 30), 90000L, 10000L, "Test Withdraw", clubAccount));
         clubAccountHistoryRepository.save(new ClubAccountHistory(AccountType.DEPOSIT, LocalDateTime.of(2024, 11, 5, 11, 0), 100000L, 10000L, "Test Deposit 2", clubAccount));
 
-        int year = 2024;
-        int month = 10;
+        LocalDate date = LocalDate.of(2024, 10, 1);
 
         // when
-        List<ClubAccountHistory> histories = clubAccountHistoryRepository.findMonthlyTransactions(clubAccount, year, month);
+        List<ClubAccountHistory> histories = clubAccountHistoryRepository.findMonthlyTransactions(clubAccount, 2024, 10);
 
         // then
         assertThat(histories).hasSize(2);
