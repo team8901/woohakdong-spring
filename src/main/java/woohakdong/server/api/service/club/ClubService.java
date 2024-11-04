@@ -17,13 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.ListWrapperResponse;
-import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
-import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
-import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
-import woohakdong.server.api.controller.club.dto.ClubHistoryTermResponse;
-import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
-import woohakdong.server.api.controller.club.dto.ClubJoinGroupInfoResponse;
-import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
+import woohakdong.server.api.controller.club.dto.*;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
@@ -78,6 +72,21 @@ public class ClubService {
 
         return ClubCreateResponse.builder()
                 .clubId(club.getClubId())
+                .build();
+    }
+
+    public ClubAccountResponse getClubAccount(Long clubId) {
+        Club club = clubRepository.getById(clubId);
+        ClubAccount clubAccount = clubAccountRepository.getByClub(club);
+
+        return ClubAccountResponse.builder()
+                .clubAccountId(clubAccount.getClubAccountId())
+                .clubAccountBalance(clubAccount.getClubAccountBalance())
+                .clubAccountPinTechNumber(clubAccount.getClubAccountPinTechNumber())
+                .clubAccountNumber(clubAccount.getClubAccountNumber())
+                .clubAccountLastUpdateDate(clubAccount.getClubAccountLastUpdateDate())
+                .clubAccountBankCode(clubAccount.getClubAccountBankCode())
+                .clubAccountBankName(clubAccount.getClubAccountBankName())
                 .build();
     }
 
@@ -211,6 +220,7 @@ public class ClubService {
                 .clubAccountPinTechNumber(clubAccountRegisterRequest.clubAccountPinTechNumber())
                 .clubAccountBankCode(bankCode)
                 .clubAccountLastUpdateDate(LocalDateTime.now())
+                .clubAccountBalance(0L)
                 .club(club)
                 .build();
     }

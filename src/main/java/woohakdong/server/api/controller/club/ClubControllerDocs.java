@@ -32,6 +32,11 @@ public interface ClubControllerDocs {
     public ClubInfoResponse updateClubInfo(Long clubId, ClubUpdateRequest clubCreateRequest);
 
     @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "동아리 계좌 정보 불러오기", description = "동아리에서 사용하는 계좌 정보를 불러옵니다.")
+    @ApiResponse(responseCode = "200", description = "동아리 계좌 정보 조회 성공", useReturnTypeSchema = true)
+    public ClubAccountResponse getClubAccount(@PathVariable Long clubId);
+
+    @SecurityRequirement(name = "accessToken")
     @Operation(summary = "동아리 계좌 등록", description = "동아리에서 사용하는 계좌 정보를 등록합니다.")
     @ApiResponse(responseCode = "200", description = "동아리 계좌 등록 성공", useReturnTypeSchema = true)
     public void registerClubAccount(Long clubId, ClubAccountRegisterRequest clubAccountRegisterRequest);
