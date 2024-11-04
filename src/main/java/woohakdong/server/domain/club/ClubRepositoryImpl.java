@@ -30,6 +30,12 @@ public class ClubRepositoryImpl implements ClubRepository{
     }
 
     @Override
+    public void validateClubExists(Long clubId) {
+        clubJpaRepository.findById(clubId)
+                .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+    }
+
+    @Override
     public Club getById(Long clubId) {
         return clubJpaRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
