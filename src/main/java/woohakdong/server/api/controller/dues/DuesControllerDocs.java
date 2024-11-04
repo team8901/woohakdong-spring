@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.dues.dto.ClubAccountHistoryListResponse;
 
+import java.time.LocalDate;
+
 @Tag(name = "Dues", description = "회비 관련 API")
 public interface DuesControllerDocs {
 
@@ -22,6 +24,5 @@ public interface DuesControllerDocs {
     @ApiResponse(responseCode = "200", description = "물품 대여 기록 조회 성공", useReturnTypeSchema = true)
     public ListWrapperResponse<ClubAccountHistoryListResponse> getMonthlyTransactions(
             @PathVariable Long clubId,
-            @RequestParam int year,
-            @RequestParam int month);
+            @RequestParam(required = false) LocalDate date);
 }
