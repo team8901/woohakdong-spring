@@ -1,11 +1,15 @@
 package woohakdong.server.api.service.schedule;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.schedule.dto.ScheduleCreateRequest;
 import woohakdong.server.api.controller.schedule.dto.ScheduleIdResponse;
 import woohakdong.server.api.controller.schedule.dto.ScheduleInfoResponse;
+import woohakdong.server.api.controller.schedule.dto.ScheduleUpdateRequest;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.schedule.Schedule;
@@ -20,9 +24,11 @@ public class ScheduleService {
     private final ClubRepository clubRepository;
 
     @Transactional
-    public ScheduleIdResponse createSchedule(Long clubId, ScheduleCreateRequest scheduleCreateRequest) {
+    public ScheduleIdResponse createSchedule(Long clubId, ScheduleCreateRequest request) {
         Club club = clubRepository.getById(clubId);
-        Schedule schedule = Schedule.create(scheduleCreateRequest, club);
+
+        Schedule schedule = Schedule.create(request.scheduleTitle(), request.scheduleContent(),
+                request.scheduleDateTime(), request.scheduleColor(), club);
         scheduleRepository.save(schedule);
 
         return ScheduleIdResponse.from(schedule);
@@ -30,7 +36,41 @@ public class ScheduleService {
 
     public ScheduleInfoResponse getSchedule(Long clubId, Long scheduleId) {
         clubRepository.validateClubExists(clubId);
+
         Schedule schedule = scheduleRepository.getById(scheduleId);
+
         return ScheduleInfoResponse.from(schedule);
+    }
+
+    @Transactional
+    public void deleteSchedule(Long clubId, Long scheduleId) {
+        clubRepository.validateClubExists(clubId);
+
+        Schedule schedule = scheduleRepository.getById(scheduleId);
+
+        scheduleRepository.delete(schedule);
+    }
+
+    @Transactional
+    public ScheduleIdResponse updateSchedule(Long clubId, Long scheduleId, ScheduleUpdateRequest request) {
+        clubRepository.validateClubExists(clubId);
+        Schedule schedule = scheduleRepository.getById(scheduleId);
+
+        schedule.update(request.scheduleTitle(), request.scheduleContent(),
+                request.scheduleDateTime(), request.scheduleColor());
+
+        return ScheduleIdResponse.from(schedule);
+    }
+
+    public List<ScheduleInfoResponse> getSchedules(Long clubId, LocalDate date) {
+        Club club = clubRepository.getById(clubId);
+
+        LocalDateTime startDate = LocalDate.of(date.getYear(), date.getMonth(), 1).atStartOfDay();
+        LocalDateTime endDate = startDate.plusMonths(1).minusDays(1).withHour(23).withMinute(59).withSecond(59);
+
+        return scheduleRepository.getSchedulesWithPeriod(club, startDate, endDate)
+                .stream()
+                .map(ScheduleInfoResponse::from)
+                .toList();
     }
 }
