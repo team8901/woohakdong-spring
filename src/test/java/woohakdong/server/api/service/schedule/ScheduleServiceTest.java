@@ -2,11 +2,15 @@ package woohakdong.server.api.service.schedule;
 
 import static java.time.LocalDateTime.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
+import static woohakdong.server.common.exception.CustomErrorInfo.SCHEDULE_NOT_FOUND;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.OFFICER;
 import static woohakdong.server.domain.member.MemberGender.MAN;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.schedule.dto.ScheduleCreateRequest;
 import woohakdong.server.api.controller.schedule.dto.ScheduleIdResponse;
 import woohakdong.server.api.controller.schedule.dto.ScheduleInfoResponse;
+import woohakdong.server.api.controller.schedule.dto.ScheduleUpdateRequest;
+import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
@@ -97,6 +103,66 @@ class ScheduleServiceTest {
                 .containsExactly("리액트 스터디", "4회차", of(2024, 11, 4, 20, 0));
     }
 
+    @DisplayName("동아리 일정 1개를 삭제한다.")
+    @Test
+    void deleteSchedule() {
+        // Given
+        Long scheduleId = createSchedule("리액트 스터디", "4회차", of(2024, 11, 4, 20, 0)).getScheduleId();
+        Long clubId = club.getClubId();
+
+        // When
+        scheduleService.deleteSchedule(clubId, scheduleId);
+
+        // Then
+        assertThatThrownBy(() -> scheduleRepository.getById(scheduleId))
+                .isInstanceOf(CustomException.class)
+                .hasMessage(SCHEDULE_NOT_FOUND.getMessage());
+    }
+
+    @DisplayName("동아리 일정을 수정한다.")
+    @Test
+    void updateSchedule() {
+        // Given
+        Long scheduleId = createSchedule("동아리 박람회", "at 텔레토비 동산", of(2024, 11, 4, 20, 0)).getScheduleId();
+        Long clubId = club.getClubId();
+
+        ScheduleUpdateRequest request = createUpdateScheduleRequest("동아리 박람회", "at 팔달관");
+
+        // When
+        ScheduleIdResponse response = scheduleService.updateSchedule(clubId, scheduleId, request);
+
+        // Then
+        Schedule schedule = scheduleRepository.getById(response.scheduleId());
+        assertThat(schedule)
+                .extracting("scheduleTitle", "scheduleContent", "scheduleDateTime")
+                .containsExactly("동아리 박람회", "at 팔달관", of(2024, 11, 4, 20, 0));
+    }
+
+
+    @DisplayName("특정 달의 동아리 일정을 불러올 수 있다.")
+    @Test
+    void getSchedules() {
+        // Given
+        Long clubId = club.getClubId();
+        createSchedule("스프링 스터디", "특강", of(2024, 10, 30, 20, 0));
+        createSchedule("리액트 스터디", "1회차", of(2024, 11, 1, 20, 0));
+        createSchedule("리액트 스터디", "2회차", of(2024, 11, 15, 20, 0));
+        createSchedule("리액트 스터디", "3회차", of(2024, 11, 29, 20, 0));
+        createSchedule("플러터 스터디", "왕기초 특강", of(2024, 12, 1, 20, 0));
+
+        // When
+        List<ScheduleInfoResponse> response = scheduleService.getSchedules(clubId, LocalDate.of(2024, 11, 1));
+
+        // Then
+        assertThat(response).hasSize(3)
+                .extracting("scheduleTitle", "scheduleContent", "scheduleDateTime")
+                .containsExactlyInAnyOrder(
+                        tuple("리액트 스터디", "1회차", of(2024, 11, 1, 20, 0)),
+                        tuple("리액트 스터디", "2회차", of(2024, 11, 15, 20, 0)),
+                        tuple("리액트 스터디", "3회차", of(2024, 11, 29, 20, 0))
+                );
+    }
+
     private Schedule createSchedule(String title, String content, LocalDateTime date) {
         Schedule schedule = Schedule.builder()
                 .scheduleTitle(title)
@@ -147,5 +213,14 @@ class ScheduleServiceTest {
                 .clubJoinedDate(LocalDate.of(2024, 8, 1))
                 .build();
         return clubMemberRepository.save(clubMember);
+    }
+
+    private static ScheduleUpdateRequest createUpdateScheduleRequest(String title, String content) {
+        return ScheduleUpdateRequest.builder()
+                .scheduleTitle(title)
+                .scheduleContent(content)
+                .scheduleColor("#00ff0088")
+                .scheduleDateTime(of(2024, 11, 4, 20, 0))
+                .build();
     }
 }
