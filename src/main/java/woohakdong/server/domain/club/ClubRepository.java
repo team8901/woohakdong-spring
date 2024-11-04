@@ -8,4 +8,6 @@ public interface ClubRepository {
     Boolean existsByClubNameOrClubEnglishName(String clubName, String clubEnglishName);
 
     Club getByClubEnglishName(String clubEnglishName);
+
+    void validateClubExists(Long clubId);
 }
