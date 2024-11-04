@@ -9,4 +9,6 @@ public interface ClubAccountHistoryRepository {
     void saveAll(List<ClubAccountHistory> clubAccountHistories);
 
     List<ClubAccountHistory> findMonthlyTransactions(ClubAccount clubAccount, int year, int month);
+
+    List<ClubAccountHistory> findAllByClubAccountClubClubId(Long clubId);
 }

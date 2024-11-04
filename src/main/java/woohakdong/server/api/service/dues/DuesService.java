@@ -45,13 +45,22 @@ public class DuesService {
         }
     }
 
-    public List<ClubAccountHistoryListResponse> getMonthlyTransactions(Long clubId, int year, int month) {
+    public List<ClubAccountHistoryListResponse> getMonthlyTransactions(Long clubId, LocalDate date) {
         Club club = clubRepository.getById(clubId);
         ClubAccount clubAccount = clubAccountRepository.getByClub(club);
+        List<ClubAccountHistory> histories;
 
-        List<ClubAccountHistory> histories = clubAccountHistoryRepository.findMonthlyTransactions(
-                clubAccount, year, month);
+        if (date != null) {
+            // 특정 월의 거래 내역 조회
+            int year = date.getYear();
+            int month = date.getMonthValue();
+            histories = clubAccountHistoryRepository.findMonthlyTransactions(clubAccount, year, month);
+        } else {
+            // 전체 거래 내역 조회
+            histories = clubAccountHistoryRepository.findAllByClubAccountClubClubId(clubId);
+        }
 
+        // ClubAccountHistoryListResponse로 변환
         return histories.stream()
                 .map(history -> new ClubAccountHistoryListResponse(
                         history.getClubAccountHistoryId(),

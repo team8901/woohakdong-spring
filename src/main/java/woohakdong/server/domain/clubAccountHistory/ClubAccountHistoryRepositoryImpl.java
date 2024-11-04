@@ -26,4 +26,9 @@ public class ClubAccountHistoryRepositoryImpl implements ClubAccountHistoryRepos
     public List<ClubAccountHistory> findMonthlyTransactions(ClubAccount clubAccount, int year, int month) {
         return clubAccountHistoryJpaRepository.findMonthlyTransactions(clubAccount, year, month);
     }
+
+    @Override
+    public List<ClubAccountHistory> findAllByClubAccountClubClubId(Long clubId) {
+        return clubAccountHistoryJpaRepository.findAllByClubAccountClubClubId(clubId);
+    }
 }
