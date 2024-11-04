@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.dues.dto.ClubAccountHistoryListResponse;
 import woohakdong.server.api.service.bank.MockBankService;
+import woohakdong.server.api.service.bank.NHTransactionResponse;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubAccount.ClubAccount;
@@ -26,6 +27,7 @@ public class DuesService {
     private final ClubAccountRepository clubAccountRepository;
     private final MockBankService mockBankService;
 
+    @Transactional
     public void fetchAndSaveRecentTransactions(Long clubId) {
         Club club = clubRepository.getById(clubId);
         ClubAccount clubAccount = clubAccountRepository.getByClub(club);
@@ -38,8 +40,10 @@ public class DuesService {
         List<ClubAccountHistory> histories = mockBankService.fetchTransactions(clubAccount, lastUpdateDate.toLocalDate(), LocalDate.now());
 
         if (!histories.isEmpty()) {
-            clubAccountHistoryRepository.saveAll(histories);
+            Long latestBalance = histories.get(0).getClubAccountHistoryBalanceAmount();
+            clubAccount.setClubAccountBalance(latestBalance);
 
+            clubAccountHistoryRepository.saveAll(histories);
             clubAccount.setClubAccountLastUpdateDate(LocalDateTime.now());
             clubAccountRepository.save(clubAccount);
         }

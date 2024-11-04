@@ -35,6 +35,8 @@ public class ClubAccount {
     @Column(nullable = false)
     private String clubAccountBankCode;
 
+    private Long clubAccountBalance;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id")
     private Club club;
@@ -55,5 +57,9 @@ public class ClubAccount {
 
     public void setClubAccountLastUpdateDate(LocalDateTime clubAccountLastUpdateDate) {
         this.clubAccountLastUpdateDate = clubAccountLastUpdateDate;
+    }
+
+    public void setClubAccountBalance(Long clubAccountBalance) {
+        this.clubAccountBalance = clubAccountBalance;
     }
 }
