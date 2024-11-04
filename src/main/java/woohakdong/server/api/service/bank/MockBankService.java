@@ -226,7 +226,7 @@ public class MockBankService implements BankService {
         }
 
         NHTransactionResponse nhResponse = objectMapper.convertValue(responseBody, NHTransactionResponse.class);
-        if (nhResponse == null || nhResponse.getREC() == null) {
+        if (nhResponse == null || nhResponse.getRec() == null) {
             return Collections.emptyList(); // null인 경우 빈 리스트 반환
         }
 
@@ -235,7 +235,7 @@ public class MockBankService implements BankService {
         List<ClubAccountHistory> histories = new ArrayList<>();
 
         // NH 응답 데이터를 순회하면서 필요한 조건에 맞는 ClubAccountHistory 객체를 생성하고 추가
-        for (NHTransactionResponse.Record record : nhResponse.getREC()) {
+        for (NHTransactionResponse.Record record : nhResponse.getRec()) {
             // Trdd와 Txtm을 합쳐 LocalDateTime으로 변환
             LocalDateTime transactionDateTime = LocalDateTime.parse(
                     record.getTrdd() + "T" + record.getTxtm(),

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import woohakdong.server.api.service.bank.MockBankService;
 import woohakdong.server.domain.admin.adminAccount.AccountType;
 import woohakdong.server.domain.clubAccount.ClubAccount;
 import woohakdong.server.domain.clubAccount.ClubAccountRepository;
@@ -28,6 +29,9 @@ class DuesServiceTest {
     @Autowired
     private ClubAccountRepository clubAccountRepository;
 
+    @Autowired
+    private MockBankService mockBankService;
+
     @Test
     @DisplayName("특정 클럽의 월별 거래 내역을 조회할 수 있다")
     void findMonthlyTransactions() {
@@ -46,5 +50,10 @@ class DuesServiceTest {
         // then
         assertThat(histories).hasSize(2);
         assertThat(histories).extracting("clubAccountHistoryContent").containsExactlyInAnyOrder("Test Deposit 1", "Test Withdraw");
+    }
+
+    @Test
+    void updateTransaction() {
+        mockBankService.fetchTransactions()
     }
 }
