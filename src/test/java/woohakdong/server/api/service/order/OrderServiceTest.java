@@ -1,8 +1,8 @@
 package woohakdong.server.api.service.order;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 import static woohakdong.server.domain.member.MemberGender.MAN;
 import static woohakdong.server.domain.order.OrderStatus.COMPLETE;
@@ -17,6 +17,8 @@ import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -27,7 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.group.dto.GroupJoinConfirmRequest;
 import woohakdong.server.api.controller.group.dto.GroupJoinOrderRequest;
 import woohakdong.server.api.controller.group.dto.GroupJoinOrderResponse;
+import woohakdong.server.api.service.bank.MockBankService;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
+import woohakdong.server.domain.admin.adminAccount.AdminAccount;
+import woohakdong.server.domain.admin.adminAccount.AdminAccountRepository;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
@@ -69,6 +74,12 @@ class OrderServiceTest {
 
     @MockBean
     private IamportClient iamportClient;
+
+    @Autowired
+    private AdminAccountRepository adminAccountRepository;
+
+    @MockBean
+    private MockBankService mockBankService;
 
     @BeforeEach
     void setUp() {
@@ -127,6 +138,14 @@ class OrderServiceTest {
         Group group = createGroup(club, 10000, JOIN);
         Member member = memberRepository.findByMemberProvideId("testProvideId").get();
 
+        AdminAccount adminAccount = AdminAccount.builder()
+                .adminAccountBankCode("011")
+                .adminAccountAmount(10000000L)
+                .adminAccountBankName("농협은행")
+                .adminAccountNumber("3020000011527")
+                .build();
+        adminAccountRepository.save(adminAccount);
+
         GroupJoinOrderRequest request = createClubJoinOrder("m-12315");
         GroupJoinOrderResponse response = orderService.registerOrder(group.getGroupId(), request);
         GroupJoinConfirmRequest confirmRequest = createClubJoinConfirm("imp-12315", "m-12315", response.orderId());
@@ -141,6 +160,8 @@ class OrderServiceTest {
         when(mockIamportResponse.getResponse()).thenReturn(mockPayment);
 
         when(iamportClient.paymentByImpUid("imp-12315")).thenReturn(mockIamportResponse);
+
+        doNothing().when(mockBankService).transferClubFee(anyLong(), anyLong());
 
         // When
         orderService.confirmJoinOrder(group.getGroupId(), confirmRequest);
