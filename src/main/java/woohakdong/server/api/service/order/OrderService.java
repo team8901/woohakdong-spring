@@ -23,10 +23,18 @@ import woohakdong.server.api.controller.group.dto.GroupJoinOrderRequest;
 import woohakdong.server.api.controller.group.dto.GroupJoinOrderResponse;
 import woohakdong.server.api.controller.group.dto.PortOnePaymentResponse;
 import woohakdong.server.api.controller.group.dto.PortOneWebhookRequest;
+import woohakdong.server.api.service.bank.MockBankService;
 import woohakdong.server.api.service.email.EmailService;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
+import woohakdong.server.domain.admin.adminAccount.AccountType;
+import woohakdong.server.domain.admin.adminAccount.AdminAccount;
+import woohakdong.server.domain.admin.adminAccount.AdminAccountRepository;
+import woohakdong.server.domain.admin.adminAccountHistory.AdminAccountHistory;
+import woohakdong.server.domain.admin.adminAccountHistory.AdminAccountHistoryRepository;
 import woohakdong.server.domain.club.Club;
+import woohakdong.server.domain.clubAccount.ClubAccount;
+import woohakdong.server.domain.clubAccount.ClubAccountRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.group.Group;
@@ -49,6 +57,9 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final IamportClient iamportClient;
     private final EmailService emailService;
+    private final AdminAccountRepository adminAccountRepository;
+    private final AdminAccountHistoryRepository adminAccountHistoryRepository;
+    private final MockBankService mockBankService;
 
     @Transactional
     public GroupJoinOrderResponse registerOrder(Long groupId, GroupJoinOrderRequest request) {
@@ -113,11 +124,14 @@ public class OrderService {
         ClubMember clubMember = createClubMemberWithOrder(order);
         clubMemberRepository.save(clubMember);
 
+        saveAdminAccount(order, group, member);
+
         emailService.sendEmailForGroupJoin(order.getMember().getMemberName(), order.getMember().getMemberEmail(),
                 order.getGroup().getClub().getClubName(), order.getGroup().getGroupChatLink(),
                 order.getGroup().getGroupChatPassword());
-    }
 
+        mockBankService.transferClubFee(member.getMemberId(), groupId);
+    }
 
     @Transactional
     public void portOnePaymentComplete(PortOneWebhookRequest request) {
@@ -141,9 +155,13 @@ public class OrderService {
         ClubMember clubMember = createClubMemberWithOrder(order);
         clubMemberRepository.save(clubMember);
 
+        saveAdminAccount(order, order.getGroup(), order.getMember());
+
         emailService.sendEmailForGroupJoin(order.getMember().getMemberName(), order.getMember().getMemberEmail(),
                 order.getGroup().getClub().getClubName(), order.getGroup().getGroupChatLink(),
                 order.getGroup().getGroupChatPassword());
+
+        mockBankService.transferClubFee(order.getMember().getMemberId(), order.getGroup().getGroupId());
     }
 
     private PortOnePaymentResponse getPaymentInfoFromPortOne(String impUid) {
@@ -197,5 +215,28 @@ public class OrderService {
                 .paymentImpUid(paymentResponse.impUid())
                 .paymentStatus(PaymentStatus.PAYMENT)
                 .build();
+    }
+
+    private void saveAdminAccount(Order order, Group group, Member member) {
+        Long adminAccountId = 1L;
+
+        AdminAccount adminAccount = adminAccountRepository.getById(adminAccountId);
+
+        Long updatedBalance = adminAccount.getAdminAccountAmount();
+        updatedBalance -= order.getOrderAmount();
+
+        AdminAccountHistory history = AdminAccountHistory.builder()
+                .adminAccountHistoryInOutType(AccountType.DEPOSIT)
+                .adminAccountHistoryTranDate(LocalDate.now())
+                .adminAccountHistoryBalanceAmount(updatedBalance)
+                .adminAccountHistoryTranAmount(Long.valueOf(order.getOrderAmount()))
+                .adminAccountHistoryContent(group.getGroupName() + "의 회비 결제 " + member.getMemberName() + "의 회비")           // 이체 내역 설명
+                .adminAccount(adminAccount)
+                .build();
+
+        adminAccountHistoryRepository.save(history);
+
+        adminAccount.setAdminAccountAmount(updatedBalance);
+        adminAccountRepository.save(adminAccount);
     }
 }
