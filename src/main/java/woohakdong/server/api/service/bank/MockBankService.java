@@ -60,16 +60,16 @@ public class MockBankService implements BankService {
     private static final String NH_TRANSACTIONS_API_URL = "https://developers.nonghyup.com/InquireTransactionHistory.nh";
 
     static {
-        Map<String, String> kbBank = new HashMap<>();
-        kbBank.put("1234567890", "PIN-1234567890"); // 계좌번호, PIN
-        kbBank.put("1111111111", "PIN-1111111111");
+        Map<String, String> nhBank = new HashMap<>();
+        nhBank.put("3020000011529", "PIN-1234567890"); // 계좌번호, PIN
+        nhBank.put("3020000011656", "PIN-1111111111");
 
-        Map<String, String> shinhanBank = new HashMap<>();
-        shinhanBank.put("2222222222", "PIN-2222222222");
-        shinhanBank.put("3333333333", "PIN-3333333333");
+        Map<String, String> kdbBank = new HashMap<>();
+        kdbBank.put("1000003202002", "PIN-2222222222");
+        kdbBank.put("1000003141002", "PIN-3333333333");
 
-        certifiedBanks.put("국민은행", kbBank);
-        certifiedBanks.put("신한은행", shinhanBank);
+        certifiedBanks.put("농협은행", nhBank);
+        certifiedBanks.put("산업은행", kdbBank);
     }
 
     public ClubAccountValidateResponse certifyAccount(ClubAccountValidateRequest clubAccountValidateRequest) {
