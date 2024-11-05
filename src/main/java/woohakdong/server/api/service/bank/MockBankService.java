@@ -28,6 +28,8 @@ import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubAccount.ClubAccount;
 import woohakdong.server.domain.clubAccount.ClubAccountRepository;
 import woohakdong.server.domain.clubAccountHistory.ClubAccountHistory;
+import woohakdong.server.domain.group.Group;
+import woohakdong.server.domain.group.GroupRepository;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 
@@ -45,6 +47,7 @@ public class MockBankService implements BankService {
     private final AdminAccountRepository adminAccountRepository;
     private final AdminAccountHistoryRepository adminAccountHistoryRepository;
     private final ObjectMapper objectMapper;
+    private final GroupRepository groupRepository;
 
     @Value("${nh.iscd}")
     private String iscd;
@@ -90,12 +93,13 @@ public class MockBankService implements BankService {
     }
 
     @Transactional
-    public void transferClubFee(Long memberId, Long clubId) {
+    public void transferClubFee(Long memberId, Long groupId) {
         // clubId로 동아리 정보 조회
-        Club club = clubRepository.getById(clubId);
+        //Club club = clubRepository.getById(clubId);
 
-        // clubId로 동아리 계좌 정보 조회
-        ClubAccount clubAccount = clubAccountRepository.getByClub(club);
+        Group group = groupRepository.getById(groupId);
+
+        ClubAccount clubAccount = clubAccountRepository.getByClub(group.getClub());
 
         Member member = memberRepository.getById(memberId);
 
@@ -128,8 +132,8 @@ public class MockBankService implements BankService {
         request.put("Header", header);
         request.put("Bncd", clubAccount.getClubAccountBankCode());  // 은행코드
         request.put("Acno", clubAccount.getClubAccountNumber());    // 계좌번호
-        request.put("Tram", club.getClubDues().toString());         // 이체 금액 (동아리 회비)
-        request.put("DractOtlt", club.getClubName() + " 회비 이체"); // 출금 메모 (동아리 이름)
+        request.put("Tram", group.getGroupAmount().toString());         // 이체 금액 (동아리 회비)
+        request.put("DractOtlt", group.getGroupName() + " 회비 이체"); // 출금 메모 (동아리 이름)
         request.put("MractOtlt", member.getMemberName() + "의 회비");  // 입금 메모 (회원 이름)
 
         // HTTP 요청 보내기
@@ -149,15 +153,15 @@ public class MockBankService implements BankService {
 
         // 2. 잔액 업데이트 (입금/출금에 따라 다르게 처리)
         Long updatedBalance = adminAccount.getAdminAccountAmount();
-        updatedBalance -= club.getClubDues();
+        updatedBalance -= group.getGroupAmount();
 
         // 3. AdminAccountHistory 기록 생성 및 저장
         AdminAccountHistory history = AdminAccountHistory.builder()
                 .adminAccountHistoryInOutType(AccountType.WITHDRAW) // 출금
                 .adminAccountHistoryTranDate(LocalDate.now())
                 .adminAccountHistoryBalanceAmount(updatedBalance) // 업데이트된 잔액
-                .adminAccountHistoryTranAmount(Long.valueOf(club.getClubDues()))    // 이체된 금액
-                .adminAccountHistoryContent(club.getClubName() + " 회비 이체 " + member.getMemberName() + "의 회비")           // 이체 내역 설명
+                .adminAccountHistoryTranAmount(Long.valueOf(group.getGroupAmount()))    // 이체된 금액
+                .adminAccountHistoryContent(group.getGroupName() + " 회비 이체 " + member.getMemberName() + "의 회비")           // 이체 내역 설명
                 .adminAccount(adminAccount)                    // 연관된 AdminAccount 설정
                 .build();
 

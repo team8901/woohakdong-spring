@@ -36,7 +36,7 @@ public class Group {
 
     private String groupDescription;
 
-    private int groupAmount;
+    private Integer groupAmount;
 
     @Column(nullable = false)
     private String groupJoinLink;
