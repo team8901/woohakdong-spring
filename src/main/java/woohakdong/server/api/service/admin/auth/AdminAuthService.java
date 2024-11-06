@@ -1,13 +1,18 @@
 package woohakdong.server.api.service.admin.auth;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import woohakdong.server.api.controller.admin.auth.dto.AdminInfoResponse;
+import woohakdong.server.api.controller.admin.auth.dto.AdminInfoUpdateRequest;
+import woohakdong.server.api.controller.admin.auth.dto.AdminJoinRequest;
 import woohakdong.server.api.controller.admin.auth.dto.AdminLoginRequest;
 import woohakdong.server.api.controller.auth.dto.LoginResponse;
-import woohakdong.server.common.exception.CustomErrorInfo;
 import woohakdong.server.common.exception.CustomException;
+import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.common.security.jwt.JWTUtil;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
@@ -33,7 +38,7 @@ public class AdminAuthService {
         Member admin = memberRepository.findByMemberProvideId(loginRequest.username())
                 .orElseThrow(() -> new CustomException(ADMIN_MEMBER_ID_NOT_FOUND));
 
-        if (!passwordEncoder.matches(loginRequest.password(), admin.getPassword())) {
+        if (!passwordEncoder.matches(loginRequest.password(), admin.getMemberPassword())) {
             throw new CustomException(INVALID_ADMIN_PASSWORD);
         }
 
@@ -49,22 +54,47 @@ public class AdminAuthService {
     }
 
     @Transactional
-    public void createAdmin(String username, String email, String name) {
-        if (memberRepository.findByMemberProvideId(username).isPresent()) {
+    public void createAdmin(AdminJoinRequest joinRequest) {
+        if (memberRepository.findByMemberProvideId(joinRequest.username()).isPresent()) {
             throw new CustomException(ADMIN_USERNAME_IS_ALREADY_USED);
         }
 
         String encryptedPassword = passwordEncoder.encode("1234");
 
         Member admin = Member.builder()
-                .memberProvideId(username)
-                .memberName(name)
+                .memberProvideId(joinRequest.username())
+                .memberName(joinRequest.name())
                 .memberRole("ADMIN_ROLE")
-                .memberEmail(email)
-                .password(encryptedPassword)
+                .memberEmail(joinRequest.email())
+                .memberPassword(encryptedPassword)
                 .build();
 
         memberRepository.save(admin);
+    }
+
+    @Transactional
+    public void updateAdmin(AdminInfoUpdateRequest updateRequest) {
+        Member admin = getMemberFromJwtInformation();
+
+        if (memberRepository.findByMemberProvideId(updateRequest.username()).isPresent()) {
+            throw new CustomException(ADMIN_USERNAME_IS_ALREADY_USED);
+        }
+
+        String encryptedPassword = passwordEncoder.encode("1234");
+
+        admin.adminUpdate(updateRequest.username(), updateRequest.name(), updateRequest.email(), encryptedPassword);
+
+        memberRepository.save(admin);
+    }
+
+    public AdminInfoResponse getAdminInfo() {
+        Member admin = getMemberFromJwtInformation();
+
+        return AdminInfoResponse.builder()
+                .username(admin.getMemberProvideId())
+                .name(admin.getMemberName())
+                .email(admin.getMemberEmail())
+                .build();
     }
 
     private void addRefreshEntity(String provideId, String refresh, Long expiredMs) {
@@ -78,5 +108,14 @@ public class AdminAuthService {
                 .build();
 
         refreshTokenRepository.save(refreshToken);
+    }
+
+    private Member getMemberFromJwtInformation() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String provideId = userDetails.getUsername();
+
+        return memberRepository.findByMemberProvideId(provideId)
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
     }
 }
