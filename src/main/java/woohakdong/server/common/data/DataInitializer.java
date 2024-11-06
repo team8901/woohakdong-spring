@@ -88,9 +88,19 @@ public class DataInitializer implements CommandLineRunner {
                     .memberGender(WOMAN)
                     .school(school)
                     .build();
+
+            Member admin = Member.builder()
+                    .memberEmail("8901.dev@gmail.com")
+                    .memberRole("ADMIN_ROLE")
+                    .memberName("8901")
+                    .memberProvideId("8901.dev@gmail.com")
+                    .memberPassword("1234")
+                    .build();
+
             memberRepository.save(member1);
             memberRepository.save(member2);
             memberRepository.save(member3);
+            memberRepository.save(admin);
 
             Club club = Club.builder()
                     .school(school)
