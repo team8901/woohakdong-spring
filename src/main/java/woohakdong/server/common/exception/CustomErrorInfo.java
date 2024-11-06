@@ -34,10 +34,13 @@ public enum CustomErrorInfo {
     GET_TRANSACTION_FAILED(400, "get transaction failed", 400026),
     CLUB_MEMBER_NOT_FOUND(400, "club member not found", 400027),
     SCHEDULE_NOT_FOUND(400, "schedule not found", 400028),
+    ADMIN_MEMBER_ID_NOT_FOUND(400, "admin member id not found", 400029),
+    ADMIN_USERNAME_IS_ALREADY_USED(400, "admin username is already in use", 400030),
 
     // 401 UNAUTHORIZED
     INVALID_ACCESS_TOKEN(401, "Invaild access token", 401001),
     INVALID_SCHOOL_DOMAIN(401, "Invalid school domain", 401002),
+    INVALID_ADMIN_PASSWORD(401, "Invalid admin password", 401003),
     // 403 FORBIDDEN
 
     // 404 NOT_FOUND
