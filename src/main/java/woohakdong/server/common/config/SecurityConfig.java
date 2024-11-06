@@ -37,6 +37,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/v1/auth/login/social", "/v1/auth/refresh", "/health-check").permitAll()
                 .requestMatchers("/v1/groups/payment/webhook").permitAll()
+                .requestMatchers("/v1/admin/auth/login").permitAll()
                 .requestMatchers(getSwaggerUIPath()).permitAll()
                 .requestMatchers("/v1/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
