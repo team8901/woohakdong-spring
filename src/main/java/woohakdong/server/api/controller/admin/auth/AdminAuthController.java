@@ -12,7 +12,7 @@ import woohakdong.server.api.service.admin.auth.AdminAuthService;
 @RestController
 @RequestMapping("/v1/admin")
 @RequiredArgsConstructor
-public class AdminAuthController {
+public class AdminAuthController implements AdminAuthControllerDocs{
 
     private final AdminAuthService adminAuthService;
 
