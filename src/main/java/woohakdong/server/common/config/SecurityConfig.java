@@ -7,6 +7,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import woohakdong.server.common.security.jwt.JWTFilter;
@@ -37,7 +38,7 @@ public class SecurityConfig {
                 .requestMatchers("/v1/auth/login/social", "/v1/auth/refresh", "/health-check").permitAll()
                 .requestMatchers("/v1/groups/payment/webhook").permitAll()
                 .requestMatchers(getSwaggerUIPath()).permitAll()
-                .requestMatchers("/admin").hasRole("ADMIN")
+                .requestMatchers("/v1/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -51,5 +52,10 @@ public class SecurityConfig {
 
     private String[] getSwaggerUIPath() {
         return new String[]{"/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs"};
+    }
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
