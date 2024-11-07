@@ -1,6 +1,5 @@
 package woohakdong.server.domain.schedule;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -35,7 +34,7 @@ public class Schedule {
 
     private String scheduleColor;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "club_id")
     private Club club;
 
