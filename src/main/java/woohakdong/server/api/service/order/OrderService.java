@@ -33,8 +33,6 @@ import woohakdong.server.domain.admin.adminAccount.AdminAccountRepository;
 import woohakdong.server.domain.admin.adminAccountHistory.AdminAccountHistory;
 import woohakdong.server.domain.admin.adminAccountHistory.AdminAccountHistoryRepository;
 import woohakdong.server.domain.club.Club;
-import woohakdong.server.domain.clubAccount.ClubAccount;
-import woohakdong.server.domain.clubAccount.ClubAccountRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.group.Group;
@@ -126,9 +124,10 @@ public class OrderService {
 
         saveAdminAccount(order, group, member);
 
-        emailService.sendEmailForGroupJoin(order.getMember().getMemberName(), order.getMember().getMemberEmail(),
-                order.getGroup().getClub().getClubName(), order.getGroup().getGroupChatLink(),
-                order.getGroup().getGroupChatPassword());
+        Club club = group.getClub();
+
+        emailService.sendEmailForGroupJoin(member.getMemberName(), member.getMemberEmail(), club.getClubName(),
+                club.getClubDescription(), group.getGroupChatLink(), group.getGroupChatPassword());
 
         mockBankService.transferClubFee(member.getMemberId(), groupId);
     }
@@ -155,13 +154,16 @@ public class OrderService {
         ClubMember clubMember = createClubMemberWithOrder(order);
         clubMemberRepository.save(clubMember);
 
-        saveAdminAccount(order, order.getGroup(), order.getMember());
+        Group group = order.getGroup();
+        Member member = order.getMember();
+        Club club = group.getClub();
 
-        emailService.sendEmailForGroupJoin(order.getMember().getMemberName(), order.getMember().getMemberEmail(),
-                order.getGroup().getClub().getClubName(), order.getGroup().getGroupChatLink(),
-                order.getGroup().getGroupChatPassword());
+        saveAdminAccount(order, group, member);
 
-        mockBankService.transferClubFee(order.getMember().getMemberId(), order.getGroup().getGroupId());
+        emailService.sendEmailForGroupJoin(member.getMemberName(), member.getMemberEmail(), club.getClubName(),
+                club.getClubDescription(), group.getGroupChatLink(), group.getGroupChatPassword());
+
+        mockBankService.transferClubFee(member.getMemberId(), group.getGroupId());
     }
 
     private PortOnePaymentResponse getPaymentInfoFromPortOne(String impUid) {
@@ -230,7 +232,8 @@ public class OrderService {
                 .adminAccountHistoryTranDate(LocalDate.now())
                 .adminAccountHistoryBalanceAmount(updatedBalance)
                 .adminAccountHistoryTranAmount(Long.valueOf(order.getOrderAmount()))
-                .adminAccountHistoryContent(group.getGroupName() + "의 회비 결제 " + member.getMemberName() + "의 회비")           // 이체 내역 설명
+                .adminAccountHistoryContent(
+                        group.getGroupName() + "의 회비 결제 " + member.getMemberName() + "의 회비")           // 이체 내역 설명
                 .adminAccount(adminAccount)
                 .build();
 
