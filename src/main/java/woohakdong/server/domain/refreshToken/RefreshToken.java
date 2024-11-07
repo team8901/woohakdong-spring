@@ -28,4 +28,12 @@ public class RefreshToken {
         this.refresh = refresh;
         this.RefreshExpiration = refreshExpiration;
     }
+
+    public static RefreshToken create(String provideId, String refresh, String expiration) {
+        return RefreshToken.builder()
+                .refreshProvideId(provideId)
+                .refresh(refresh)
+                .refreshExpiration(expiration)
+                .build();
+    }
 }
