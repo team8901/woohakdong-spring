@@ -35,10 +35,10 @@ public class AdminAuthService {
 
     @Transactional
     public LoginResponse login(AdminLoginRequest loginRequest) {
-        Member admin = memberRepository.findByMemberProvideId(loginRequest.username())
+        Member admin = memberRepository.findByMemberProvideId(loginRequest.memberLoginId())
                 .orElseThrow(() -> new CustomException(ADMIN_MEMBER_ID_NOT_FOUND));
 
-        if (!passwordEncoder.matches(loginRequest.password(), admin.getMemberPassword())) {
+        if (!passwordEncoder.matches(loginRequest.memberPassword(), admin.getMemberPassword())) {
             throw new CustomException(INVALID_ADMIN_PASSWORD);
         }
 
@@ -55,17 +55,17 @@ public class AdminAuthService {
 
     @Transactional
     public void createAdmin(AdminJoinRequest joinRequest) {
-        if (memberRepository.findByMemberProvideId(joinRequest.username()).isPresent()) {
+        if (memberRepository.findByMemberProvideId(joinRequest.memberLoginId()).isPresent()) {
             throw new CustomException(ADMIN_USERNAME_IS_ALREADY_USED);
         }
 
         String encryptedPassword = passwordEncoder.encode("1234");
 
         Member admin = Member.builder()
-                .memberProvideId(joinRequest.username())
-                .memberName(joinRequest.name())
+                .memberProvideId(joinRequest.memberLoginId())
+                .memberName(joinRequest.memberName())
                 .memberRole("ADMIN_ROLE")
-                .memberEmail(joinRequest.email())
+                .memberEmail(joinRequest.memberEmail())
                 .memberPassword(encryptedPassword)
                 .build();
 
@@ -76,13 +76,13 @@ public class AdminAuthService {
     public void updateAdmin(AdminInfoUpdateRequest updateRequest) {
         Member admin = getMemberFromJwtInformation();
 
-        if (memberRepository.findByMemberProvideId(updateRequest.username()).isPresent()) {
+        if (memberRepository.findByMemberProvideId(updateRequest.memberLoginId()).isPresent()) {
             throw new CustomException(ADMIN_USERNAME_IS_ALREADY_USED);
         }
 
-        String encryptedPassword = passwordEncoder.encode("1234");
+        String encryptedPassword = passwordEncoder.encode(updateRequest.memberPassword());
 
-        admin.adminUpdate(updateRequest.username(), updateRequest.name(), updateRequest.email(), encryptedPassword);
+        admin.adminUpdate(updateRequest.memberLoginId(), updateRequest.memberName(), updateRequest.memberEmail(), encryptedPassword);
 
         memberRepository.save(admin);
     }
@@ -90,23 +90,13 @@ public class AdminAuthService {
     public AdminInfoResponse getAdminInfo() {
         Member admin = getMemberFromJwtInformation();
 
-        return AdminInfoResponse.builder()
-                .username(admin.getMemberProvideId())
-                .name(admin.getMemberName())
-                .email(admin.getMemberEmail())
-                .build();
+        return AdminInfoResponse.from(admin);
     }
 
     private void addRefreshEntity(String provideId, String refresh, Long expiredMs) {
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
-
-        RefreshToken refreshToken = RefreshToken.builder()
-                .refreshProvideId(provideId)
-                .refresh(refresh)
-                .refreshExpiration(date.toString())
-                .build();
-
+        RefreshToken refreshToken = RefreshToken.create(provideId, refresh, date.toString());
         refreshTokenRepository.save(refreshToken);
     }
 

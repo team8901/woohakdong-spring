@@ -63,10 +63,11 @@ class AdminAuthServiceTest {
         adminAuthService.createAdmin(joinRequest);
 
         // then
-        Member savedAdmin = memberRepository.findByMemberProvideId(joinRequest.username())
+        Member savedAdmin = memberRepository.findByMemberProvideId(joinRequest.memberLoginId())
                 .orElseThrow(() -> new AssertionError("Admin not found"));
-        assertThat(savedAdmin.getMemberName()).isEqualTo("Admin Name");
-        assertThat(savedAdmin.getMemberEmail()).isEqualTo("admin@example.com");
+        assertThat(savedAdmin)
+                .extracting("memberName", "memberEmail")
+                .containsExactly("Admin Name", "admin@example.com");
         assertThat(passwordEncoder.matches("1234", savedAdmin.getMemberPassword())).isTrue(); // 비밀번호 매칭 확인
     }
 
@@ -94,8 +95,9 @@ class AdminAuthServiceTest {
         // then
         Member updatedAdmin = memberRepository.findByMemberProvideId("updatedAdmin")
                 .orElseThrow(() -> new AssertionError("Updated admin not found"));
-        assertThat(updatedAdmin.getMemberName()).isEqualTo("Updated Name");
-        assertThat(updatedAdmin.getMemberEmail()).isEqualTo("updated@example.com");
+        assertThat(updatedAdmin)
+                .extracting("memberName", "memberEmail")
+                .containsExactly("Updated Name", "updated@example.com");
         assertThat(passwordEncoder.matches("1234", updatedAdmin.getMemberPassword())).isTrue();
     }
 
@@ -107,7 +109,7 @@ class AdminAuthServiceTest {
 
         // then
         assertThat(adminInfo)
-                .extracting("username", "name", "email")
+                .extracting("memberLoginId", "memberName", "memberEmail")
                 .containsExactly("testAdmin", "Admin User", "admin@example.com");
     }
 }
