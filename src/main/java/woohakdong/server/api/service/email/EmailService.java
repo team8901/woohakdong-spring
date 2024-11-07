@@ -15,8 +15,25 @@ public class EmailService {
 
     @Async
     @Retryable(retryFor = {CustomException.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
-    public void sendEmailForGroupJoin(String memberName, String memberEmail, String clubName, String groupChatLink,
-                                      String groupChatPassword) {
-        emailClient.sendEmailForGroupJoin(memberEmail, clubName, groupChatLink, groupChatPassword, memberName);
+    public void sendEmailForGroupJoin(String memberName, String memberEmail, String clubName, String clubDescription,
+                                      String groupChatLink, String groupChatPassword) {
+        emailClient.sendEmailForClubJoin(memberName, memberEmail, clubName, clubDescription, groupChatLink,
+                groupChatPassword);
+    }
+
+    @Async
+    @Retryable(retryFor = {CustomException.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
+    public void sendEmailForUpdateClubInfo(String memberName, String memberEmail, String clubName,
+                                           String clubDescription, String groupChatLink, String groupChatPassword) {
+        emailClient.sendEmailForUpdateClubInfo(memberName, memberEmail, clubName, clubDescription, groupChatLink,
+                groupChatPassword);
+    }
+
+    @Async
+    @Retryable(retryFor = {CustomException.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
+    public void sendEmailForSchedule(String memberName, String memberEmail, String clubName, String scheduleTitle,
+                                     String scheduleContent, String scheduleDateTime) {
+        emailClient.sendEmailForSchedule(memberName, memberEmail, clubName, scheduleTitle, scheduleContent,
+                scheduleDateTime);
     }
 }

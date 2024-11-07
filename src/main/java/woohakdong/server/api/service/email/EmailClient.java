@@ -2,6 +2,12 @@ package woohakdong.server.api.service.email;
 
 public interface EmailClient {
 
-    void sendEmailForGroupJoin(String receiverEmail, String clubName, String groupChatLink,
-                               String clubPassword, String receiverName);
+    void sendEmailForClubJoin(String receiverName, String receiverEmail, String clubName, String clubDescription,
+                              String groupChatLink, String clubPassword);
+
+    void sendEmailForUpdateClubInfo(String receiverName, String receiverEmail, String clubName, String clubDescription,
+                                    String groupChatLink, String clubPassword);
+
+    void sendEmailForSchedule(String receiverName, String receiverEmail, String clubName, String scheduleTitle,
+                              String scheduleContent, String scheduleDateTime);
 }
