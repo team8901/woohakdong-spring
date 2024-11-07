@@ -21,6 +21,7 @@ import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 import woohakdong.server.domain.clubHistory.ClubHistory;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.group.Group;
+import woohakdong.server.domain.schedule.Schedule;
 import woohakdong.server.domain.school.School;
 
 @Entity
@@ -67,6 +68,9 @@ public class Club {
 
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
     private List<ClubHistory> clubHistorys = new ArrayList<>();
+
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
+    private List<Schedule> schedules = new ArrayList<>();
 
     @Builder
     public Club(String clubDescription, String clubEnglishName, LocalDate clubEstablishmentDate, String clubImage,
