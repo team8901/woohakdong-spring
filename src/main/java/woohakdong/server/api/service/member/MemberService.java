@@ -52,14 +52,6 @@ public class MemberService {
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
 
         // Member 엔티티를 MemberInfoResponse로 변환
-        return MemberInfoResponse.builder()
-                .memberName(member.getMemberName())
-                .memberPhoneNumber(member.getMemberPhoneNumber())
-                .memberEmail(member.getMemberEmail())
-                .memberSchool(member.getSchool().getSchoolName())
-                .memberMajor(member.getMemberMajor())
-                .memberStudentNumber(member.getMemberStudentNumber())
-                .memberGender(member.getMemberGender())
-                .build();
+        return MemberInfoResponse.from(member);
     }
 }
