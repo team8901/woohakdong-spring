@@ -51,6 +51,16 @@ public class Member {
         this.memberPassword = memberPassword;
     }
 
+    public static Member createAdmin(String loginId, String memberName, String memberEmail, String memberPassword) {
+        return Member.builder()
+                .memberProvideId(loginId)
+                .memberName(memberName)
+                .memberRole("ADMIN_ROLE")
+                .memberEmail(memberEmail)
+                .memberPassword(memberPassword)
+                .build();
+    }
+
     public void setMemberPhoneNumber(String memberPhoneNumber) {
         this.memberPhoneNumber = memberPhoneNumber;
     }
