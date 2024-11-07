@@ -16,6 +16,7 @@ import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.common.security.jwt.JWTUtil;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
+import woohakdong.server.domain.member.MemberRepositoryImpl;
 import woohakdong.server.domain.refreshToken.RefreshToken;
 import woohakdong.server.domain.refreshToken.RefreshTokenRepository;
 
@@ -35,8 +36,7 @@ public class AdminAuthService {
 
     @Transactional
     public LoginResponse login(AdminLoginRequest loginRequest) {
-        Member admin = memberRepository.findByMemberProvideId(loginRequest.memberLoginId())
-                .orElseThrow(() -> new CustomException(ADMIN_MEMBER_ID_NOT_FOUND));
+        Member admin = memberRepository.findByAdminMemberProvideId(loginRequest.memberLoginId());
 
         if (!passwordEncoder.matches(loginRequest.memberPassword(), admin.getMemberPassword())) {
             throw new CustomException(INVALID_ADMIN_PASSWORD);
@@ -52,7 +52,7 @@ public class AdminAuthService {
 
     @Transactional
     public void createAdmin(AdminJoinRequest joinRequest) {
-        if (memberRepository.findByMemberProvideId(joinRequest.memberLoginId()).isPresent()) {
+        if (memberRepository.findByDuplicateMemberProvideId(joinRequest.memberLoginId())) {
             throw new CustomException(ADMIN_USERNAME_IS_ALREADY_USED);
         }
 

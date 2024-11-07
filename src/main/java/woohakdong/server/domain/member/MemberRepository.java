@@ -8,4 +8,8 @@ public interface MemberRepository {
     Member getById(Long memberId);
 
     Optional<Member> findByMemberProvideId(String memberProvideId);
+
+    Member findByAdminMemberProvideId(String memberProvideId);
+
+    boolean findByDuplicateMemberProvideId(String memberProvideId);
 }

@@ -1,12 +1,11 @@
 package woohakdong.server.domain.member;
 
-import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
-
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import woohakdong.server.common.exception.CustomErrorInfo;
 import woohakdong.server.common.exception.CustomException;
+
+import static woohakdong.server.common.exception.CustomErrorInfo.*;
 
 @RequiredArgsConstructor
 @Repository
@@ -28,5 +27,16 @@ public class MemberRepositoryImpl implements MemberRepository {
     @Override
     public Optional<Member> findByMemberProvideId(String memberProvideId) {
         return memberJpaRepository.findByMemberProvideId(memberProvideId);
+    }
+
+    @Override
+    public Member findByAdminMemberProvideId(String memberProvideId) {
+        return memberJpaRepository.findByMemberProvideId(memberProvideId)
+                .orElseThrow(() -> new CustomException(ADMIN_MEMBER_ID_NOT_FOUND));
+    }
+
+    @Override
+    public boolean findByDuplicateMemberProvideId(String memberProvideId) {
+        return memberJpaRepository.existsByMemberProvideId(memberProvideId);
     }
 }
