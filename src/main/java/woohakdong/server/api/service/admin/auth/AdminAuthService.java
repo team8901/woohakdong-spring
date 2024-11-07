@@ -47,10 +47,7 @@ public class AdminAuthService {
 
         addRefreshEntity(admin.getMemberProvideId(), refresh, 86400000L);
 
-        return LoginResponse.builder()
-                .accessToken(access)
-                .refreshToken(refresh)
-                .build();
+        return LoginResponse.from(access, refresh);
     }
 
     @Transactional
@@ -61,13 +58,8 @@ public class AdminAuthService {
 
         String encryptedPassword = passwordEncoder.encode("1234");
 
-        Member admin = Member.builder()
-                .memberProvideId(joinRequest.memberLoginId())
-                .memberName(joinRequest.memberName())
-                .memberRole("ADMIN_ROLE")
-                .memberEmail(joinRequest.memberEmail())
-                .memberPassword(encryptedPassword)
-                .build();
+        Member admin = Member.createAdmin(joinRequest.memberLoginId(), joinRequest.memberName(),
+                joinRequest.memberEmail(), encryptedPassword);
 
         memberRepository.save(admin);
     }
