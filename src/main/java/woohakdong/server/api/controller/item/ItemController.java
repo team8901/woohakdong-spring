@@ -71,4 +71,14 @@ public class ItemController implements ItemControllerDocs {
     public ListWrapperResponse<ItemBorrowedResponse> getMyBorrowedItems(@PathVariable Long clubId) {
         return itemService.getMyBorrowedItems(clubId);
     }
+
+    @GetMapping("/{clubId}/items/history")
+    public ListWrapperResponse<ItemHistoryResponse> getMyHistoryItems(@PathVariable Long clubId) {
+        return itemService.getMyHistoryItems(clubId);
+    }
+
+    @GetMapping("/{clubId}/items/history/{clubMemberId}")
+    public ListWrapperResponse<ItemHistoryResponse> getClubMemberHistoryItems(@PathVariable Long clubId, @PathVariable Long clubMemberId) {
+        return itemService.getClubMemberHistoryItems(clubId, clubMemberId);
+    }
 }

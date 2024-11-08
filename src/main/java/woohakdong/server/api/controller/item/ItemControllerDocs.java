@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -66,4 +67,15 @@ public interface ItemControllerDocs {
     @Operation(summary = "자신이 빌린 물품 리스트 반환", description = "동아리 회원이 빌린 물품 리스트를 반환할 수 있다.")
     @ApiResponse(responseCode = "200", description = "자신이 빌린 물품 리스트 반환 성공", useReturnTypeSchema = true)
     public ListWrapperResponse<ItemBorrowedResponse> getMyBorrowedItems(@PathVariable Long clubId);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "자신이 빌린 물품 대여 기록 리스트 반환", description = "자신이 빌린 물품 대여 기록 리스트를 반환할 수 있다.")
+    @ApiResponse(responseCode = "200", description = "자신이 빌린 물품 대여 기록 리스트 반환 성공", useReturnTypeSchema = true)
+    public ListWrapperResponse<ItemHistoryResponse> getMyHistoryItems(@PathVariable Long clubId);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "동아리 회원이 빌린 물품 대여 기록 리스트 반환", description = "동아리 회원이 빌린 물품 대여 기록 리스트를 반환할 수 있다.")
+    @ApiResponse(responseCode = "200", description = "동아리 회원이 빌린 물품 대여 기록 리스트 반환 성공", useReturnTypeSchema = true)
+    public ListWrapperResponse<ItemHistoryResponse> getClubMemberHistoryItems(@PathVariable Long clubId,
+                                                                              @PathVariable Long clubMemberId);
 }

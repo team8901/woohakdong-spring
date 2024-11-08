@@ -228,6 +228,30 @@ public class ItemService {
         return ListWrapperResponse.of(itemBorrowedResponses);
     }
 
+    public ListWrapperResponse<ItemHistoryResponse> getMyHistoryItems(Long clubId) {
+        Member member = getMemberFromJwtInformation();
+        Club club = clubRepository.getById(clubId);
+
+        List<ItemHistory> histories = itemHistoryRepository.getAllByMember(member);
+        List<ItemHistoryResponse> itemHistoryResponses = histories.stream()
+                .map(ItemHistoryResponse::from)
+                .collect(Collectors.toList());
+
+        return ListWrapperResponse.of(itemHistoryResponses);
+    }
+
+    public ListWrapperResponse<ItemHistoryResponse> getClubMemberHistoryItems(Long clubId, Long clubMemberId) {
+        Club club = clubRepository.getById(clubId);
+        ClubMember clubMember = clubMemberRepository.getById(clubMemberId);
+
+        List<ItemHistory> histories = itemHistoryRepository.getAllByMember(clubMember.getMember());
+        List<ItemHistoryResponse> itemHistoryResponses = histories.stream()
+                .map(ItemHistoryResponse::from)
+                .collect(Collectors.toList());
+
+        return ListWrapperResponse.of(itemHistoryResponses);
+    }
+
     private LocalDate getAssignedTerm() {
         LocalDate now = LocalDate.now();
         int year = now.getYear();
