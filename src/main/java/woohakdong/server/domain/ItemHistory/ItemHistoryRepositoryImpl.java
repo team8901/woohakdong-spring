@@ -10,29 +10,33 @@ import woohakdong.server.domain.member.Member;
 
 @RequiredArgsConstructor
 @Repository
-public class ItemHistoryImpl implements ItemHistoryRepository{
+public class ItemHistoryRepositoryImpl implements ItemHistoryRepository{
 
-    private final ItemJpaHistoryRepository itemJpaHistoryRepository;
+    private final ItemHistoryJpaRepository itemHistoryJpaRepository;
 
     @Override
     public ItemHistory save(ItemHistory itemHistory) {
-        return itemJpaHistoryRepository.save(itemHistory);
+        return itemHistoryJpaRepository.save(itemHistory);
     }
 
     @Override
     public ItemHistory getById(Long itemHistoryId) {
-        return itemJpaHistoryRepository.findById(itemHistoryId)
+        return itemHistoryJpaRepository.findById(itemHistoryId)
                 .orElseThrow(() -> new CustomException(CustomErrorInfo.ITEM_HISTORY_NOT_FOUND));
     }
 
     @Override
     public ItemHistory getActiveBorrowingRecord(Item item, Member member) {
-        return itemJpaHistoryRepository.findByItemAndMemberAndItemReturnDateIsNull(item, member)
+        return itemHistoryJpaRepository.findByItemAndMemberAndItemReturnDateIsNull(item, member)
                 .orElseThrow(() -> new CustomException(CustomErrorInfo.ITEM_HISTORY_NOT_FOUND));
     }
 
     @Override
     public List<ItemHistory> getAllByItem(Item item) {
-        return itemJpaHistoryRepository.findByItem(item);
+        return itemHistoryJpaRepository.findByItem(item);
+    }
+
+    public List<ItemHistory> getAllByMember(Member member) {
+        return itemHistoryJpaRepository.findByMember(member);
     }
 }

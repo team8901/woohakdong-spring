@@ -12,4 +12,6 @@ public interface ItemHistoryRepository {
     ItemHistory getActiveBorrowingRecord(Item item, Member member);
 
     List<ItemHistory> getAllByItem(Item item);
+
+    List<ItemHistory> getAllByMember(Member member);
 }
