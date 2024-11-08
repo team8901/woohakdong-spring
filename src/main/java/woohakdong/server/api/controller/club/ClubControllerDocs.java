@@ -20,7 +20,7 @@ public interface ClubControllerDocs {
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "동아리를 등록", description = "등록할 동아리 정보를 제공하면, 동아리 등록 후 동아리 id를 반환합니다.")
     @ApiResponse(responseCode = "200", description = "동아리 등록 성공", useReturnTypeSchema = true)
-    public ClubCreateResponse createClub(ClubCreateRequest clubCreateRequest);
+    public ClubIdResponse createClub(ClubCreateRequest clubCreateRequest);
 
     @Operation(summary = "동아리 정보 불러오기", description = "동아리 id를 입력하면, 해당 동아리의 정보를 반환합니다.")
     @ApiResponse(responseCode = "200", description = "동아리 정보 조회 성공", useReturnTypeSchema = true)

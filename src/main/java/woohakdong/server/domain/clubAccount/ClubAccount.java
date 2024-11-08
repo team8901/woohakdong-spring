@@ -45,8 +45,8 @@ public class ClubAccount {
     private List<ClubAccountHistory> clubAccountHistorys;
 
     @Builder
-    public ClubAccount(Club club, String clubAccountBankName, String clubAccountNumber,
-                       String clubAccountPinTechNumber, String clubAccountBankCode, LocalDateTime clubAccountLastUpdateDate, Long clubAccountBalance) {
+    public ClubAccount(Club club, String clubAccountBankName, String clubAccountNumber, String clubAccountPinTechNumber,
+                       String clubAccountBankCode, LocalDateTime clubAccountLastUpdateDate, Long clubAccountBalance) {
         this.club = club;
         this.clubAccountBankName = clubAccountBankName;
         this.clubAccountNumber = clubAccountNumber;
@@ -54,6 +54,19 @@ public class ClubAccount {
         this.clubAccountBankCode = clubAccountBankCode;
         this.clubAccountLastUpdateDate = clubAccountLastUpdateDate;
         this.clubAccountBalance = clubAccountBalance;
+    }
+
+    public static ClubAccount create(Club club, String bankName, String accountNumber, String pinTechNumber,
+                                     String bankCode) {
+        return ClubAccount.builder()
+                .club(club)
+                .clubAccountBankName(bankName)
+                .clubAccountNumber(accountNumber)
+                .clubAccountPinTechNumber(pinTechNumber)
+                .clubAccountBankCode(bankCode)
+                .clubAccountLastUpdateDate(LocalDateTime.now())
+                .clubAccountBalance(0L)
+                .build();
     }
 
     public void setClubAccountLastUpdateDate(LocalDateTime clubAccountLastUpdateDate) {
