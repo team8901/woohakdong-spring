@@ -61,4 +61,9 @@ public interface ItemControllerDocs {
     public void updateItemAvailability(@PathVariable Long clubId,
                                        @PathVariable Long itemId,
                                        @RequestBody ItemAvailableUpdateRequest request);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "자신이 빌린 물품 리스트 반환", description = "동아리 회원이 빌린 물품 리스트를 반환할 수 있다.")
+    @ApiResponse(responseCode = "200", description = "자신이 빌린 물품 리스트 반환 성공", useReturnTypeSchema = true)
+    public ListWrapperResponse<ItemBorrowedResponse> getMyBorrowedItems(@PathVariable Long clubId);
 }

@@ -66,4 +66,9 @@ public class ItemController implements ItemControllerDocs {
                                        @RequestBody ItemAvailableUpdateRequest request) {
         itemService.updateItemAvailability(clubId, itemId, request);
     }
+
+    @GetMapping("/{clubId}/items/borrowed")
+    public ListWrapperResponse<ItemBorrowedResponse> getMyBorrowedItems(@PathVariable Long clubId) {
+        return itemService.getMyBorrowedItems(clubId);
+    }
 }
