@@ -74,4 +74,8 @@ public class Group {
     public void disableGroup() {
         this.groupIsAvailable = false;
     }
+
+    public boolean isTypeOf(GroupType groupType) {
+        return this.groupType == groupType;
+    }
 }

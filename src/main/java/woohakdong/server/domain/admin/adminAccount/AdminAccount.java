@@ -1,13 +1,18 @@
 package woohakdong.server.domain.admin.adminAccount;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import woohakdong.server.domain.admin.adminAccountHistory.AdminAccountHistory;
-
-import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -33,12 +38,22 @@ public class AdminAccount {
     private List<AdminAccountHistory> adminAccountHistorys;
 
     @Builder
-    public AdminAccount(String adminAccountBankName, String adminAccountNumber,
-                        Long adminAccountAmount, String adminAccountBankCode) {
+    private AdminAccount(String adminAccountBankName, String adminAccountNumber,
+                         Long adminAccountAmount, String adminAccountBankCode) {
         this.adminAccountBankName = adminAccountBankName;
         this.adminAccountNumber = adminAccountNumber;
         this.adminAccountAmount = adminAccountAmount;
         this.adminAccountBankCode = adminAccountBankCode;
+    }
+
+    public static AdminAccount create(String adminAccountBankName, String adminAccountNumber,
+                                      Long adminAccountAmount, String adminAccountBankCode) {
+        return AdminAccount.builder()
+                .adminAccountBankName(adminAccountBankName)
+                .adminAccountNumber(adminAccountNumber)
+                .adminAccountAmount(adminAccountAmount)
+                .adminAccountBankCode(adminAccountBankCode)
+                .build();
     }
 
     public void setAdminAccountAmount(Long adminAccountAmount) {
