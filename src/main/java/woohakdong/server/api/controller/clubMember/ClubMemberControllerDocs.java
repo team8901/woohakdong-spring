@@ -31,4 +31,9 @@ public interface ClubMemberControllerDocs {
     @Operation(summary = "동아리 멤버의 역할 변경하기", description = "동아리 멤버의 Role을 변경한다.")
     @ApiResponse(responseCode = "200", description = "동아리 멤버의 역할 변경하기 성공", useReturnTypeSchema = true)
     public void changeRole(@PathVariable Long clubId, @PathVariable Long clubMemberId, @RequestParam ClubMemberRole clubMemberRole);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "동아리 멤버 상세 정보 불러오기", description = "동아리 clubMemberId로 상세 정보를 불러온다.")
+    @ApiResponse(responseCode = "200", description = "동아리 멤버 상세 정보 불러오기 성공", useReturnTypeSchema = true)
+    public ClubMemberInfoResponse getClubMemberInfo(@PathVariable Long clubId, @PathVariable Long clubMemberId);
 }
