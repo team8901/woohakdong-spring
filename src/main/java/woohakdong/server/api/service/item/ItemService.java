@@ -170,6 +170,13 @@ public class ItemService {
         return historyResponses;
     }
 
+    public ItemResponse getItemInfo(Long clubId, Long itemId) {
+        Club club = clubRepository.getById(clubId);
+        Item item = itemRepository.getById(itemId);
+
+        return ItemResponse.of(item);
+    }
+
     @Transactional
     public ItemUpdateResponse updateItem(Long clubId, Long itemId, ItemUpdateRequest request) {
         Club club = clubRepository.getById(clubId);
