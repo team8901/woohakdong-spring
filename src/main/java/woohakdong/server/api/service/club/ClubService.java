@@ -8,15 +8,12 @@ import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.club.dto.*;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
@@ -28,7 +25,6 @@ import woohakdong.server.domain.clubHistory.ClubHistory;
 import woohakdong.server.domain.clubHistory.ClubHistoryRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
-import woohakdong.server.domain.clubmember.ClubMemberRole;
 import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.group.GroupRepository;
 import woohakdong.server.domain.member.Member;
@@ -40,6 +36,7 @@ import woohakdong.server.domain.school.School;
 @RequiredArgsConstructor
 public class ClubService {
 
+    public static final String WOOHAKDONG_CLUB_PREFIX = "https://www.woohakdong.com/clubs/";
     private final ClubRepository clubRepository;
     private final MemberRepository memberRepository;
     private final ClubAccountRepository clubAccountRepository;
@@ -54,44 +51,42 @@ public class ClubService {
     }
 
     @Transactional
-    public ClubCreateResponse registerClub(ClubCreateRequest clubCreateRequest) {
+    public ClubIdResponse registerClub(ClubCreateRequest request) {
         Member member = getMemberFromJwtInformation();
         School school = member.getSchool();
 
-        Club club = createClub(clubCreateRequest, school);
-        club.addGroup(createJoinGroup(club));
+        validateClubWithNames(request.clubName(), request.clubEnglishName());
 
-        ClubMember clubMember = createClubMember(member, club, PRESIDENT);
+        Club club = Club.create(request.clubName(), request.clubEnglishName(), request.clubDescription(),
+                request.clubImage(), request.clubRoom(), request.clubGeneration(), request.clubDues(),
+                request.clubGroupChatLink(), request.clubGroupChatPassword(), school);
+
+        Group group = Group.create(club.getClubName(),
+                club.getClubName() + "의 " + club.getClubGeneration() + "기 동아리 가입하기", club.getClubDues(),
+                WOOHAKDONG_CLUB_PREFIX + club.getClubEnglishName(), club.getClubGroupChatLink(),
+                club.getClubGroupChatPassword(), JOIN, club);
+
+        ClubMember clubMember = ClubMember.create(club, getAssignedTerm(), PRESIDENT, member);
+
+        ClubHistory clubHistory = ClubHistory.create(club, getAssignedTerm());
+
+        club.addGroup(group);
         club.addClubMember(clubMember);
-
-        // club history에 이번 분기 추가
-        ClubHistory clubHistory = createClubHistory(club);
         club.addClubHistory(clubHistory);
-
         clubRepository.save(club);
 
-        return ClubCreateResponse.builder()
-                .clubId(club.getClubId())
-                .build();
+        return ClubIdResponse.from(club);
     }
 
     public ClubAccountResponse getClubAccount(Long clubId) {
         Club club = clubRepository.getById(clubId);
         ClubAccount clubAccount = clubAccountRepository.getByClub(club);
 
-        return ClubAccountResponse.builder()
-                .clubAccountId(clubAccount.getClubAccountId())
-                .clubAccountBalance(clubAccount.getClubAccountBalance())
-                .clubAccountPinTechNumber(clubAccount.getClubAccountPinTechNumber())
-                .clubAccountNumber(clubAccount.getClubAccountNumber())
-                .clubAccountLastUpdateDate(clubAccount.getClubAccountLastUpdateDate())
-                .clubAccountBankCode(clubAccount.getClubAccountBankCode())
-                .clubAccountBankName(clubAccount.getClubAccountBankName())
-                .build();
+        return ClubAccountResponse.from(clubAccount);
     }
 
     @Transactional
-    public void registerClubAccount(Long clubId, ClubAccountRegisterRequest clubAccountRegisterRequest) {
+    public void registerClubAccount(Long clubId, ClubAccountRegisterRequest request) {
         Member member = getMemberFromJwtInformation();
         Club club = clubRepository.getById(clubId);
 
@@ -99,35 +94,26 @@ public class ClubService {
             throw new CustomException(CLUB_MEMBER_ROLE_NOT_ALLOWED);
         }
 
-        ClubAccount clubAccount = createClubAccount(clubAccountRegisterRequest, club);
+        ClubAccount clubAccount = ClubAccount.create(club, request.clubAccountBankName(), request.clubAccountNumber(),
+                request.clubAccountPinTechNumber(), getBankCode(request.clubAccountBankName()));
+
         clubAccountRepository.save(clubAccount);
     }
 
-    public ListWrapperResponse<ClubHistoryTermResponse> getClubHistory(Long clubId) {
+    public List<ClubHistoryTermResponse> getClubHistory(Long clubId) {
         Club club = clubRepository.getById(clubId);
         List<ClubHistory> clubHistories = clubHistoryRepository.getAllByClub(club);
 
-        // ClubHistory를 ClubHistoryTermResponse로 변환
-        List<ClubHistoryTermResponse> clubHistoryResponses = clubHistories.stream()
-                .map(clubHistory -> ClubHistoryTermResponse.builder()
-                        .clubHistoryUsageDate(clubHistory.getClubHistoryUsageDate())  // 적절한 필드 사용
-                        .build())
-                .collect(Collectors.toList());
-
-        return ListWrapperResponse.of(clubHistoryResponses);
+        return clubHistories.stream()
+                .map(ClubHistoryTermResponse::from)
+                .toList();
     }
 
     public ClubJoinGroupInfoResponse getClubJoinInfo(Long clubId) {
         Club club = clubRepository.getById(clubId);
         Group group = groupRepository.getByClubAndGroupTypeAndGroupIsAvailable(club, JOIN, true);
 
-        return ClubJoinGroupInfoResponse.builder()
-                .groupId(group.getGroupId())
-                .groupName(group.getGroupName())
-                .groupDescription(group.getGroupDescription())
-                .groupJoinLink(group.getGroupJoinLink())
-                .groupAmount(group.getGroupAmount())
-                .build();
+        return ClubJoinGroupInfoResponse.from(group);
     }
 
     public List<ClubInfoResponse> getJoinedClubInfos() {
@@ -151,55 +137,16 @@ public class ClubService {
     }
 
     @Transactional
-    public ClubInfoResponse updateClubInfo(Long clubId, ClubUpdateRequest clubUpdateRequest) {
+    public ClubInfoResponse updateClubInfo(Long clubId, ClubUpdateRequest request) {
         Club club = clubRepository.getById(clubId);
-        club.updateClubInfo(clubUpdateRequest.clubImage(), clubUpdateRequest.clubDescription(),
-                clubUpdateRequest.clubRoom(), clubUpdateRequest.clubGeneration(), clubUpdateRequest.clubGroupChatLink(),
-                clubUpdateRequest.clubGroupChatPassword(), clubUpdateRequest.clubDues());
+        club.update(request.clubImage(), request.clubDescription(), request.clubRoom(), request.clubGeneration(),
+                request.clubGroupChatLink(), request.clubGroupChatPassword(), request.clubDues());
 
         Group group = groupRepository.getByClubAndGroupTypeAndGroupIsAvailable(club, JOIN, true);
-        group.disableGroup();
-
-        Group newGroup = createJoinGroup(club);
-        club.addGroup(newGroup);
+        group.updateJoinGroup(club.getClubName() + "의 " + club.getClubGeneration() + "기 동아리 가입하기",
+                club.getClubDues(), club.getClubGroupChatLink(), club.getClubGroupChatPassword());
 
         return ClubInfoResponse.from(club);
-    }
-
-    private Club createClub(ClubCreateRequest clubCreateRequest, School school) {
-        validateClubWithNames(clubCreateRequest.clubName(), clubCreateRequest.clubEnglishName());
-        return Club.builder()
-                .clubName(clubCreateRequest.clubName())
-                .clubEnglishName(clubCreateRequest.clubEnglishName())
-                .clubImage(clubCreateRequest.clubImage())
-                .clubDescription(clubCreateRequest.clubDescription())
-                .clubRoom(clubCreateRequest.clubRoom())
-                .clubGeneration(clubCreateRequest.clubGeneration())
-                .clubDues(clubCreateRequest.clubDues())
-                .clubGroupChatLink(clubCreateRequest.clubGroupChatLink())
-                .clubGroupChatPassword(clubCreateRequest.clubGroupChatPassword())
-                .school(school)
-                .build();
-    }
-
-    private Group createJoinGroup(Club club) {
-        return Group.builder()
-                .groupJoinLink("https://www.woohakdong.com/clubs/" + club.getClubEnglishName())
-                .club(club)
-                .groupAmount(club.getClubDues())
-                .groupType(JOIN)
-                .groupName(club.getClubName())
-                .groupDescription(club.getClubName() + "의 " + club.getClubGeneration() + "기 동아리 가입하기")
-                .groupChatLink(club.getClubGroupChatLink())
-                .groupChatPassword(club.getClubGroupChatPassword())
-                .build();
-    }
-
-    private ClubHistory createClubHistory(Club club) {
-        return ClubHistory.builder()
-                .club(club)
-                .clubHistoryUsageDate(getAssignedTerm())
-                .build();
     }
 
     private Member getMemberFromJwtInformation() {
@@ -211,29 +158,6 @@ public class ClubService {
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
     }
 
-    private ClubAccount createClubAccount(ClubAccountRegisterRequest clubAccountRegisterRequest, Club club) {
-        String bankCode = getBankCode(clubAccountRegisterRequest.clubAccountBankName());
-
-        return ClubAccount.builder()
-                .clubAccountBankName(clubAccountRegisterRequest.clubAccountBankName())
-                .clubAccountNumber(clubAccountRegisterRequest.clubAccountNumber())
-                .clubAccountPinTechNumber(clubAccountRegisterRequest.clubAccountPinTechNumber())
-                .clubAccountBankCode(bankCode)
-                .clubAccountLastUpdateDate(LocalDateTime.now())
-                .clubAccountBalance(0L)
-                .club(club)
-                .build();
-    }
-
-    private ClubMember createClubMember(Member member, Club club, ClubMemberRole role) {
-        return ClubMember.builder()
-                .clubMemberRole(role)
-                .member(member)
-                .club(club)
-                .clubMemberAssignedTerm(getAssignedTerm())
-                .clubJoinedDate(LocalDate.now())
-                .build();
-    }
 
     private LocalDate getAssignedTerm() {
         LocalDate now = LocalDate.now();

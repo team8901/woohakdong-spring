@@ -66,6 +66,7 @@ public class ClubMember {
                 .build();
     }
 
+
     public void changeRole(ClubMemberRole clubMemberRole) {
         this.clubMemberRole = clubMemberRole;
     }

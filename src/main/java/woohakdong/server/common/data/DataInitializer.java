@@ -4,7 +4,6 @@ import static woohakdong.server.domain.member.MemberGender.MAN;
 import static woohakdong.server.domain.member.MemberGender.WOMAN;
 
 import java.time.LocalDate;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -13,6 +12,8 @@ import woohakdong.server.domain.admin.adminAccount.AdminAccount;
 import woohakdong.server.domain.admin.adminAccount.AdminAccountRepository;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
+import woohakdong.server.domain.clubAccount.ClubAccount;
+import woohakdong.server.domain.clubAccount.ClubAccountRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.clubmember.ClubMemberRole;
@@ -35,9 +36,10 @@ public class DataInitializer implements CommandLineRunner {
     private final GroupRepository groupRepository;
     private final MemberRepository memberRepository;
     private final ClubMemberRepository clubMemberRepository;
+    private final ClubAccountRepository clubAccountRepository;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         if (schoolRepository.count() == 0) {
             School school = School.builder()
                     .schoolName("아주대학교")
@@ -111,11 +113,20 @@ public class DataInitializer implements CommandLineRunner {
                     .clubImage("https://s3.ap-northeast-2.amazonaws.com/woohakdong.image/Do-iT-LOGO.png")
                     .clubGeneration("34")
                     .clubRoom("구학생회관 201호")
-                    .clubEstablishmentDate(LocalDate.of(2017, 7, 1))
                     .clubGroupChatLink("https://open.kakao.com/o/gUEMLKVg")
                     .clubGroupChatPassword("1234")
                     .build();
             clubRepository.save(club);
+
+            ClubAccount clubAccount = ClubAccount.builder()
+                    .clubAccountPinTechNumber("pin-tech")
+                    .clubAccountBalance(10000000L)
+                    .clubAccountBankCode("011")
+                    .clubAccountBankName("농협은행")
+                    .clubAccountNumber("3020000011529")
+                    .club(club)
+                    .build();
+            clubAccountRepository.save(clubAccount);
 
             ClubMember clubMember = ClubMember.builder()
                     .club(club)

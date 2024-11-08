@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
 import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
-import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
+import woohakdong.server.api.controller.club.dto.ClubIdResponse;
 import woohakdong.server.api.controller.club.dto.ClubHistoryTermResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
@@ -113,13 +113,13 @@ class ClubServiceTest {
         ClubCreateRequest clubCreateRequest = createClubCreateRequest();
 
         // When
-        ClubCreateResponse clubCreateResponse = clubService.registerClub(clubCreateRequest);
+        ClubIdResponse clubIdResponse = clubService.registerClub(clubCreateRequest);
 
         // Then
         List<ClubMember> clubMembers = clubMemberRepository.getAll();
         assertThat(clubMembers).hasSize(1);
         assertThat(clubMembers.get(0)).extracting("clubMemberRole", "club.clubId")
-                .containsExactly(PRESIDENT, clubCreateResponse.clubId());
+                .containsExactly(PRESIDENT, clubIdResponse.clubId());
     }
 
     @DisplayName("동아리 회장은 동아리 계좌를 등록할 수 있다.")
@@ -231,21 +231,21 @@ class ClubServiceTest {
         ClubHistory clubHistory2 = createClubHistory(club, 2024, 1);
 
         // When
-        ListWrapperResponse<ClubHistoryTermResponse> response = clubService.getClubHistory(club.getClubId());
+        List<ClubHistoryTermResponse> clubHistory = clubService.getClubHistory(club.getClubId());
 
         // Then
-        assertThat(response.result()).hasSize(2)
+        assertThat(clubHistory).hasSize(2)
                 .extracting("clubHistoryUsageDate")
                 .containsExactly(LocalDate.of(2023, 1, 1), LocalDate.of(2024, 1, 1));
     }
 
     @DisplayName("동아리 정보를 수정할 수 있다.")
     @Test
-    void updateClubInfo() {
+    void update() {
         // Given
         School school = createSchool();
         Club club = createClub(school);
-        Group group = createGroupForClub(club);
+        Group group = createJoinGroupForClub(club);
 
         ClubUpdateRequest request = createClubUpdateRequest();
 
@@ -259,13 +259,13 @@ class ClubServiceTest {
     }
 
 
-    @DisplayName("동아리 정보를 수정하면, 기존 그룹이 disable되고 새로운 그룹이 생성된다.")
+    @DisplayName("동아리 정보를 수정하면 JOIN 타입의 모임도 수정된다.")
     @Test
-    void updateClubInfoWithGroup() {
+    void updateWithGroup() {
         // Given
         School school = createSchool();
         Club club = createClub(school);
-        Group group = createGroupForClub(club);
+        Group group = createJoinGroupForClub(club);
 
         ClubUpdateRequest request = createClubUpdateRequest();
 
@@ -273,12 +273,10 @@ class ClubServiceTest {
         clubService.updateClubInfo(club.getClubId(), request);
 
         // Then
-        List<Group> groups = groupRepository.getAll();
-        assertThat(groups).hasSize(2)
+        assertThat(group)
                 .extracting("groupAmount", "groupIsAvailable", "groupChatLink", "groupChatPassword")
-                .containsExactlyInAnyOrder(
-                        tuple(group.getGroupAmount(), false, group.getGroupChatLink(), group.getGroupChatPassword()),
-                        tuple(request.clubDues(), true, request.clubGroupChatLink(), request.clubGroupChatPassword()));
+                .containsExactly(request.clubDues(), true, request.clubGroupChatLink(),
+                        request.clubGroupChatPassword());
     }
 
     private School createSchool() {
@@ -302,7 +300,7 @@ class ClubServiceTest {
         return clubRepository.save(club);
     }
 
-    private Group createGroupForClub(Club club) {
+    private Group createJoinGroupForClub(Club club) {
         Group group = Group.builder()
                 .club(club)
                 .groupType(JOIN)
