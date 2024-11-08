@@ -5,8 +5,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_NOT_AVAILABLE;
 import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_USING;
+import static woohakdong.server.domain.clubmember.ClubMemberRole.MEMBER;
 import static woohakdong.server.domain.item.ItemCategory.SPORT;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -17,23 +19,22 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.item.dto.ItemAvailableUpdateRequest;
-import woohakdong.server.api.controller.item.dto.ItemHistoryResponse;
-import woohakdong.server.api.controller.item.dto.ItemRegisterRequest;
-import woohakdong.server.api.controller.item.dto.ItemRegisterResponse;
-import woohakdong.server.api.controller.item.dto.ItemResponse;
-import woohakdong.server.api.controller.item.dto.ItemReturnRequest;
-import woohakdong.server.api.controller.item.dto.ItemReturnResponse;
-import woohakdong.server.api.controller.item.dto.ItemUpdateRequest;
+import woohakdong.server.api.controller.ListWrapperResponse;
+import woohakdong.server.api.controller.item.dto.*;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.ItemHistory.ItemHistory;
 import woohakdong.server.domain.ItemHistory.ItemHistoryRepository;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
+import woohakdong.server.domain.clubmember.ClubMember;
+import woohakdong.server.domain.clubmember.ClubMemberRepository;
+import woohakdong.server.domain.clubmember.ClubMemberRole;
 import woohakdong.server.domain.item.Item;
 import woohakdong.server.domain.item.ItemCategory;
 import woohakdong.server.domain.item.ItemRepository;
+import woohakdong.server.domain.itemBorrowed.ItemBorrowed;
+import woohakdong.server.domain.itemBorrowed.ItemBorrowedRepository;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 
@@ -55,6 +56,12 @@ class ItemServiceTest {
 
     @Autowired
     private ItemHistoryRepository itemHistoryRepository;
+
+    @Autowired
+    private ClubMemberRepository clubMemberRepository;
+
+    @Autowired
+    private ItemBorrowedRepository itemBorrowedRepository;
 
     @DisplayName("물품을 등록하면 물품을 확인할 수 있다.")
     @Test
@@ -256,6 +263,52 @@ class ItemServiceTest {
                 .containsExactly("새로운 축구공", 9);
     }
 
+    @DisplayName("빌린 물품 리스트를 확인할 수 있다.")
+    @Test
+    void getMyBorrowedItems_success() {
+        // given
+        Member member = setUpMemberSession();
+        Club club = createClub();
+        Item item = createItem(club, "축구공", SPORT, 7, false);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
+        ItemBorrowed itemBorrowed = createItemBorrowed(clubMember, item);
+
+        // when
+        ListWrapperResponse<ItemBorrowedResponse> response = itemService.getMyBorrowedItems(club.getClubId());
+
+        // then
+        assertThat(response.result())
+                .isNotEmpty()
+                .extracting("itemName")
+                .containsExactly("축구공");
+    }
+
+    @DisplayName("물품 상세 정보를 확인할 수 있다.")
+    @Test
+    void getItemInfo_success() {
+        // given
+        Club club = createClub();
+        Item item = createItem(club, "축구공", SPORT, 7, false);
+
+        // when
+        ItemResponse response = itemService.getItemInfo(club.getClubId(), item.getItemId());
+
+        // then
+        assertThat(response)
+                .extracting("itemName", "itemCategory", "itemPhoto")
+                .containsExactly("축구공", ItemCategory.SPORT, "https://item-image.com");
+    }
+
+    private ItemBorrowed createItemBorrowed(ClubMember clubMember, Item item) {
+        ItemBorrowed itemBorrowed = ItemBorrowed.builder()
+                .itemBorrowedReturnDate(LocalDateTime.now().plusDays(7))
+                .clubMember(clubMember)
+                .item(item)
+                .build();
+        itemBorrowedRepository.save(itemBorrowed);
+        return itemBorrowed;
+    }
+
     private Member setUpMemberSession() {
         String provideId = "testProvideId";
         Member member = Member.builder()
@@ -338,5 +391,21 @@ class ItemServiceTest {
                 .itemReturnImage("http://example.com/return_photo.png")
                 .build();
         itemHistoryRepository.save(itemHistory);
+    }
+
+    private ClubMember createClubMember(Club club, Member member, ClubMemberRole memberRole, LocalDate assignedTerm) {
+        ClubMember clubMember = ClubMember.builder()
+                .clubMemberAssignedTerm(getAssignedTerm(assignedTerm))
+                .club(club)
+                .member(member)
+                .clubMemberRole(memberRole)
+                .build();
+        return clubMemberRepository.save(clubMember);
+    }
+
+    private LocalDate getAssignedTerm(LocalDate date) {
+        int year = date.getYear();
+        int semester = date.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
+        return LocalDate.of(year, semester, 1);
     }
 }

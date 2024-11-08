@@ -5,6 +5,7 @@ import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_NOT_USING;
 import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_USING;
 import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,25 +14,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.item.dto.ItemAvailableUpdateRequest;
-import woohakdong.server.api.controller.item.dto.ItemBorrowResponse;
-import woohakdong.server.api.controller.item.dto.ItemHistoryResponse;
-import woohakdong.server.api.controller.item.dto.ItemRegisterRequest;
-import woohakdong.server.api.controller.item.dto.ItemRegisterResponse;
-import woohakdong.server.api.controller.item.dto.ItemResponse;
-import woohakdong.server.api.controller.item.dto.ItemReturnRequest;
-import woohakdong.server.api.controller.item.dto.ItemReturnResponse;
-import woohakdong.server.api.controller.item.dto.ItemUpdateRequest;
-import woohakdong.server.api.controller.item.dto.ItemUpdateResponse;
+import woohakdong.server.api.controller.ListWrapperResponse;
+import woohakdong.server.api.controller.item.dto.*;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.ItemHistory.ItemHistory;
 import woohakdong.server.domain.ItemHistory.ItemHistoryRepository;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
+import woohakdong.server.domain.clubmember.ClubMember;
+import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.item.Item;
 import woohakdong.server.domain.item.ItemCategory;
 import woohakdong.server.domain.item.ItemRepository;
+import woohakdong.server.domain.itemBorrowed.ItemBorrowed;
+import woohakdong.server.domain.itemBorrowed.ItemBorrowedRepository;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 
@@ -44,6 +41,8 @@ public class ItemService {
     private final ClubRepository clubRepository;
     private final MemberRepository memberRepository;
     private final ItemHistoryRepository itemHistoryRepository;
+    private final ClubMemberRepository clubMemberRepository;
+    private final ItemBorrowedRepository itemBorrowedRepository;
 
     @Transactional
     public ItemRegisterResponse registerItem(Long clubId, ItemRegisterRequest request) {
@@ -204,6 +203,28 @@ public class ItemService {
         Item item = itemRepository.getById(itemId);
 
         item.setItemAvailable(request.itemAvailable());
+    }
+
+    public ListWrapperResponse<ItemBorrowedResponse> getMyBorrowedItems(Long clubId) {
+        Member member = getMemberFromJwtInformation();
+        Club club = clubRepository.getById(clubId);
+        LocalDate assignedTerm = getAssignedTerm();
+
+        ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
+        List<ItemBorrowed> borrowedItems = itemBorrowedRepository.findByClubMember(clubMember);
+
+        List<ItemBorrowedResponse> itemBorrowedResponses = borrowedItems.stream()
+                .map(itemBorrowed -> ItemBorrowedResponse.from(itemBorrowed.getItem(), itemBorrowed.getItemBorrowedReturnDate()))
+                .collect(Collectors.toList());
+
+        return ListWrapperResponse.of(itemBorrowedResponses);
+    }
+
+    private LocalDate getAssignedTerm() {
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
+        return LocalDate.of(year, semester, 1);
     }
 
     private Member getMemberFromJwtInformation() {
