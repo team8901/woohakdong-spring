@@ -33,6 +33,11 @@ public class ClubMemberController implements ClubMemberControllerDocs {
         }
     }
 
+    @GetMapping("/{clubId}/members/{clubMemberId}")
+    public ClubMemberInfoResponse getClubMemberInfo(@PathVariable Long clubId, @PathVariable Long clubMemberId) {
+        return clubMemberService.getClubMemberInfo(clubId, clubMemberId);
+    }
+
     @GetMapping("/{clubId}/members/me")
     public ClubMemberInfoResponse getMyInfo(@PathVariable Long clubId) {
         return clubMemberService.getMyInfo(clubId);
