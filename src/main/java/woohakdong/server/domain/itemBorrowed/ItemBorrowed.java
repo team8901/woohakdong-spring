@@ -35,4 +35,13 @@ public class ItemBorrowed {
         this.item = item;
         this.itemBorrowedReturnDate = itemBorrowedReturnDate;
     }
+
+    public static ItemBorrowed createItemBorrowed(ClubMember clubMember, Item item, LocalDateTime itemBorrowedReturnDate) {
+        ItemBorrowed itemBorrowed = ItemBorrowed.builder()
+                .itemBorrowedReturnDate(itemBorrowedReturnDate)
+                .clubMember(clubMember)
+                .item(item)
+                .build();
+        return itemBorrowed;
+    }
 }
