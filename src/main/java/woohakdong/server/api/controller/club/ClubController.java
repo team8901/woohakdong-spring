@@ -28,7 +28,7 @@ public class ClubController implements ClubControllerDocs {
     }
 
     @PostMapping
-    public ClubCreateResponse createClub(@RequestBody ClubCreateRequest request) {
+    public ClubIdResponse createClub(@RequestBody ClubCreateRequest request) {
         return clubService.registerClub(request);
     }
 
@@ -74,6 +74,6 @@ public class ClubController implements ClubControllerDocs {
 
     @GetMapping("/{clubId}/terms")
     public ListWrapperResponse<ClubHistoryTermResponse> getClubHistory(@PathVariable Long clubId) {
-        return clubService.getClubHistory(clubId);
+        return ListWrapperResponse.of(clubService.getClubHistory(clubId));
     }
 }

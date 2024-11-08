@@ -1,9 +1,8 @@
 package woohakdong.server.api.controller.club.dto;
 
-import jakarta.persistence.Column;
-import lombok.Builder;
-
 import java.time.LocalDateTime;
+import lombok.Builder;
+import woohakdong.server.domain.clubAccount.ClubAccount;
 
 @Builder
 public record ClubAccountResponse(
@@ -15,4 +14,15 @@ public record ClubAccountResponse(
         String clubAccountBankCode,
         Long clubAccountBalance
 ) {
+    public static ClubAccountResponse from(ClubAccount clubAccount) {
+        return ClubAccountResponse.builder()
+                .clubAccountId(clubAccount.getClubAccountId())
+                .clubAccountBankName(clubAccount.getClubAccountBankName())
+                .clubAccountNumber(clubAccount.getClubAccountNumber())
+                .clubAccountPinTechNumber(clubAccount.getClubAccountPinTechNumber())
+                .clubAccountLastUpdateDate(clubAccount.getClubAccountLastUpdateDate())
+                .clubAccountBankCode(clubAccount.getClubAccountBankCode())
+                .clubAccountBalance(clubAccount.getClubAccountBalance())
+                .build();
+    }
 }
