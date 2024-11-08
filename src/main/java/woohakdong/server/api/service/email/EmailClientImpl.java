@@ -14,9 +14,9 @@ import woohakdong.server.common.exception.CustomException;
 @RequiredArgsConstructor
 public class EmailClientImpl implements EmailClient {
 
-    private final String CLUB_INVITE_EMAIL_SUBJECT = "%s 동아리 초대장입니다.";
-    private final String CLUB_INFO_CHANGED_EMAIL_SUBJECT = "%s 동아리 정보가 변경되었습니다.";
-    private final String SCHEDULE_NOTICE_EMAIL_SUBJECT = "%s 동아리에 새로운 일정이 등록되었습니다!";
+    private final static String CLUB_INVITE_EMAIL_SUBJECT = "%s 동아리 초대장입니다.";
+    private final static String CLUB_INFO_CHANGED_EMAIL_SUBJECT = "%s 동아리 정보가 변경되었습니다.";
+    private final static String SCHEDULE_NOTICE_EMAIL_SUBJECT = "%s 동아리에 새로운 일정이 등록되었습니다!";
 
     private final JavaMailSender mailSender;
 
