@@ -26,6 +26,11 @@ public interface ItemControllerDocs {
                                                       @RequestParam(required = false) String category);
 
     @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "물품 상세정보 반환", description = "물품 상세정보 반환")
+    @ApiResponse(responseCode = "200", description = "물품 상세정보 반환 성공", useReturnTypeSchema = true)
+    public ItemResponse getItemInfo(@PathVariable Long clubId, @PathVariable Long itemId);
+
+    @SecurityRequirement(name = "accessToken")
     @Operation(summary = "물품 대여", description = "물품이 사용중이 아니라면 대여할 수 있다.")
     @ApiResponse(responseCode = "200", description = "물품 대여 성공", useReturnTypeSchema = true)
     public ItemBorrowResponse borrowItem(@PathVariable Long clubId, @PathVariable Long itemId);

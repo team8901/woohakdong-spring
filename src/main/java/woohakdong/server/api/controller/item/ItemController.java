@@ -27,6 +27,11 @@ public class ItemController implements ItemControllerDocs {
         return ListWrapperResponse.of(itemService.getItemsByFilters(clubId, keyword, category));
     }
 
+    @GetMapping("/{clubId}/items/{itemId}")
+    public ItemResponse getItemInfo(@PathVariable Long clubId, @PathVariable Long itemId) {
+        return itemService.getItemInfo(clubId, itemId);
+    }
+
     @PostMapping("/{clubId}/items/{itemId}/borrow")
     public ItemBorrowResponse borrowItem(@PathVariable Long clubId, @PathVariable Long itemId) {
         return itemService.borrowItem(clubId, itemId);
