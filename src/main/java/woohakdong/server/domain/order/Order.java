@@ -1,5 +1,6 @@
 package woohakdong.server.domain.order;
 
+import static woohakdong.server.domain.order.OrderStatus.COMPLETE;
 import static woohakdong.server.domain.order.OrderStatus.INIT;
 
 import jakarta.persistence.CascadeType;
@@ -46,6 +47,12 @@ public class Order {
     @Column(nullable = false)
     private Integer orderAmount;
 
+    @Column(nullable = false)
+    private String orderName;
+
+    @Column(nullable = false)
+    private String orderDescription;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
@@ -59,27 +66,50 @@ public class Order {
     private Payment payment;
 
     @Builder
-    public Order(Long orderId, String orderMerchantUid, LocalDateTime orderAt, Integer orderAmount, Member member,
-                 Group group) {
+    private Order(Long orderId, String orderMerchantUid, LocalDateTime orderAt, OrderStatus orderStatus,
+                  Integer orderAmount, String orderName, String orderDescription, Member member, Group group) {
         this.orderId = orderId;
         this.orderMerchantUid = orderMerchantUid;
         this.orderAt = orderAt;
-        this.orderStatus = INIT;
+        this.orderStatus = orderStatus;
         this.orderAmount = orderAmount;
         this.member = member;
         this.group = group;
+        this.orderName = orderName;
+        this.orderDescription = orderDescription;
     }
 
-    public boolean isAmountValid(Integer amount) {
-        return this.orderAmount.equals(amount);
+    public static Order create(String orderMerchantUid, Member member, Group group) {
+        return Order.builder()
+                .orderMerchantUid(orderMerchantUid)
+                .orderAt(LocalDateTime.now())
+                .orderStatus(INIT)
+                .orderAmount(group.getGroupAmount())
+                .orderName(group.getGroupName())
+                .orderDescription(group.getGroupDescription())
+                .member(member)
+                .group(group)
+                .build();
     }
 
     public boolean isOrderComplete() {
-        return this.orderStatus.equals(OrderStatus.COMPLETE);
+        return this.orderStatus.equals(COMPLETE);
     }
 
     public void completeOrder(Payment payment) {
         this.payment = payment;
-        this.orderStatus = OrderStatus.COMPLETE;
+        this.orderStatus = COMPLETE;
+    }
+
+    public boolean verifyGroupAndMember(Group group, Member member) {
+        return this.group.equals(group) && this.member.equals(member);
+    }
+
+    public boolean verifyOrderAmount(Integer amount) {
+        return this.orderAmount.equals(amount);
+    }
+
+    public boolean verifyOrderMerchantUid(String merchantUid) {
+        return this.orderMerchantUid.equals(merchantUid);
     }
 }

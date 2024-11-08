@@ -17,7 +17,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 import woohakdong.server.domain.clubHistory.ClubHistory;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.group.Group;
