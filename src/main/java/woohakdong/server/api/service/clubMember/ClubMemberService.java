@@ -50,6 +50,14 @@ public class ClubMemberService {
                 .toList();
     }
 
+    public ClubMemberInfoResponse getClubMemberInfo(Long clubId, Long clubMemberId) {
+        Club club = clubRepository.getById(clubId);
+
+        ClubMember clubMember = clubMemberRepository.getById(clubMemberId);
+
+        return ClubMemberInfoResponse.from(clubMember.getMember(), clubMember);
+    }
+
     public ClubMemberInfoResponse getMyInfo(Long clubId) {
         Member member = getMemberFromJwtInformation();
         Club club = clubRepository.getById(clubId);
