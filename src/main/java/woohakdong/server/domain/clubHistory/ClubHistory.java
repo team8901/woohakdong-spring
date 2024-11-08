@@ -30,4 +30,11 @@ public class ClubHistory {
         this.club = club;
         this.clubHistoryUsageDate = clubHistoryUsageDate;
     }
+
+    public static ClubHistory create(Club club, LocalDate assignedTerm) {
+        return ClubHistory.builder()
+                .club(club)
+                .clubHistoryUsageDate(assignedTerm)
+                .build();
+    }
 }
