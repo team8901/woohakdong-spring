@@ -109,9 +109,10 @@ class ItemServiceTest {
     @Test
     void borrowItemSuccess() {
         // given
-        setUpMemberSession();
+        Member member = setUpMemberSession();
         Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, false);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
 
         // when
         itemService.borrowItem(club.getClubId(), item.getItemId());
@@ -129,10 +130,11 @@ class ItemServiceTest {
     @Test
     void borrowItem() {
         // Given
-        setUpMemberSession();
+        Member member = setUpMemberSession();
         Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, false);
         item.setItemAvailable(false);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
 
         // When & Then
         assertThatThrownBy(() -> itemService.borrowItem(club.getClubId(), item.getItemId()))
@@ -144,9 +146,10 @@ class ItemServiceTest {
     @Test
     void borrowItemAlreadyInUseFailure() {
         // given
-        setUpMemberSession();
+        Member member = setUpMemberSession();
         Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, true);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
 
         // when & then
         assertThatThrownBy(() -> itemService.borrowItem(club.getClubId(), item.getItemId()))
@@ -158,10 +161,11 @@ class ItemServiceTest {
     @Test
     void returnItemSuccess() {
         // given
-        setUpMemberSession();
+        Member member = setUpMemberSession();
         Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, false);
         ItemReturnRequest request = createItemReturnRequest("http://example.com/return_photo.png");
+        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
 
         itemService.borrowItem(club.getClubId(), item.getItemId());
 

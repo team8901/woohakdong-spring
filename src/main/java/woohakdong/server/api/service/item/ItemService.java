@@ -89,6 +89,8 @@ public class ItemService {
         Member member = getMemberFromJwtInformation();
         Club club = clubRepository.getById(clubId);
         Item item = itemRepository.getByIdForUpdate(itemId);
+        LocalDate assignedTerm = getAssignedTerm();
+        ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
 
         // 물품이 대여 가능 상태인지 확인
         if (!item.getItemAvailable()) {
@@ -105,6 +107,9 @@ public class ItemService {
         LocalDateTime dueDate = borrowDate.plusDays(item.getItemRentalMaxDay());
         ItemHistory itemHistory = ItemHistory.create(member, item, borrowDate, dueDate);
         itemHistoryRepository.save(itemHistory);
+
+        ItemBorrowed itemBorrowed = ItemBorrowed.createItemBorrowed(clubMember, item, item.getItemRentalDate().plusDays(item.getItemRentalMaxDay()));
+        itemBorrowedRepository.save(itemBorrowed);
 
         return ItemBorrowResponse.builder()
                 .itemId(item.getItemId())
@@ -137,6 +142,9 @@ public class ItemService {
 
         // 물품 상태 변경
         item.setItemUsing(false);
+
+        ItemBorrowed itemBorrowed = itemBorrowedRepository.findByItem(item);
+        itemBorrowedRepository.delete(itemBorrowed);
 
         // 추가적으로 연체 여부 확인 가능
         if (LocalDateTime.now().isAfter(itemHistory.getItemDueDate())) {

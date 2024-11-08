@@ -36,6 +36,7 @@ public enum CustomErrorInfo {
     SCHEDULE_NOT_FOUND(400, "schedule not found", 400028),
     ADMIN_MEMBER_ID_NOT_FOUND(400, "admin member id not found", 400029),
     ADMIN_USERNAME_IS_ALREADY_USED(400, "admin username is already in use", 400030),
+    ITEM_BORROWED_NOT_FOUND(400, "item borrowed not found", 400031),
 
     // 401 UNAUTHORIZED
     INVALID_ACCESS_TOKEN(401, "Invaild access token", 401001),
