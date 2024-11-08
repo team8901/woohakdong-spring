@@ -6,7 +6,8 @@ import lombok.RequiredArgsConstructor;
 public enum GroupType {
 
     JOIN("가입"),
-    EVENT("이벤트");
+    EVENT("이벤트"),
+    PAYMENT("결제");
 
     private final String type;
 }

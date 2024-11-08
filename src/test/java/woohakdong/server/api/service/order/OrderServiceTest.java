@@ -2,7 +2,9 @@ package woohakdong.server.api.service.order;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 import static woohakdong.server.domain.member.MemberGender.MAN;
 import static woohakdong.server.domain.order.OrderStatus.COMPLETE;
@@ -14,21 +16,24 @@ import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.group.dto.GroupJoinConfirmRequest;
 import woohakdong.server.api.controller.group.dto.GroupJoinOrderRequest;
 import woohakdong.server.api.controller.group.dto.GroupJoinOrderResponse;
+import woohakdong.server.api.controller.group.dto.PortOneWebhookRequest;
 import woohakdong.server.api.service.bank.MockBankService;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.admin.adminAccount.AdminAccount;
@@ -72,107 +77,165 @@ class OrderServiceTest {
     @Autowired
     private OrderRepository orderRepository;
 
-    @MockBean
-    private IamportClient iamportClient;
-
     @Autowired
     private AdminAccountRepository adminAccountRepository;
+
+    @MockBean
+    private IamportClient iamportClient;
 
     @MockBean
     private MockBankService mockBankService;
 
     @BeforeEach
     void setUp() {
-        // SecurityContext에 CustomUserDetails 설정
-        String provideId = "testProvideId";
-        String role = "USER_ROLE";
-        CustomUserDetails customUserDetails = new CustomUserDetails(provideId, role);
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-
-        // memberRepository에 member 저장
-        memberRepository.save(
-                Member.builder()
-                        .memberProvideId(provideId)
-                        .memberName("John Doe")
-                        .memberEmail("john.doe@example.com")
-                        .memberPhoneNumber("01012345678")
-                        .memberMajor("Computer Science")
-                        .memberStudentNumber("20210001")
-                        .memberGender(MAN)
-                        .build()
-        );
+        String provideId = setUpSecurityContextHolder("testProvideId");
+        member = createMember(provideId, "박상준", "sangjun@ajou.ac.kr");
+        school = createSchool();
+        club = createClub(school);
+        group = createGroup(club, 10000, JOIN);
+        AdminAccount adminAccount = createAdminAccount();
     }
+
+    private Member member;
+    private School school;
+    private Club club;
+    private Group group;
 
     @DisplayName("동아리 가입을 위해 가입 요청을 진행한다.(주문 생성)")
     @Test
     void registerOrder() {
         // Given
-        School school = createSchool();
-        Club club = createClub(school);
-        Group group = createGroup(club, 10000, JOIN);
-        Member member = memberRepository.findByMemberProvideId("testProvideId").get();
-
         GroupJoinOrderRequest request = createClubJoinOrder("m-12315");
 
         // When
         GroupJoinOrderResponse response = orderService.registerOrder(group.getGroupId(), request);
 
         // Then
-        assertThat(response).isNotNull();
-
-        // order 생겼는지 확안하기
         Order order = orderRepository.getById(response.orderId());
         assertThat(order)
                 .extracting("orderMerchantUid", "orderAmount", "orderStatus", "member.memberId")
                 .containsExactly("m-12315", 10000, INIT, member.getMemberId());
     }
 
-    @DisplayName("동아리 가입 요청에 대해서 완료되면, clubMember에 추가한다.")
+    @DisplayName("동아리 가입 요청을 진행하면, 주문이 완료 상태로 변경된다.")
     @Test
     void confirmJoinOrder() throws IamportResponseException, IOException {
         // Given
-        School school = createSchool();
-        Club club = createClub(school);
-        Group group = createGroup(club, 10000, JOIN);
-        Member member = memberRepository.findByMemberProvideId("testProvideId").get();
+        Order order = createOrder(group, member, "m-12315");
 
-        AdminAccount adminAccount = AdminAccount.builder()
-                .adminAccountBankCode("011")
-                .adminAccountAmount(10000000L)
-                .adminAccountBankName("농협은행")
-                .adminAccountNumber("3020000011527")
-                .build();
-        adminAccountRepository.save(adminAccount);
+        GroupJoinConfirmRequest confirmRequest = createClubJoinConfirm("imp-12315", "m-12315", order.getOrderId());
 
-        GroupJoinOrderRequest request = createClubJoinOrder("m-12315");
-        GroupJoinOrderResponse response = orderService.registerOrder(group.getGroupId(), request);
-        GroupJoinConfirmRequest confirmRequest = createClubJoinConfirm("imp-12315", "m-12315", response.orderId());
+        mockingIamportResponse();
+
+        // When
+        orderService.confirmJoinOrder(group.getGroupId(), confirmRequest);
+
+        // Then
+        assertThat(order)
+                .extracting("orderStatus", "orderMerchantUid", "orderAmount")
+                .containsExactly(COMPLETE, "m-12315", 10000);
+    }
+
+    @DisplayName("동아리 가입 요청 완료시에, 주문에 해당하는 결제가 생성된다.")
+    @Test
+    void confirmJoinOrderAndAddPayment() throws IamportResponseException, IOException {
+        // Given
+        Order order = createOrder(group, member, "m-12315");
+
+        GroupJoinConfirmRequest confirmRequest = createClubJoinConfirm("imp-12315", "m-12315", order.getOrderId());
 
         // Given - Mocking
-        Payment mockPayment = mock(Payment.class);
-        when(mockPayment.getImpUid()).thenReturn("imp-12315");
-        when(mockPayment.getMerchantUid()).thenReturn("m-12315");
-        when(mockPayment.getAmount()).thenReturn(BigDecimal.valueOf(10000));
+        mockingIamportResponse();
 
-        IamportResponse<Payment> mockIamportResponse = mock(IamportResponse.class);
-        when(mockIamportResponse.getResponse()).thenReturn(mockPayment);
+        // When
+        orderService.confirmJoinOrder(group.getGroupId(), confirmRequest);
 
-        when(iamportClient.paymentByImpUid("imp-12315")).thenReturn(mockIamportResponse);
+        // Then
+        assertThat(order.getPayment()).isNotNull()
+                .extracting("paymentAmount", "paymentImpUid", "paymentMerchantUid")
+                .containsExactly(10000, "imp-12315", "m-12315");
+    }
 
-        doNothing().when(mockBankService).transferClubFee(anyLong(), anyLong());
+    @DisplayName("동아리 가입 요청을 완료하면, 동아리 멤버로 추가된다.")
+    @Test
+    void confirmJoinOrderAndAddClubMember() throws IamportResponseException, IOException {
+        // Given
+        Order order = createOrder(group, member, "m-12315");
+
+        GroupJoinConfirmRequest confirmRequest = createClubJoinConfirm("imp-12315", "m-12315", order.getOrderId());
+
+        // Given - Mocking
+        mockingIamportResponse();
 
         // When
         orderService.confirmJoinOrder(group.getGroupId(), confirmRequest);
 
         // Then
         assertThat(clubMemberRepository.existsByClubAndMember(club, member)).isTrue();
+    }
 
-        Order order = orderRepository.getById(confirmRequest.orderId());
+    @DisplayName("포트원으로부터 결제 완료 요청이 오면, 주문이 완료 상태로 변경된다.")
+    @Test
+    void portOnePaymentComplete() throws IamportResponseException, IOException {
+        // Given
+        Order order = createOrder(group, member, "m-12315");
+
+        PortOneWebhookRequest request = createPortOneWebhookRequest("m-12315", "imp-12315");
+
+        // Given - Mocking
+        mockingIamportResponse();
+
+        // When
+        orderService.portOnePaymentComplete(request);
+
+        // Then
         assertThat(order)
                 .extracting("orderStatus", "orderMerchantUid", "orderAmount")
                 .containsExactly(COMPLETE, "m-12315", 10000);
+    }
+
+    private static @NotNull String setUpSecurityContextHolder(String provideId) {
+        CustomUserDetails userDetails = new CustomUserDetails(provideId, "USER_ROLE");
+        Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        return provideId;
+    }
+
+    private Member createMember(String provideId, String name, String email) {
+        Member member = Member.builder()
+                .memberProvideId(provideId)
+                .memberName(name)
+                .memberEmail(email)
+                .memberPhoneNumber("01012345678")
+                .memberMajor("Computer Science")
+                .memberStudentNumber("20210001")
+                .memberGender(MAN)
+                .build();
+        return memberRepository.save(member);
+    }
+
+    private AdminAccount createAdminAccount() {
+        AdminAccount adminAccount = AdminAccount.builder()
+                .adminAccountBankCode("011")
+                .adminAccountAmount(10000000L)
+                .adminAccountBankName("농협은행")
+                .adminAccountNumber("3020000011527")
+                .build();
+        return adminAccountRepository.save(adminAccount);
+    }
+
+    private Order createOrder(Group group, Member member, String orderMerchantUid) {
+        Order order = Order.builder()
+                .group(group)
+                .member(member)
+                .orderAmount(group.getGroupAmount())
+                .orderName(group.getGroupName())
+                .orderDescription(group.getGroupDescription())
+                .orderStatus(INIT)
+                .orderMerchantUid(orderMerchantUid)
+                .orderAt(LocalDateTime.now())
+                .build();
+        return orderRepository.save(order);
     }
 
     private static GroupJoinConfirmRequest createClubJoinConfirm(String impUid, String merchantUid, Long orderId) {
@@ -224,4 +287,25 @@ class OrderServiceTest {
         return schoolRepository.save(school);
     }
 
+    private void mockingIamportResponse() throws IamportResponseException, IOException {
+        Payment mockPayment = mock(Payment.class);
+        when(mockPayment.getImpUid()).thenReturn("imp-12315");
+        when(mockPayment.getMerchantUid()).thenReturn("m-12315");
+        when(mockPayment.getAmount()).thenReturn(BigDecimal.valueOf(10000));
+
+        IamportResponse<Payment> mockIamportResponse = mock(IamportResponse.class);
+        when(mockIamportResponse.getResponse()).thenReturn(mockPayment);
+
+        when(iamportClient.paymentByImpUid("imp-12315")).thenReturn(mockIamportResponse);
+
+        doNothing().when(mockBankService).transferClubFee(anyLong(), anyLong());
+    }
+
+    private PortOneWebhookRequest createPortOneWebhookRequest(String merchantUid, String impUid) {
+        return PortOneWebhookRequest.builder()
+                .merchantUid(merchantUid)
+                .impUid(impUid)
+                .status("paid")
+                .build();
+    }
 }

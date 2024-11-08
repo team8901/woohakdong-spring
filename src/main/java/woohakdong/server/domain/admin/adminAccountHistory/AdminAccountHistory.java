@@ -40,7 +40,7 @@ public class AdminAccountHistory {
     private AdminAccount adminAccount;
 
     @Builder
-    public AdminAccountHistory(AccountType adminAccountHistoryInOutType, LocalDate adminAccountHistoryTranDate,
+    private AdminAccountHistory(AccountType adminAccountHistoryInOutType, LocalDate adminAccountHistoryTranDate,
                                Long adminAccountHistoryBalanceAmount, Long adminAccountHistoryTranAmount,
                                String adminAccountHistoryContent, AdminAccount adminAccount) {
         this.adminAccountHistoryInOutType = adminAccountHistoryInOutType;
@@ -49,5 +49,19 @@ public class AdminAccountHistory {
         this.adminAccountHistoryTranAmount = adminAccountHistoryTranAmount;
         this.adminAccountHistoryContent = adminAccountHistoryContent;
         this.adminAccount = adminAccount;
+    }
+
+    public static AdminAccountHistory create(AccountType adminAccountHistoryInOutType,
+                                             LocalDate adminAccountHistoryTranDate,
+                                             Long adminAccountHistoryBalanceAmount, Long adminAccountHistoryTranAmount,
+                                             AdminAccount adminAccount, String adminAccountHistoryContent) {
+        return AdminAccountHistory.builder()
+                .adminAccountHistoryInOutType(adminAccountHistoryInOutType)
+                .adminAccountHistoryTranDate(adminAccountHistoryTranDate)
+                .adminAccountHistoryBalanceAmount(adminAccountHistoryBalanceAmount)
+                .adminAccountHistoryTranAmount(adminAccountHistoryTranAmount)
+                .adminAccountHistoryContent(adminAccountHistoryContent)
+                .adminAccount(adminAccount)
+                .build();
     }
 }

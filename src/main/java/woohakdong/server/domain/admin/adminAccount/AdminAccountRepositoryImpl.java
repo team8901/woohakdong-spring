@@ -9,7 +9,7 @@ import woohakdong.server.common.exception.CustomException;
 
 @RequiredArgsConstructor
 @Repository
-public class AdminAccountRepositoryImpl implements AdminAccountRepository{
+public class AdminAccountRepositoryImpl implements AdminAccountRepository {
 
     private final AdminAccountJpaRepository adminAccountJpaRepository;
 
@@ -22,5 +22,10 @@ public class AdminAccountRepositoryImpl implements AdminAccountRepository{
     public AdminAccount getById(Long adminAccountId) {
         return adminAccountJpaRepository.findById(adminAccountId)
                 .orElseThrow(() -> new CustomException(ADMIN_ACCOUNT_NOT_FOUND));
+    }
+
+    @Override
+    public AdminAccount getFirstOne() {
+        return adminAccountJpaRepository.findAll().get(0);
     }
 }
