@@ -234,7 +234,7 @@ public class ItemService {
 
         List<ItemHistory> histories = itemHistoryRepository.getAllByMember(member);
         List<ItemHistoryResponse> itemHistoryResponses = histories.stream()
-                .map(ItemHistoryResponse::from)
+                .map(history -> ItemHistoryResponse.from(history, member))
                 .collect(Collectors.toList());
 
         return ListWrapperResponse.of(itemHistoryResponses);
@@ -245,8 +245,9 @@ public class ItemService {
         ClubMember clubMember = clubMemberRepository.getById(clubMemberId);
 
         List<ItemHistory> histories = itemHistoryRepository.getAllByMember(clubMember.getMember());
+
         List<ItemHistoryResponse> itemHistoryResponses = histories.stream()
-                .map(ItemHistoryResponse::from)
+                .map(history -> ItemHistoryResponse.from(history, clubMember.getMember()))
                 .collect(Collectors.toList());
 
         return ListWrapperResponse.of(itemHistoryResponses);
