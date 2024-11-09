@@ -303,6 +303,50 @@ class ItemServiceTest {
                 .containsExactly("축구공", ItemCategory.SPORT, "https://item-image.com");
     }
 
+    @DisplayName("자신의 물품 대여 기록 리스트를 확인할 수 있다.")
+    @Test
+    void getMyHistoryItems_success() {
+        // given
+        Member member = setUpMemberSession();
+        Club club = createClub();
+        Item item = createItem(club, "축구공", SPORT, 7, false);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
+
+        LocalDateTime now = LocalDateTime.of(2024, 11, 8, 2, 17, 4, 844856);
+        ItemHistory itemHistory = createItemHistory(item, member, now.minusDays(10), now.minusDays(3), now.minusDays(2));
+
+        // when
+        ListWrapperResponse<ItemHistoryResponse> response = itemService.getMyHistoryItems(club.getClubId());
+
+        // then
+        assertThat(response.result())
+                .isNotEmpty()
+                .extracting("itemRentalDate", "itemDueDate")
+                .containsExactly(tuple(now.minusDays(10), now.minusDays(3)));
+    }
+
+    @DisplayName("동아리 회원의 물품 대여 기록 리스트를 확인할 수 있다.")
+    @Test
+    void getClubMemberHistoryItems_success() {
+        // given
+        Member member = setUpMemberSession();
+        Club club = createClub();
+        Item item = createItem(club, "축구공", SPORT, 7, false);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
+
+        LocalDateTime now = LocalDateTime.of(2024, 11, 8, 2, 17, 4, 844856);
+        ItemHistory itemHistory = createItemHistory(item, member, now.minusDays(10), now.minusDays(3), now.minusDays(2));
+
+        // when
+        ListWrapperResponse<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(), clubMember.getClubMemberId());
+
+        // then
+        assertThat(response.result())
+                .isNotEmpty()
+                .extracting("itemRentalDate", "itemDueDate")
+                .containsExactly(tuple(now.minusDays(10), now.minusDays(3)));
+    }
+
     private ItemBorrowed createItemBorrowed(ClubMember clubMember, Item item) {
         ItemBorrowed itemBorrowed = ItemBorrowed.builder()
                 .itemBorrowedReturnDate(LocalDateTime.now().plusDays(7))
@@ -384,7 +428,7 @@ class ItemServiceTest {
                 .build();
     }
 
-    private void createItemHistory(Item item, Member member, LocalDateTime rentalDate, LocalDateTime dueDate,
+    private ItemHistory createItemHistory(Item item, Member member, LocalDateTime rentalDate, LocalDateTime dueDate,
                                    LocalDateTime returnDate) {
         ItemHistory itemHistory = ItemHistory.builder()
                 .item(item)
@@ -395,6 +439,7 @@ class ItemServiceTest {
                 .itemReturnImage("http://example.com/return_photo.png")
                 .build();
         itemHistoryRepository.save(itemHistory);
+        return itemHistory;
     }
 
     private ClubMember createClubMember(Club club, Member member, ClubMemberRole memberRole, LocalDate assignedTerm) {
