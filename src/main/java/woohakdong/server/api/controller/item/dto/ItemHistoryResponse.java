@@ -2,6 +2,7 @@ package woohakdong.server.api.controller.item.dto;
 
 import lombok.Builder;
 import woohakdong.server.domain.ItemHistory.ItemHistory;
+import woohakdong.server.domain.member.Member;
 
 import java.time.LocalDateTime;
 
@@ -15,15 +16,15 @@ public record ItemHistoryResponse(
         LocalDateTime itemReturnDate,
         String itemReturnImage
 ) {
-    public static ItemHistoryResponse from(ItemHistory itemHistory) {
-        return new ItemHistoryResponse(
-                itemHistory.getItemHistoryId(),
-                itemHistory.getItem().getItemId(),
-                itemHistory.getItem().getItemName(),
-                itemHistory.getItemRentalDate(),
-                itemHistory.getItemReturnDate(),
-                itemHistory.getItemDueDate(),
-                itemHistory.getItemReturnImage()
-        );
+    public static ItemHistoryResponse from(ItemHistory itemHistory, Member member) {
+        return ItemHistoryResponse.builder()
+                .itemHistoryId(itemHistory.getItemHistoryId())
+                .memberId(member.getMemberId())
+                .memberName(member.getMemberName())
+                .itemRentalDate(itemHistory.getItemRentalDate())
+                .itemDueDate(itemHistory.getItemDueDate())
+                .itemReturnDate(itemHistory.getItemReturnDate())
+                .itemReturnImage(itemHistory.getItemReturnImage())
+                .build();
     }
 }
