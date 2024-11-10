@@ -36,7 +36,10 @@ public enum CustomErrorInfo {
     SCHEDULE_NOT_FOUND(400, "schedule not found", 400028),
     ADMIN_MEMBER_ID_NOT_FOUND(400, "admin member id not found", 400029),
     ADMIN_USERNAME_IS_ALREADY_USED(400, "admin username is already in use", 400030),
-    ITEM_BORROWED_NOT_FOUND(400, "item borrowed not found", 400031),
+    ORDER_NOT_VALID_MERCHANT_UID(400, "order not valid merchant uid", 400031),
+    ORDER_NOT_VALID_AMOUNT(400, "order not valid amount", 400032),
+    CLUB_GROUP_ALREADY_JOINED(400, "club group already joined", 400033),
+      ITEM_BORROWED_NOT_FOUND(400, "item borrowed not found", 400034),
 
     // 401 UNAUTHORIZED
     INVALID_ACCESS_TOKEN(401, "Invaild access token", 401001),
@@ -51,7 +54,8 @@ public enum CustomErrorInfo {
 
     // 500 INTERNAL_SERVER_ERROR
     INTERNAL_SERVER_ERROR(500, "Internal server error", 500001),
-    MAIL_SEND_ERROR(500, "Mail send error", 500002);
+    MAIL_SEND_ERROR(500, "Mail send error", 500002),
+    ;
 
     private final int statusCode;
     private final String message;

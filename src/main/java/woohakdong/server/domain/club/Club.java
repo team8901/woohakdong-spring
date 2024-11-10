@@ -10,17 +10,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 import woohakdong.server.domain.clubHistory.ClubHistory;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.group.Group;
+import woohakdong.server.domain.schedule.Schedule;
 import woohakdong.server.domain.school.School;
 
 @Entity
@@ -41,8 +40,6 @@ public class Club {
     private String clubDescription;
 
     private String clubImage;
-
-    private LocalDate clubEstablishmentDate;
 
     private String clubRoom;
 
@@ -68,13 +65,15 @@ public class Club {
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
     private List<ClubHistory> clubHistorys = new ArrayList<>();
 
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
+    private List<Schedule> schedules = new ArrayList<>();
+
     @Builder
-    public Club(String clubDescription, String clubEnglishName, LocalDate clubEstablishmentDate, String clubImage,
-                String clubName, String clubRoom, String clubGeneration, Integer clubDues, String clubGroupChatLink,
-                String clubGroupChatPassword, School school) {
+    private Club(String clubDescription, String clubEnglishName, String clubImage, String clubName, String clubRoom,
+                 String clubGeneration, Integer clubDues, String clubGroupChatLink, String clubGroupChatPassword,
+                 School school) {
         this.clubDescription = clubDescription;
         this.clubEnglishName = clubEnglishName;
-        this.clubEstablishmentDate = clubEstablishmentDate;
         this.clubImage = clubImage;
         this.clubName = clubName;
         this.clubRoom = clubRoom;
@@ -83,6 +82,23 @@ public class Club {
         this.clubGroupChatLink = clubGroupChatLink;
         this.clubGroupChatPassword = clubGroupChatPassword;
         this.school = school;
+    }
+
+    public static Club create(String clubName, String clubEnglishName, String clubDescription, String clubImage,
+                              String clubRoom, String clubGeneration, Integer clubDues, String clubGroupChatLink,
+                              String clubGroupChatPassword, School school) {
+        return Club.builder()
+                .clubDescription(clubDescription)
+                .clubEnglishName(clubEnglishName)
+                .clubImage(clubImage)
+                .clubName(clubName)
+                .clubRoom(clubRoom)
+                .clubGeneration(clubGeneration)
+                .clubDues(clubDues)
+                .clubGroupChatLink(clubGroupChatLink)
+                .clubGroupChatPassword(clubGroupChatPassword)
+                .school(school)
+                .build();
     }
 
     public void addGroup(Group group) {
@@ -97,8 +113,8 @@ public class Club {
         this.clubHistorys.add(clubHistory);
     }
 
-    public void updateClubInfo(String clubImage, String clubDescription, String clubRoom, String clubGeneration,
-                               String clubGroupChatLink, String clubGroupChatPassword, Integer clubDues) {
+    public void update(String clubImage, String clubDescription, String clubRoom, String clubGeneration,
+                       String clubGroupChatLink, String clubGroupChatPassword, Integer clubDues) {
         this.clubImage = clubImage;
         this.clubDescription = clubDescription;
         this.clubRoom = clubRoom;

@@ -1,13 +1,14 @@
 package woohakdong.server.api.service.email;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static woohakdong.server.common.exception.CustomErrorInfo.MAIL_SEND_ERROR;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 
-import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,14 +56,18 @@ class EmailServiceTest {
         Group group = createGroup(club, "https://test.com", "test1234");
         Member member = createMember(school, "김우학", "test1234@ajou.ac.kr");
 
+        willDoNothing()
+                .given(emailClientImpl)
+                .sendEmailForClubJoin(anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
+
         // When & Then
         emailService.sendEmailForGroupJoin(member.getMemberName(), member.getMemberEmail(), club.getClubName(),
-                group.getGroupChatLink(), group.getGroupChatPassword());
+                club.getClubDescription(), group.getGroupChatLink(), group.getGroupChatPassword());
     }
 
     @DisplayName("메일 전송이 실패하면, 최대 3번까지 재시도한다.")
     @Test
-    void sendEmailForGroupJoinRetryTest() throws InterruptedException, ExecutionException {
+    void sendEmailForGroupJoinRetryTest() {
         // Given
         School school = createSchool();
         Club club = createClub(school, "테스트 동아리", "testClub");
@@ -71,15 +76,15 @@ class EmailServiceTest {
 
         willThrow(new CustomException(MAIL_SEND_ERROR))
                 .given(emailClientImpl)
-                .sendEmailForGroupJoin(anyString(), anyString(), anyString(), anyString(), anyString());
+                .sendEmailForClubJoin(any(), any(), any(), any(), any(), any());
 
         // When
         emailService.sendEmailForGroupJoin(member.getMemberName(), member.getMemberEmail(), club.getClubName(),
-                group.getGroupChatLink(), group.getGroupChatPassword());
+                club.getClubDescription(), group.getGroupChatLink(), group.getGroupChatPassword());
 
         // Then
         verify(emailClientImpl, times(3))
-                .sendEmailForGroupJoin(anyString(), anyString(), anyString(), anyString(), anyString());
+                .sendEmailForClubJoin(any(), any(), any(), any(), any(), any());
     }
 
     private static Group createGroup(Club club, String chatLink, String chatPassword) {
@@ -96,6 +101,7 @@ class EmailServiceTest {
         return Club.builder()
                 .clubName(clubName)
                 .clubEnglishName(club)
+                .clubDescription("testDescription")
                 .school(school)
                 .build();
     }

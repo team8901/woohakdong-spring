@@ -58,8 +58,8 @@ public class Group {
     private List<Order> orders = new ArrayList<>();
 
     @Builder
-    public Group(String groupName, String groupDescription, int groupAmount, String groupJoinLink,
-                 String groupChatLink, String groupChatPassword, GroupType groupType, Club club) {
+    private Group(String groupName, String groupDescription, Integer groupAmount, String groupJoinLink,
+                  String groupChatLink, String groupChatPassword, GroupType groupType, Club club) {
         this.groupName = groupName;
         this.groupDescription = groupDescription;
         this.groupAmount = groupAmount;
@@ -71,7 +71,33 @@ public class Group {
         this.club = club;
     }
 
+    public static Group create(String groupName, String groupDescription, Integer groupAmount, String groupJoinLink,
+                               String groupChatLink, String groupChatPassword, GroupType groupType, Club club) {
+        return Group.builder()
+                .groupName(groupName)
+                .groupDescription(groupDescription)
+                .groupAmount(groupAmount)
+                .groupJoinLink(groupJoinLink)
+                .groupChatLink(groupChatLink)
+                .groupChatPassword(groupChatPassword)
+                .groupType(groupType)
+                .club(club)
+                .build();
+    }
+
+    public void updateJoinGroup(String groupDescription, Integer groupAmount, String groupChatLink,
+                                String groupChatPassword) {
+        this.groupDescription = groupDescription;
+        this.groupAmount = groupAmount;
+        this.groupChatLink = groupChatLink;
+        this.groupChatPassword = groupChatPassword;
+    }
+
     public void disableGroup() {
         this.groupIsAvailable = false;
+    }
+
+    public boolean isTypeOf(GroupType groupType) {
+        return this.groupType == groupType;
     }
 }

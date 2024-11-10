@@ -47,14 +47,25 @@ public class ClubMember {
     private Club club;
 
     @Builder
-    public ClubMember(Club club, LocalDate clubJoinedDate, LocalDate clubMemberAssignedTerm,
-                      ClubMemberRole clubMemberRole, Member member) {
+    private ClubMember(Club club, LocalDate clubJoinedDate, LocalDate clubMemberAssignedTerm,
+                       ClubMemberRole clubMemberRole, Member member) {
         this.club = club;
         this.clubJoinedDate = clubJoinedDate;
         this.clubMemberAssignedTerm = clubMemberAssignedTerm;
         this.clubMemberRole = clubMemberRole;
         this.member = member;
     }
+
+    public static ClubMember create(Club club, LocalDate assignedTerm, ClubMemberRole clubMemberRole, Member member) {
+        return ClubMember.builder()
+                .club(club)
+                .clubJoinedDate(LocalDate.now())
+                .clubMemberAssignedTerm(assignedTerm)
+                .clubMemberRole(clubMemberRole)
+                .member(member)
+                .build();
+    }
+
 
     public void changeRole(ClubMemberRole clubMemberRole) {
         this.clubMemberRole = clubMemberRole;

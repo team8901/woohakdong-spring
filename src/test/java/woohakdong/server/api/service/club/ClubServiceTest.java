@@ -2,27 +2,29 @@ package woohakdong.server.api.service.club;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.tuple;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NAME_DUPLICATION;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.group.GroupType.JOIN;
+import static woohakdong.server.domain.member.MemberGender.MAN;
 
 import java.time.LocalDate;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
+import woohakdong.server.api.controller.club.dto.ClubAccountResponse;
 import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
-import woohakdong.server.api.controller.club.dto.ClubCreateResponse;
+import woohakdong.server.api.controller.club.dto.ClubIdResponse;
 import woohakdong.server.api.controller.club.dto.ClubHistoryTermResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
@@ -35,6 +37,7 @@ import woohakdong.server.domain.clubAccount.ClubAccountRepository;
 import woohakdong.server.domain.clubHistory.ClubHistory;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
+import woohakdong.server.domain.clubmember.ClubMemberRole;
 import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.group.GroupRepository;
 import woohakdong.server.domain.member.Member;
@@ -70,25 +73,13 @@ class ClubServiceTest {
 
     @BeforeEach
     void setUp() {
-        School school = createSchool();
-
-        Member member = Member.builder()
-                .memberProvideId("testProvideId")
-                .memberName("John Doe")
-                .memberRole("USER_ROLE")
-                .memberEmail("")
-                .school(school)
-                .build();
-        memberRepository.save(member);
-
-        // SecurityContext에 CustomUserDetails 설정
-        String provideId = "testProvideId";
-        String role = "USER_ROLE";
-        CustomUserDetails customUserDetails = new CustomUserDetails(provideId, role);
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
+        String provideId = setUpSecurityContextHolder("testProvideId");
+        member = createMember(provideId, "박상준", "sangjun@ajou.ac.kr");
+        school = createSchool();
     }
+
+    private Member member;
+    private School school;
 
     @DisplayName("동아리를 등록하면, JOIN 타입의 모임이 생성된다.")
     @Test
@@ -113,31 +104,26 @@ class ClubServiceTest {
         ClubCreateRequest clubCreateRequest = createClubCreateRequest();
 
         // When
-        ClubCreateResponse clubCreateResponse = clubService.registerClub(clubCreateRequest);
+        ClubIdResponse clubIdResponse = clubService.registerClub(clubCreateRequest);
 
         // Then
         List<ClubMember> clubMembers = clubMemberRepository.getAll();
         assertThat(clubMembers).hasSize(1);
         assertThat(clubMembers.get(0)).extracting("clubMemberRole", "club.clubId")
-                .containsExactly(PRESIDENT, clubCreateResponse.clubId());
+                .containsExactly(PRESIDENT, clubIdResponse.clubId());
     }
 
     @DisplayName("동아리 회장은 동아리 계좌를 등록할 수 있다.")
     @Test
     void registerClubAccount() {
         // Given
-        ClubCreateRequest clubCreateRequest = createClubCreateRequest();
-        Long clubId = clubService.registerClub(clubCreateRequest).clubId();
-        Club club = clubRepository.getById(clubId);
+        Club club = createClub(school, "두리안", "Durian");
+        setClubMember(club, LocalDate.now(), PRESIDENT, member);
 
-        ClubAccountRegisterRequest clubAccountRegisterRequest = ClubAccountRegisterRequest.builder()
-                .clubAccountBankName("국민은행")
-                .clubAccountNumber("1234567890")
-                .clubAccountPinTechNumber("123456")
-                .build();
+        ClubAccountRegisterRequest request = createClubAccountRegisterRequest("국민은행", "1234567890");
 
         // When
-        clubService.registerClubAccount(clubId, clubAccountRegisterRequest);
+        clubService.registerClubAccount(club.getClubId(), request);
 
         // Then
         ClubAccount clubAccount = clubAccountRepository.getByClub(club);
@@ -150,8 +136,7 @@ class ClubServiceTest {
     @Test
     void validateClubWithNames() {
         // Given
-        School school = createSchool();
-        Club club = createClub(school);
+        Club club = createClub(school, "두리안", "Durian");
 
         // When & Then
         clubService.validateClubWithNames("바나나", "Banana");
@@ -162,8 +147,7 @@ class ClubServiceTest {
     @Test
     void validateClubWithNamesWithSameName() {
         // Given
-        School school = createSchool();
-        Club club = createClub(school);
+        Club club = createClub(school, "두리안", "Durian");
 
         // When & Then
         assertThatThrownBy(() -> clubService.validateClubWithNames("두리안", "Banana"))
@@ -179,8 +163,7 @@ class ClubServiceTest {
     @Test
     void findClubInfo() {
         // Given
-        School school = createSchool();
-        Club club = createClub(school);
+        Club club = createClub(school, "두리안", "Durian");
 
         // When
         ClubInfoResponse response = clubService.findClubInfo(club.getClubId());
@@ -195,8 +178,7 @@ class ClubServiceTest {
     @Test
     void findClubInfoWithInvalidClubId() {
         // Given
-        School school = createSchool();
-        Club club = createClub(school);
+        Club club = createClub(school, "두리안", "Durian");
         Long invalidClubId = club.getClubId() + 1;
 
         // When & Then
@@ -209,8 +191,7 @@ class ClubServiceTest {
     @Test
     void findClubInfoWithEnglishName() {
         // Given
-        School school = createSchool();
-        Club club = createClub(school);
+        Club club = createClub(school, "두리안", "Durian");
 
         // When
         ClubInfoResponse response = clubService.findClubInfoWithEnglishName("Durian");
@@ -225,27 +206,26 @@ class ClubServiceTest {
     @Test
     void checkClubHistory() {
         // Given
-        School school = createSchool();
-        Club club = createClub(school);
+        Club club = createClub(school, "두리안", "Durian");
         ClubHistory clubHistory1 = createClubHistory(club, 2023, 1);
         ClubHistory clubHistory2 = createClubHistory(club, 2024, 1);
 
         // When
-        ListWrapperResponse<ClubHistoryTermResponse> response = clubService.getClubHistory(club.getClubId());
+        List<ClubHistoryTermResponse> clubHistory = clubService.getClubHistory(club.getClubId());
 
         // Then
-        assertThat(response.result()).hasSize(2)
+        assertThat(clubHistory).hasSize(2)
                 .extracting("clubHistoryUsageDate")
                 .containsExactly(LocalDate.of(2023, 1, 1), LocalDate.of(2024, 1, 1));
     }
 
-    @DisplayName("동아리 정보를 수정할 수 있다.")
+    @DisplayName("동아리 회장은 정보를 수정할 수 있다.")
     @Test
-    void updateClubInfo() {
+    void update() {
         // Given
-        School school = createSchool();
-        Club club = createClub(school);
-        Group group = createGroupForClub(club);
+        Club club = createClub(school, "두리안", "Durian");
+        setClubMember(club, LocalDate.now(), PRESIDENT, member);
+        Group group = createJoinGroupForClub(club);
 
         ClubUpdateRequest request = createClubUpdateRequest();
 
@@ -259,13 +239,13 @@ class ClubServiceTest {
     }
 
 
-    @DisplayName("동아리 정보를 수정하면, 기존 그룹이 disable되고 새로운 그룹이 생성된다.")
+    @DisplayName("동아리 회장이 동아리 정보를 수정하면 JOIN 타입의 모임도 수정된다.")
     @Test
-    void updateClubInfoWithGroup() {
+    void updateWithGroup() {
         // Given
-        School school = createSchool();
-        Club club = createClub(school);
-        Group group = createGroupForClub(club);
+        Club club = createClub(school, "두리안", "Durian");
+        setClubMember(club, LocalDate.now(), PRESIDENT, member);
+        Group group = createJoinGroupForClub(club);
 
         ClubUpdateRequest request = createClubUpdateRequest();
 
@@ -273,12 +253,38 @@ class ClubServiceTest {
         clubService.updateClubInfo(club.getClubId(), request);
 
         // Then
-        List<Group> groups = groupRepository.getAll();
-        assertThat(groups).hasSize(2)
+        assertThat(group)
                 .extracting("groupAmount", "groupIsAvailable", "groupChatLink", "groupChatPassword")
-                .containsExactlyInAnyOrder(
-                        tuple(group.getGroupAmount(), false, group.getGroupChatLink(), group.getGroupChatPassword()),
-                        tuple(request.clubDues(), true, request.clubGroupChatLink(), request.clubGroupChatPassword()));
+                .containsExactly(request.clubDues(), true, request.clubGroupChatLink(),
+                        request.clubGroupChatPassword());
+    }
+
+    @DisplayName("동아리의 계좌 정보를 조회할 수 있다")
+    @Test
+    void getClubAccount() {
+        // Given
+        Club club = createClub(school, "두리안", "Durian");
+        ClubAccount clubAccount = createClubAccount(club, "국민은행", "1234567890");
+
+        // When
+        ClubAccountResponse response = clubService.getClubAccount(club.getClubId());
+
+        // Then
+        assertThat(response).isNotNull()
+                .extracting("clubAccountBankName", "clubAccountNumber")
+                .containsExactly("국민은행", "1234567890");
+    }
+
+    private ClubAccount createClubAccount(Club club, String bankName, String accountNumber) {
+        ClubAccount clubAccount = ClubAccount.builder()
+                .clubAccountBankName(bankName)
+                .clubAccountNumber(accountNumber)
+                .clubAccountPinTechNumber("123456")
+                .clubAccountBalance(10000000L)
+                .clubAccountBankCode("011")
+                .club(club)
+                .build();
+        return clubAccountRepository.save(clubAccount);
     }
 
     private School createSchool() {
@@ -290,10 +296,10 @@ class ClubServiceTest {
         return school;
     }
 
-    private Club createClub(School school) {
+    private Club createClub(School school, String clubName, String clubEnglishName) {
         Club club = Club.builder()
-                .clubName("두리안")
-                .clubEnglishName("Durian")
+                .clubName(clubName)
+                .clubEnglishName(clubEnglishName)
                 .clubGeneration("33")
                 .clubDues(10000)
                 .clubGroupChatLink("https://group-chat.com")
@@ -302,7 +308,7 @@ class ClubServiceTest {
         return clubRepository.save(club);
     }
 
-    private Group createGroupForClub(Club club) {
+    private Group createJoinGroupForClub(Club club) {
         Group group = Group.builder()
                 .club(club)
                 .groupType(JOIN)
@@ -348,4 +354,42 @@ class ClubServiceTest {
         return clubHistory;
     }
 
+    private @NotNull String setUpSecurityContextHolder(String provideId) {
+        CustomUserDetails userDetails = new CustomUserDetails(provideId, "USER_ROLE");
+        Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        return provideId;
+    }
+
+    private Member createMember(String provideId, String name, String email) {
+        Member member = Member.builder()
+                .memberProvideId(provideId)
+                .memberName(name)
+                .memberEmail(email)
+                .memberPhoneNumber("01012345678")
+                .memberMajor("Computer Science")
+                .memberStudentNumber("20210001")
+                .memberGender(MAN)
+                .build();
+        return memberRepository.save(member);
+    }
+
+    private static ClubAccountRegisterRequest createClubAccountRegisterRequest(String bankName, String accountNumber) {
+        return ClubAccountRegisterRequest.builder()
+                .clubAccountBankName(bankName)
+                .clubAccountNumber(accountNumber)
+                .clubAccountPinTechNumber("123456")
+                .build();
+    }
+
+    private ClubMember setClubMember(Club club, LocalDate assignedTerm, ClubMemberRole clubMemberRole, Member member) {
+        ClubMember clubMember = ClubMember.builder()
+                .club(club)
+                .clubJoinedDate(LocalDate.now())
+                .clubMemberAssignedTerm(assignedTerm)
+                .clubMemberRole(clubMemberRole)
+                .member(member)
+                .build();
+        return clubMemberRepository.save(clubMember);
+    }
 }

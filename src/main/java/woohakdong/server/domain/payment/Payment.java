@@ -34,10 +34,19 @@ public class Payment {
     private Integer paymentAmount;
 
     @Builder
-    public Payment(Integer paymentAmount, String paymentImpUid, String paymentMerchantUid, PaymentStatus paymentStatus) {
+    private Payment(Integer paymentAmount, String paymentImpUid, String paymentMerchantUid, PaymentStatus paymentStatus) {
         this.paymentAmount = paymentAmount;
         this.paymentImpUid = paymentImpUid;
         this.paymentMerchantUid = paymentMerchantUid;
         this.paymentStatus = paymentStatus;
+    }
+
+    public static Payment create(Integer paymentAmount, String paymentImpUid, String paymentMerchantUid) {
+        return Payment.builder()
+                .paymentAmount(paymentAmount)
+                .paymentImpUid(paymentImpUid)
+                .paymentMerchantUid(paymentMerchantUid)
+                .paymentStatus(PaymentStatus.PAYMENT)
+                .build();
     }
 }
