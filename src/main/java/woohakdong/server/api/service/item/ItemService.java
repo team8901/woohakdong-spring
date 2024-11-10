@@ -143,7 +143,7 @@ public class ItemService {
         // 물품 상태 변경
         item.setItemUsing(false);
 
-        ItemBorrowed itemBorrowed = itemBorrowedRepository.findByItem(item);
+        ItemBorrowed itemBorrowed = itemBorrowedRepository.getByItem(item);
         itemBorrowedRepository.delete(itemBorrowed);
 
         // 추가적으로 연체 여부 확인 가능
@@ -213,22 +213,22 @@ public class ItemService {
         item.setItemAvailable(request.itemAvailable());
     }
 
-    public ListWrapperResponse<ItemBorrowedResponse> getMyBorrowedItems(Long clubId) {
+    public List<ItemBorrowedResponse> getMyBorrowedItems(Long clubId) {
         Member member = getMemberFromJwtInformation();
         Club club = clubRepository.getById(clubId);
         LocalDate assignedTerm = getAssignedTerm();
 
         ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
-        List<ItemBorrowed> borrowedItems = itemBorrowedRepository.findByClubMember(clubMember);
+        List<ItemBorrowed> borrowedItems = itemBorrowedRepository.getByClubMember(clubMember);
 
         List<ItemBorrowedResponse> itemBorrowedResponses = borrowedItems.stream()
                 .map(itemBorrowed -> ItemBorrowedResponse.from(itemBorrowed.getItem(), itemBorrowed.getItemBorrowedReturnDate()))
                 .collect(Collectors.toList());
 
-        return ListWrapperResponse.of(itemBorrowedResponses);
+        return itemBorrowedResponses;
     }
 
-    public ListWrapperResponse<ItemHistoryResponse> getMyHistoryItems(Long clubId) {
+    public List<ItemHistoryResponse> getMyHistoryItems(Long clubId) {
         Member member = getMemberFromJwtInformation();
         Club club = clubRepository.getById(clubId);
 
@@ -237,10 +237,10 @@ public class ItemService {
                 .map(history -> ItemHistoryResponse.from(history, member))
                 .collect(Collectors.toList());
 
-        return ListWrapperResponse.of(itemHistoryResponses);
+        return itemHistoryResponses;
     }
 
-    public ListWrapperResponse<ItemHistoryResponse> getClubMemberHistoryItems(Long clubId, Long clubMemberId) {
+    public List<ItemHistoryResponse> getClubMemberHistoryItems(Long clubId, Long clubMemberId) {
         Club club = clubRepository.getById(clubId);
         ClubMember clubMember = clubMemberRepository.getById(clubMemberId);
 
@@ -250,7 +250,7 @@ public class ItemService {
                 .map(history -> ItemHistoryResponse.from(history, clubMember.getMember()))
                 .collect(Collectors.toList());
 
-        return ListWrapperResponse.of(itemHistoryResponses);
+        return itemHistoryResponses;
     }
 
     private LocalDate getAssignedTerm() {
