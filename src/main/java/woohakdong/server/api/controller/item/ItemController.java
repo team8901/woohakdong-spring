@@ -6,7 +6,6 @@ import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.item.dto.*;
 import woohakdong.server.api.service.item.ItemService;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/v1/clubs")
@@ -69,16 +68,16 @@ public class ItemController implements ItemControllerDocs {
 
     @GetMapping("/{clubId}/items/borrowed")
     public ListWrapperResponse<ItemBorrowedResponse> getMyBorrowedItems(@PathVariable Long clubId) {
-        return itemService.getMyBorrowedItems(clubId);
+        return ListWrapperResponse.of(itemService.getMyBorrowedItems(clubId));
     }
 
     @GetMapping("/{clubId}/items/history")
     public ListWrapperResponse<ItemHistoryResponse> getMyHistoryItems(@PathVariable Long clubId) {
-        return itemService.getMyHistoryItems(clubId);
+        return ListWrapperResponse.of(itemService.getMyHistoryItems(clubId));
     }
 
     @GetMapping("/{clubId}/items/history/{clubMemberId}")
     public ListWrapperResponse<ItemHistoryResponse> getClubMemberHistoryItems(@PathVariable Long clubId, @PathVariable Long clubMemberId) {
-        return itemService.getClubMemberHistoryItems(clubId, clubMemberId);
+        return ListWrapperResponse.of(itemService.getClubMemberHistoryItems(clubId, clubMemberId));
     }
 }

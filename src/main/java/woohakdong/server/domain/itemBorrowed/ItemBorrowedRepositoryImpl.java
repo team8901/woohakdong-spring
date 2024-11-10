@@ -17,7 +17,7 @@ public class ItemBorrowedRepositoryImpl implements ItemBorrowedRepository {
     private final ItemBorrowedJpaRepository itemBorrowedJpaRepository;
 
     @Override
-    public List<ItemBorrowed> findByClubMember(ClubMember clubMember) {
+    public List<ItemBorrowed> getByClubMember(ClubMember clubMember) {
         return itemBorrowedJpaRepository.findByClubMember(clubMember);
     }
 
@@ -29,7 +29,7 @@ public class ItemBorrowedRepositoryImpl implements ItemBorrowedRepository {
         itemBorrowedJpaRepository.delete(itemBorrowed);
     }
 
-    public ItemBorrowed findByItem(Item item) {
+    public ItemBorrowed getByItem(Item item) {
         return itemBorrowedJpaRepository.findByItem(item)
                 .orElseThrow(() -> new CustomException(ITEM_BORROWED_NOT_FOUND));
     }

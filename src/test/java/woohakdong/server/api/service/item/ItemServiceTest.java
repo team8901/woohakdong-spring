@@ -278,10 +278,10 @@ class ItemServiceTest {
         ItemBorrowed itemBorrowed = createItemBorrowed(clubMember, item);
 
         // when
-        ListWrapperResponse<ItemBorrowedResponse> response = itemService.getMyBorrowedItems(club.getClubId());
+        List<ItemBorrowedResponse> response = itemService.getMyBorrowedItems(club.getClubId());
 
         // then
-        assertThat(response.result())
+        assertThat(response)
                 .isNotEmpty()
                 .extracting("itemName")
                 .containsExactly("축구공");
@@ -316,10 +316,10 @@ class ItemServiceTest {
         ItemHistory itemHistory = createItemHistory(item, member, now.minusDays(10), now.minusDays(3), now.minusDays(2));
 
         // when
-        ListWrapperResponse<ItemHistoryResponse> response = itemService.getMyHistoryItems(club.getClubId());
+        List<ItemHistoryResponse> response = itemService.getMyHistoryItems(club.getClubId());
 
         // then
-        assertThat(response.result())
+        assertThat(response)
                 .isNotEmpty()
                 .extracting("itemRentalDate", "itemDueDate")
                 .containsExactly(tuple(now.minusDays(10), now.minusDays(3)));
@@ -338,10 +338,10 @@ class ItemServiceTest {
         ItemHistory itemHistory = createItemHistory(item, member, now.minusDays(10), now.minusDays(3), now.minusDays(2));
 
         // when
-        ListWrapperResponse<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(), clubMember.getClubMemberId());
+        List<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(), clubMember.getClubMemberId());
 
         // then
-        assertThat(response.result())
+        assertThat(response)
                 .isNotEmpty()
                 .extracting("itemRentalDate", "itemDueDate")
                 .containsExactly(tuple(now.minusDays(10), now.minusDays(3)));
