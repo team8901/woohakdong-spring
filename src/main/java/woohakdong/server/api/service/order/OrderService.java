@@ -93,9 +93,10 @@ public class OrderService {
         savePaymentFromOrder(paymentInfoResponse, order);
         saveNewClubMember(club, member);
         saveAdminAccount(order, group, member);
-        sendClubInviteEmailToNewMember(member, club, group);
 
         mockBankService.transferClubFee(member.getMemberId(), group.getGroupId());
+
+        sendClubInviteEmailToNewMember(member, club, group);
     }
 
     @Transactional
