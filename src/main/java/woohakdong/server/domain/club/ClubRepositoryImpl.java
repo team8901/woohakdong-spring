@@ -2,6 +2,7 @@ package woohakdong.server.domain.club;
 
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
 
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -39,5 +40,15 @@ public class ClubRepositoryImpl implements ClubRepository{
     public Club getById(Long clubId) {
         return clubJpaRepository.findById(clubId)
                 .orElseThrow(() -> new CustomException(CLUB_NOT_FOUND));
+    }
+
+    @Override
+    public List<Club> getAll() {
+        return clubJpaRepository.findAll();
+    }
+
+    @Override
+    public Long count() {
+        return clubJpaRepository.count();
     }
 }

@@ -1,5 +1,7 @@
 package woohakdong.server.domain.school;
 
+import java.util.List;
+
 public interface SchoolRepository {
     School save(School school);
 
@@ -8,4 +10,6 @@ public interface SchoolRepository {
     School getBySchoolDomain(String schoolDomain);
 
     long count();
+
+    List<School> getAll();
 }
