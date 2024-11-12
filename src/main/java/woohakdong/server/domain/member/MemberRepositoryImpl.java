@@ -39,4 +39,9 @@ public class MemberRepositoryImpl implements MemberRepository {
     public boolean findByDuplicateMemberProvideId(String memberProvideId) {
         return memberJpaRepository.existsByMemberProvideId(memberProvideId);
     }
+
+    @Override
+    public Long count() {
+        return memberJpaRepository.count();
+    }
 }

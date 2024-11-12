@@ -1,5 +1,7 @@
 package woohakdong.server.domain.club;
 
+import java.util.List;
+
 public interface ClubRepository {
     Club save(Club club);
 
@@ -10,4 +12,8 @@ public interface ClubRepository {
     Club getByClubEnglishName(String clubEnglishName);
 
     void validateClubExists(Long clubId);
+
+    List<Club> getAll();
+
+    Long count();
 }
