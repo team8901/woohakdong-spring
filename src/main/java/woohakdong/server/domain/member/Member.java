@@ -1,14 +1,27 @@
 package woohakdong.server.domain.member;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
+import woohakdong.server.domain.BaseEntity;
 import woohakdong.server.domain.school.School;
 
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Member {
+public class Member extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long memberId;
@@ -35,10 +48,10 @@ public class Member {
     @JoinColumn(name = "school_id")
     private School school;
 
-    protected Member() {}
-
     @Builder
-    private Member(String memberProvideId, String memberName, String memberEmail, String memberRole, School school, String memberPhoneNumber, String memberMajor, String memberStudentNumber, MemberGender memberGender, String memberPassword) {
+    private Member(String memberProvideId, String memberName, String memberEmail, String memberRole, School school,
+                   String memberPhoneNumber, String memberMajor, String memberStudentNumber, MemberGender memberGender,
+                   String memberPassword) {
         this.memberProvideId = memberProvideId;
         this.memberName = memberName;
         this.memberEmail = memberEmail;
