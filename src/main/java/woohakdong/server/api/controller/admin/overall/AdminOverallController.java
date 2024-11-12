@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/admin")
 @RequiredArgsConstructor
-public class AdminOverallController {
+public class AdminOverallController implements AdminOverallControllerDocs{
 
     private final AdminOverallService adminOverallService;
 
