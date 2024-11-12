@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.clubAccountHistory.ClubAccountHistory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -57,14 +58,14 @@ public class ClubAccount {
     }
 
     public static ClubAccount create(Club club, String bankName, String accountNumber, String pinTechNumber,
-                                     String bankCode) {
+                                     String bankCode, LocalDateTime localDateTime) {
         return ClubAccount.builder()
                 .club(club)
                 .clubAccountBankName(bankName)
                 .clubAccountNumber(accountNumber)
                 .clubAccountPinTechNumber(pinTechNumber)
                 .clubAccountBankCode(bankCode)
-                .clubAccountLastUpdateDate(LocalDateTime.now())
+                .clubAccountLastUpdateDate(localDateTime)
                 .clubAccountBalance(0L)
                 .build();
     }

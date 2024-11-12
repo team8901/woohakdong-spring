@@ -17,6 +17,7 @@ import woohakdong.server.domain.clubAccount.ClubAccountRepository;
 import woohakdong.server.domain.clubAccountHistory.ClubAccountHistory;
 import woohakdong.server.domain.clubAccountHistory.ClubAccountHistoryRepository;
 
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -32,9 +33,7 @@ public class DuesService {
         Club club = clubRepository.getById(clubId);
         ClubAccount clubAccount = clubAccountRepository.getByClub(club);
 
-        LocalDateTime lastUpdateDate = clubAccount.getClubAccountLastUpdateDate() != null
-                ? clubAccount.getClubAccountLastUpdateDate()
-                : LocalDateTime.of(2000, 1, 1, 0, 0); // 기본값
+        LocalDateTime lastUpdateDate = clubAccount.getClubAccountLastUpdateDate();
 
         // 오늘 날짜를 기준으로 거래 내역을 가져옴
         List<ClubAccountHistory> histories = mockBankService.fetchTransactions(clubAccount, lastUpdateDate.toLocalDate(), LocalDate.now());
@@ -66,14 +65,7 @@ public class DuesService {
 
         // ClubAccountHistoryListResponse로 변환
         return histories.stream()
-                .map(history -> new ClubAccountHistoryListResponse(
-                        history.getClubAccountHistoryId(),
-                        history.getClubAccountHistoryInOutType(),
-                        history.getClubAccountHistoryTranDate(),
-                        history.getClubAccountHistoryBalanceAmount(),
-                        history.getClubAccountHistoryTranAmount(),
-                        history.getClubAccountHistoryContent()
-                ))
+                .map(history -> ClubAccountHistoryListResponse.from(history))
                 .collect(Collectors.toList());
     }
 }

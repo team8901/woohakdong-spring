@@ -8,6 +8,7 @@ import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -95,7 +96,7 @@ public class ClubService {
         }
 
         ClubAccount clubAccount = ClubAccount.create(club, request.clubAccountBankName(), request.clubAccountNumber(),
-                request.clubAccountPinTechNumber(), getBankCode(request.clubAccountBankName()));
+                request.clubAccountPinTechNumber(), getBankCode(request.clubAccountBankName()), getAssignedDateTime());
 
         clubAccountRepository.save(clubAccount);
     }
@@ -164,6 +165,13 @@ public class ClubService {
         int year = now.getYear();
         int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
         return LocalDate.of(year, semester, 1);
+    }
+
+    private LocalDateTime getAssignedDateTime() {
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
+        return LocalDateTime.of(year, semester, 1, 0, 0, 0);
     }
 
     private String getBankCode(String bankName) {
