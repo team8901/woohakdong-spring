@@ -11,11 +11,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import woohakdong.server.domain.BaseEntity;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Payment {
+public class Payment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +35,8 @@ public class Payment {
     private Integer paymentAmount;
 
     @Builder
-    private Payment(Integer paymentAmount, String paymentImpUid, String paymentMerchantUid, PaymentStatus paymentStatus) {
+    private Payment(Integer paymentAmount, String paymentImpUid, String paymentMerchantUid,
+                    PaymentStatus paymentStatus) {
         this.paymentAmount = paymentAmount;
         this.paymentImpUid = paymentImpUid;
         this.paymentMerchantUid = paymentMerchantUid;

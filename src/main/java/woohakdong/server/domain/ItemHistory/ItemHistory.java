@@ -13,13 +13,15 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import woohakdong.server.domain.BaseEntity;
 import woohakdong.server.domain.item.Item;
 import woohakdong.server.domain.member.Member;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class ItemHistory {
+public class ItemHistory extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long itemHistoryId;

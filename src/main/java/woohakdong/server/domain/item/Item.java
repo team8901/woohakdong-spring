@@ -1,20 +1,32 @@
 package woohakdong.server.domain.item;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import woohakdong.server.domain.BaseEntity;
 import woohakdong.server.domain.ItemHistory.ItemHistory;
 import woohakdong.server.domain.club.Club;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Item {
+public class Item extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long itemId;
@@ -53,8 +65,8 @@ public class Item {
 
     @Builder
     private Item(Club club, LocalDateTime itemRentalDate, Integer itemRentalTime, String itemLocation,
-                ItemCategory itemCategory, Integer itemRentalMaxDay, Boolean itemAvailable,
-                Boolean itemUsing, String itemDescription, String itemPhoto, String itemName) {
+                 ItemCategory itemCategory, Integer itemRentalMaxDay, Boolean itemAvailable,
+                 Boolean itemUsing, String itemDescription, String itemPhoto, String itemName) {
         this.club = club;
         this.itemRentalDate = itemRentalDate;
         this.itemRentalTime = itemRentalTime;
