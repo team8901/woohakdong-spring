@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import woohakdong.server.domain.BaseEntity;
 import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.payment.Payment;
@@ -28,7 +29,7 @@ import woohakdong.server.domain.payment.Payment;
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 @Getter
 @Table(name = "\"order\"")
-public class Order {
+public class Order extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,20 +1,26 @@
 package woohakdong.server.domain.itemBorrowed;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.item.Item;
-
-import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class ItemBorrowed {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long itemBorrowedId;
@@ -36,12 +42,12 @@ public class ItemBorrowed {
         this.itemBorrowedReturnDate = itemBorrowedReturnDate;
     }
 
-    public static ItemBorrowed createItemBorrowed(ClubMember clubMember, Item item, LocalDateTime itemBorrowedReturnDate) {
-        ItemBorrowed itemBorrowed = ItemBorrowed.builder()
+    public static ItemBorrowed createItemBorrowed(ClubMember clubMember, Item item,
+                                                  LocalDateTime itemBorrowedReturnDate) {
+        return ItemBorrowed.builder()
                 .itemBorrowedReturnDate(itemBorrowedReturnDate)
                 .clubMember(clubMember)
                 .item(item)
                 .build();
-        return itemBorrowed;
     }
 }
