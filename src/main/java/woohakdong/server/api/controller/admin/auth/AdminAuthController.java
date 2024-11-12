@@ -16,25 +16,25 @@ public class AdminAuthController implements AdminAuthControllerDocs{
 
     private final AdminAuthService adminAuthService;
 
-    @PostMapping("/v1/auth/admin/login")
+    @PostMapping("/auth/login")
     public LoginResponse login(@RequestBody AdminLoginRequest loginRequest) {
 
         return adminAuthService.login(loginRequest);
     }
 
-    @PostMapping("/v1/auth/admin/join")
+    @PostMapping("/auth/join")
     public void join(@RequestBody AdminJoinRequest joinRequest) {
 
         adminAuthService.createAdmin(joinRequest);
     }
 
-    @PostMapping("/v1/auth/admin/info")
+    @PostMapping("/auth/info")
     public void updateInfo(@RequestBody AdminInfoUpdateRequest updateRequest) {
 
         adminAuthService.updateAdmin(updateRequest);
     }
 
-    @GetMapping("/v1/auth/admin/info")
+    @GetMapping("/auth/info")
     public AdminInfoResponse getAdminInfo() {
 
         return adminAuthService.getAdminInfo();
