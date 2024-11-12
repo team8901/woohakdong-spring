@@ -12,4 +12,6 @@ public interface MemberRepository {
     Member findByAdminMemberProvideId(String memberProvideId);
 
     boolean findByDuplicateMemberProvideId(String memberProvideId);
+
+    Long count();
 }

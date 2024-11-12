@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import woohakdong.server.common.exception.CustomException;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Repository
 public class SchoolRepositoryImpl implements SchoolRepository{
@@ -32,5 +34,10 @@ public class SchoolRepositoryImpl implements SchoolRepository{
     public School getById(Long schoolId) {
         return schoolJpaRepository.findById(schoolId)
                 .orElseThrow(() -> new CustomException(INVALID_SCHOOL_DOMAIN));
+    }
+
+    @Override
+    public List<School> getAll() {
+        return schoolJpaRepository.findAll();
     }
 }
