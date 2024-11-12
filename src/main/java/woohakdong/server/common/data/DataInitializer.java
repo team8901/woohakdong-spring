@@ -4,9 +4,12 @@ import static woohakdong.server.domain.member.MemberGender.MAN;
 import static woohakdong.server.domain.member.MemberGender.WOMAN;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import woohakdong.server.domain.admin.adminAccount.AdminAccount;
 import woohakdong.server.domain.admin.adminAccount.AdminAccountRepository;
@@ -37,6 +40,7 @@ public class DataInitializer implements CommandLineRunner {
     private final MemberRepository memberRepository;
     private final ClubMemberRepository clubMemberRepository;
     private final ClubAccountRepository clubAccountRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) {
@@ -96,7 +100,7 @@ public class DataInitializer implements CommandLineRunner {
                     .memberRole("ADMIN_ROLE")
                     .memberName("8901")
                     .memberProvideId("8901.dev@gmail.com")
-                    .memberPassword("1234")
+                    .memberPassword(passwordEncoder.encode("1234"))
                     .build();
 
             memberRepository.save(member1);
@@ -123,7 +127,8 @@ public class DataInitializer implements CommandLineRunner {
                     .clubAccountBalance(10000000L)
                     .clubAccountBankCode("011")
                     .clubAccountBankName("농협은행")
-                    .clubAccountNumber("3020000011529")
+                    .clubAccountNumber("3020000011656")
+                    .clubAccountLastUpdateDate(LocalDateTime.of(2024, 7, 1, 0, 0, 0))
                     .club(club)
                     .build();
             clubAccountRepository.save(clubAccount);
