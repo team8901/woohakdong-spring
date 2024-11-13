@@ -1,5 +1,7 @@
 package woohakdong.server.domain.club;
 
+import woohakdong.server.domain.school.School;
+
 import java.util.List;
 
 public interface ClubRepository {
@@ -16,4 +18,8 @@ public interface ClubRepository {
     List<Club> getAll();
 
     Long count();
+
+    Long countBySchool(School school);
+
+    List<Club> getBySchool(School school);
 }
