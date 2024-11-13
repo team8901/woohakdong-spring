@@ -22,4 +22,6 @@ public interface ItemJpaRepository extends JpaRepository<Item, Long> {
     List<Item> findAllByClubAndItemNameContaining(Club club, String itemName);
 
     List<Item> findAllByClubAndItemNameAndItemCategoryContaining(Club club, String keyword, ItemCategory category);
+
+    Long countByClubSchoolSchoolId(Long schoolId);
 }
