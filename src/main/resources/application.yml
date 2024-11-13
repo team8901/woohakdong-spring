@@ -5,7 +5,7 @@ spring:
   profiles:
     default: dev
     group:
-      test: h2-test, payment-test
+      test: h2-test, payment-test, s3-test
       dev: mysql-dev, payment-portone, payment-nh, sentry-dev
       prod: mysql-prod, payment-portone, payment-nh, sentry-prod
 
@@ -33,3 +33,7 @@ management:
       base-path: /
       path-mapping:
         health: /health-check
+cloud:
+  aws:
+    s3:
+      bucket-name: ${AWS_S3_BUCKET_NAME}
