@@ -14,7 +14,16 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
+---
+spring:
+  config:
+    activate:
+      on-profile: s3-test
 
+cloud:
+  aws:
+    s3:
+      bucket-name: dummy-bucket
 ---
 spring:
   config:
@@ -29,7 +38,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-
 ---
 spring:
   config:

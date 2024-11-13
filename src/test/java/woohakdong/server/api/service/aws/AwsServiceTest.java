@@ -18,11 +18,11 @@ class AwsServiceTest {
 
     @Autowired
     private AwsService awsService;
-    private static final String BUCKET_NAME = "woohakdong.image";
+    private static final String BUCKET_NAME = "dummy-bucket";
 
     @DisplayName("Presigned URL 생성 테스트")
     @Test
-    void generatePresignedUrl(){
+    void generatePresignedUrl() {
         // Given
         String key = "testKey";
         LocalDate expiredLocalDate = LocalDate.of(2024, 10, 7);
@@ -32,9 +32,9 @@ class AwsServiceTest {
         String presignedUrl = awsService.generatePresignedUrl(key, expiration);
 
         // Then
-        assertThat(presignedUrl).isNotNull();
-        assertThat(presignedUrl).contains(BUCKET_NAME);
-        assertThat(presignedUrl).contains(key);
+        assertThat(presignedUrl).isNotNull()
+                .startsWith("https://" + BUCKET_NAME + ".s3")
+                .contains(key);
     }
 
 }
