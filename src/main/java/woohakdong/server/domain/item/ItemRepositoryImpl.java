@@ -58,4 +58,9 @@ public class ItemRepositoryImpl implements ItemRepository {
         return itemJpaRepository.findAllByClubAndItemNameAndItemCategoryContaining(club, keyword, category);
     }
 
+    @Override
+    public Long countByClubSchoolSchoolId(Long schoolId) {
+        return itemJpaRepository.countByClubSchoolSchoolId(schoolId);
+    }
+
 }
