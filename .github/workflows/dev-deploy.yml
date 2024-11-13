@@ -128,6 +128,7 @@ jobs:
             echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
             echo "GOOGLE_EMAIL_ADDRESS=${{ secrets.GOOGLE_EMAIL_ADDRESS }}" >> .env
             echo "GOOGLE_EMAIL_APP_PASSWORD=${{ secrets.GOOGLE_EMAIL_APP_PASSWORD }}" >> .env
+            echo "AWS_S3_BUCKET_NAME=${{ secrets.AWS_S3_BUCKET_NAME }}" >> .env  
             
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin ${{secrets.AWS_ACCOUNT_ID}}.dkr.ecr.ap-northeast-2.amazonaws.com
             
