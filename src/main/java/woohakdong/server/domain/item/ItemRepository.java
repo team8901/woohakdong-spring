@@ -19,4 +19,6 @@ public interface ItemRepository {
     List<Item> getAllByClubAndNameContaining(Club club, String itemName);
 
     List<Item> getAllByClubAndItemNameAndItemCategoryContaining(Club club, ItemCategory category, String keyword);
+
+    Long countByClubSchoolSchoolId(Long schoolId);
 }

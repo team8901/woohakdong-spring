@@ -7,6 +7,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import woohakdong.server.common.exception.CustomException;
+import woohakdong.server.domain.school.School;
 
 @RequiredArgsConstructor
 @Repository
@@ -50,5 +51,15 @@ public class ClubRepositoryImpl implements ClubRepository{
     @Override
     public Long count() {
         return clubJpaRepository.count();
+    }
+
+    @Override
+    public Long countBySchool(School school) {
+        return clubJpaRepository.countBySchool(school);
+    }
+
+    @Override
+    public List<Club> getBySchool(School school) {
+        return clubJpaRepository.getBySchool(school);
     }
 }
