@@ -2,6 +2,7 @@ package woohakdong.server.domain.item;
 
 import java.util.List;
 import woohakdong.server.domain.club.Club;
+import woohakdong.server.domain.school.School;
 
 public interface ItemRepository {
     Item save(Item item);
@@ -20,5 +21,5 @@ public interface ItemRepository {
 
     List<Item> getAllByClubAndItemNameAndItemCategoryContaining(Club club, ItemCategory category, String keyword);
 
-    Long countByClubSchoolSchoolId(Long schoolId);
+    Long countByClubSchool(School school);
 }
