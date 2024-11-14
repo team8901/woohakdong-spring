@@ -34,28 +34,18 @@ public class ClubMemberService {
         Club club = clubRepository.getById(clubId);
         LocalDate assignedTerm = getAssignedTerm();
 
-        List<ClubMember> clubMembers = clubMemberRepository.getByClubAndAssignedTerm(club, assignedTerm);
+        List<ClubMember> clubMembers = clubMemberRepository.getAllBySearchFilter(club, null, assignedTerm);
 
         return clubMembers.stream()
-                .map(clubMember -> ClubMemberInfoResponse.from(clubMember.getMember(), clubMember))
-                .toList();
-    }
-
-    public List<ClubMemberInfoResponse> getTermMembers(Long clubId, LocalDate clubMemberAssignedTerm) {
-        Club club = clubRepository.getById(clubId);
-        List<ClubMember> clubMembers = clubMemberRepository.getByClubAndAssignedTerm(club, clubMemberAssignedTerm);
-
-        return clubMembers.stream()
-                .map(clubMember -> ClubMemberInfoResponse.from(clubMember.getMember(), clubMember))
+                .map(ClubMemberInfoResponse::from)
                 .toList();
     }
 
     public ClubMemberInfoResponse getClubMemberInfo(Long clubId, Long clubMemberId) {
         Club club = clubRepository.getById(clubId);
-
         ClubMember clubMember = clubMemberRepository.getById(clubMemberId);
 
-        return ClubMemberInfoResponse.from(clubMember.getMember(), clubMember);
+        return ClubMemberInfoResponse.from(clubMember);
     }
 
     public ClubMemberInfoResponse getMyInfo(Long clubId) {
@@ -65,7 +55,7 @@ public class ClubMemberService {
 
         ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
 
-        return ClubMemberInfoResponse.from(clubMember.getMember(), clubMember);
+        return ClubMemberInfoResponse.from(clubMember);
     }
 
     @Transactional
@@ -80,6 +70,16 @@ public class ClubMemberService {
 
         ClubMember clubMember = clubMemberRepository.getById(clubMemberId);
         clubMember.changeRole(clubMemberRole);
+    }
+
+    public List<ClubMemberInfoResponse> getFilteredMembers(Long clubId, String name, LocalDate assignedTerm) {
+        assignedTerm = assignedTerm == null ? getAssignedTerm() : assignedTerm;
+        Club club = clubRepository.getById(clubId);
+        List<ClubMember> clubMemberList = clubMemberRepository.getAllBySearchFilter(club, name, assignedTerm);
+
+        return clubMemberList.stream()
+                .map(ClubMemberInfoResponse::from)
+                .toList();
     }
 
     private LocalDate getAssignedTerm() {

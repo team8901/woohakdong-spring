@@ -20,7 +20,7 @@ public interface ClubMemberRepository {
 
     Boolean existsByClubAndMember(Club club, Member member);
 
-    List<ClubMember> getByClubAndAssignedTerm(Club club, LocalDate assignedTerm);
-
     ClubMember getByClubAndMemberAndAssignedTerm(Club club, Member member, LocalDate assignedTerm);
+
+    List<ClubMember> getAllBySearchFilter(Club club, String name, LocalDate assignedTerm);
 }

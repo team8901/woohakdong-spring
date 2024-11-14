@@ -54,13 +54,18 @@ public class ClubMemberRepositoryImpl implements ClubMemberRepository {
     }
 
     @Override
-    public List<ClubMember> getByClubAndAssignedTerm(Club club, LocalDate assignedTerm) {
-        return clubMemberJpaRepository.findByClubAndClubMemberAssignedTerm(club, assignedTerm);
-    }
-
-    @Override
     public ClubMember getByClubAndMemberAndAssignedTerm(Club club, Member member, LocalDate assignedTerm) {
         return clubMemberJpaRepository.findByClubAndMemberAndClubMemberAssignedTerm(club, member, assignedTerm)
                 .orElseThrow(() -> new CustomException(CLUB_MEMBER_NOT_FOUND));
+    }
+
+    @Override
+    public List<ClubMember> getAllBySearchFilter(Club club, String name, LocalDate assignedTerm) {
+        if (name == null || name.isBlank()) {
+            return clubMemberJpaRepository.findByClubAndClubMemberAssignedTerm(club, assignedTerm);
+        }
+
+        return clubMemberJpaRepository.findByClubAndClubMemberAssignedTermAndMemberMemberNameContaining(club,
+                assignedTerm, name);
     }
 }
