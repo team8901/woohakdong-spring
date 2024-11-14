@@ -39,7 +39,7 @@ public class NotificationService {
     public void sendNotificationWithClubInfoUpdate(Long clubId, LocalDate assignedTerm) {
         getMemberFromJwtInformation(); // TODO : 임원 체크
         Club club = clubRepository.getById(clubId);
-        List<ClubMember> clubMembers = clubMemberRepository.getByClubAndAssignedTerm(club, assignedTerm);
+        List<ClubMember> clubMembers = clubMemberRepository.getAllBySearchFilter(club, null, assignedTerm);
 
         clubMembers.stream()
                 .map(ClubMember::getMember)
@@ -56,7 +56,7 @@ public class NotificationService {
     public void sendNotificationWithSchedule(Long clubId, Long scheduleId, LocalDate assignedTerm) {
         getMemberFromJwtInformation(); // TODO : 임원 체크
         Club club = clubRepository.getById(clubId);
-        List<ClubMember> clubMembers = clubMemberRepository.getByClubAndAssignedTerm(club, assignedTerm);
+        List<ClubMember> clubMembers = clubMemberRepository.getAllBySearchFilter(club, null, assignedTerm);
         Schedule schedule = scheduleRepository.getById(scheduleId);
         String scheduleDate = schedule.getScheduleDateTime().format(YEAR_MONTH_DAY_HOUR);
 

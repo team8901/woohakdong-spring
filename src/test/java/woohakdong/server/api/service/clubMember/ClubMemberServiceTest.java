@@ -10,6 +10,7 @@ import static woohakdong.server.domain.clubmember.ClubMemberRole.VICEPRESIDENT;
 
 import java.time.LocalDate;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,12 +54,21 @@ class ClubMemberServiceTest {
     @Autowired
     private SchoolRepository schoolRepository;
 
+    @BeforeEach
+    void setUp() {
+        school = createSchool("ajou.ac.kr");
+        club = createClub(school);
+        member = createMember(school, "testProvideId1", "박상준", "sangjun@ajou.ac.kr");
+    }
+
+    private Member member;
+    private School school;
+    private Club club;
+
     @DisplayName("동아리 멤버 리스트를 확인할 수 있다.")
     @Test
     void getMembers() {
         // given
-        School school = createSchool("ajou.ac.kr");
-        Club club = createClub(school);
         Member member1 = createMember(school, "testProvideId2", "박상준", "sangjun@ajou.ac.kr");
         Member member2 = createMember(school, "testProvideId3", "준상박", "junsang@ajou.ac.kr");
 
@@ -80,10 +90,8 @@ class ClubMemberServiceTest {
 
     @DisplayName("분기별 동아리 멤버 리스트를 확인할 수 있다.")
     @Test
-    void getTermMembers() {
+    void getFilteredMembersWithTerm() {
         // given
-        School school = createSchool("ajou.ac.kr");
-        Club club = createClub(school);
         Member member1 = createMember(school, "testProvideId2", "박상준", "sangjun@ajou.ac.kr");
         Member member2 = createMember(school, "testProvideId3", "준상박", "junsang@ajou.ac.kr");
         Member member3 = createMember(school, "testProvideId4", "김상박", "kimsang@ajou.ac.kr");
@@ -94,8 +102,8 @@ class ClubMemberServiceTest {
         createClubMember(club, member3, OFFICER, LocalDate.of(2024, 7, 1));
 
         // when
-        List<ClubMemberInfoResponse> responses = clubMemberService.getTermMembers(club.getClubId(),
-                LocalDate.of(2024, 1, 1));
+        List<ClubMemberInfoResponse> responses = clubMemberService.getFilteredMembers(club.getClubId(),
+                null, LocalDate.of(2024, 1, 1));
 
         // then
         assertThat(responses).hasSize(3)
@@ -107,13 +115,39 @@ class ClubMemberServiceTest {
                 );
     }
 
+    @DisplayName("이름으로 이번 분기의 동아리 멤버 리스트를 확인할 수 있다.")
+    @Test
+    void getFilteredMembersWithName() {
+        // Given
+        Member member1 = createMember(school, "testProvideId2", "박가나", "pgana@ajou.ac.kr");
+        Member member2 = createMember(school, "testProvideId3", "가나다", "nada@ajou.ac.k나");
+        Member member3 = createMember(school, "testProvideId4", "김가나", "kgana@ajou.ac.kr");
+        Member member4 = createMember(school, "testProvideId5", "가김나", "kimna@ajou.ac.kr");
+
+        createClubMember(club, member1, MEMBER, LocalDate.of(2024, 1, 1));
+        createClubMember(club, member2, OFFICER, LocalDate.of(2024, 2, 1));
+        createClubMember(club, member3, MEMBER, LocalDate.of(2024, 7, 1));
+        createClubMember(club, member4, OFFICER, LocalDate.of(2024, 1, 1));
+
+        LocalDate now = LocalDate.of(2024, 1, 1);
+
+        // When
+        List<ClubMemberInfoResponse> responses = clubMemberService.getFilteredMembers(club.getClubId(), "가나", now);
+
+        // Then
+        assertThat(responses).hasSize(2)
+                .extracting("memberName", "clubMemberRole")
+                .containsExactlyInAnyOrder(
+                        tuple("박가나", MEMBER),
+                        tuple("가나다", OFFICER)
+                );
+    }
+
     @DisplayName("동아리 내 나의 정보를 확인할 수 있다.")
     @Test
     void getMyInfo() {
         // Given
         Member member = setUpMemberSession("박상준");
-        School school = createSchool("ajou.ac.kr");
-        Club club = createClub(school);
         createClubMember(club, member, MEMBER, LocalDate.now());
 
         // When
@@ -130,8 +164,6 @@ class ClubMemberServiceTest {
     void changeClubMemberRole() {
         // Given
         Member member = setUpMemberSession("박상준");
-        School school = createSchool("ajou.ac.kr");
-        Club club = createClub(school);
         createClubMember(club, member, PRESIDENT, LocalDate.now());
 
         Member member2 = createMember(school, "testProvideId2", "김상준", "kimsang@ajou.ac.kr");
@@ -152,8 +184,6 @@ class ClubMemberServiceTest {
     void changeClubMemberRoleWithOutPRESIDENTRole() {
         // Given
         Member member = setUpMemberSession("박상준");
-        School school = createSchool("ajou.ac.kr");
-        Club club = createClub(school);
         createClubMember(club, member, VICEPRESIDENT, LocalDate.now());
 
         Member member2 = createMember(school, "testProvideId2", "김상준", "kimsang@ajou.ac.kr");
