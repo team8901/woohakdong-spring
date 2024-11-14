@@ -40,7 +40,9 @@ public class AdminSchoolService {
     }
 
     public CountResponse getItemCountBySchool(Long schoolId) {
-        Long itemCount = itemRepository.countByClubSchoolSchoolId(schoolId);
+        School school = schoolRepository.getById(schoolId);
+
+        Long itemCount = itemRepository.countByClubSchool(school);
         return CountResponse.from(itemCount);
     }
 
