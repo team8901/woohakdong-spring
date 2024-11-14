@@ -22,7 +22,8 @@ public record ClubMemberInfoResponse(
         LocalDate clubJoinedDate,
         LocalDate clubMemberAssignedTerm
 ) {
-    public static ClubMemberInfoResponse from(Member member, ClubMember clubMember) {
+    public static ClubMemberInfoResponse from(ClubMember clubMember) {
+        Member member = clubMember.getMember();
         return ClubMemberInfoResponse.builder()
                 .memberId(member.getMemberId())
                 .memberName(member.getMemberName())
