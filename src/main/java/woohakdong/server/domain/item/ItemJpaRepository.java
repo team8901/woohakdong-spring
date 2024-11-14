@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 import woohakdong.server.domain.club.Club;
+import woohakdong.server.domain.school.School;
 
 public interface ItemJpaRepository extends JpaRepository<Item, Long> {
     List<Item> findByClub(Club club);
@@ -23,5 +24,5 @@ public interface ItemJpaRepository extends JpaRepository<Item, Long> {
 
     List<Item> findAllByClubAndItemNameAndItemCategoryContaining(Club club, String keyword, ItemCategory category);
 
-    Long countByClubSchoolSchoolId(Long schoolId);
+    Long countByClubSchool(School school);
 }
