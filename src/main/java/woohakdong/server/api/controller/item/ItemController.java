@@ -22,8 +22,10 @@ public class ItemController implements ItemControllerDocs {
     @GetMapping("/{clubId}/items")
     public ListWrapperResponse<ItemResponse> getItems(@PathVariable Long clubId,
                                                       @RequestParam(required = false) String keyword,
-                                                      @RequestParam(required = false) String category) {
-        return ListWrapperResponse.of(itemService.getItemsByFilters(clubId, keyword, category));
+                                                      @RequestParam(required = false) String category,
+                                                      @RequestParam(required = false) Boolean using,
+                                                      @RequestParam(required = false) Boolean available) {
+        return ListWrapperResponse.of(itemService.getItemsByFilters(clubId, keyword, category, using, available));
     }
 
     @GetMapping("/{clubId}/items/{itemId}")
