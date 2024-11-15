@@ -93,7 +93,7 @@ class ItemServiceTest {
         createItem(club, "농구공", SPORT, 7, false);
 
         // When
-        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), null, null);
+        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), null, null, null, null);
 
         // Then
         assertThat(items).hasSize(2)
@@ -218,7 +218,7 @@ class ItemServiceTest {
         createItem(club, "농구공", SPORT, 5, false);
 
         // when
-        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "");
+        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", false, true);
 
         // then
         assertThat(items).hasSize(2)
@@ -227,6 +227,30 @@ class ItemServiceTest {
                         tuple("축구공", SPORT, 7),
                         tuple("농구공", SPORT, 5)
                 );
+    }
+
+    @DisplayName("사용중인 물품을 검색할 수 있다.")
+    @Test
+    void searchItemsByUsing_success() {
+        // given
+        Member member = setUpMemberSession();
+
+        Club club = createClub();
+        createItem(club, "축구공", SPORT, 7, false);
+        Item item = createItem(club, "농구공", SPORT, 5, true);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
+        LocalDateTime now = LocalDateTime.now();
+        ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3), null);
+
+        // when
+        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", true, true);
+
+        // then
+        assertThat(items)
+                .hasSize(1)
+                .extracting("itemName", "itemCategory", "itemRentalMaxDay", "itemUsing")
+                .containsExactly(tuple("농구공", ItemCategory.SPORT, 5, true));
+
     }
 
     @DisplayName("물품 이용 가능을 수정할 수 있다.")
