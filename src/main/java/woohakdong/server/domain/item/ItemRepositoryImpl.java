@@ -64,4 +64,9 @@ public class ItemRepositoryImpl implements ItemRepository {
         return itemJpaRepository.countByClubSchool(school);
     }
 
+    @Override
+    public List<Item> getItemsByFilters(Club club, String keyword, ItemCategory category, Boolean using, Boolean available){
+        return itemJpaRepository.findItemsByFilters(club, keyword, category, using, available);
+    }
+
 }

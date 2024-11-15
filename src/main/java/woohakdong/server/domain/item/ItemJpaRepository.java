@@ -25,4 +25,16 @@ public interface ItemJpaRepository extends JpaRepository<Item, Long> {
     List<Item> findAllByClubAndItemNameAndItemCategoryContaining(Club club, String keyword, ItemCategory category);
 
     Long countByClubSchool(School school);
+
+    @Query("SELECT i FROM Item i " +
+            "WHERE i.club = :club " +
+            "AND (:keyword IS NULL OR i.itemName LIKE %:keyword%) " +
+            "AND (:category IS NULL OR i.itemCategory = :category) " +
+            "AND (:using IS NULL OR i.itemUsing = :using) " +
+            "AND (:available IS NULL OR i.itemAvailable = :available)")
+    List<Item> findItemsByFilters(@Param("club") Club club,
+                                  @Param("keyword") String keyword,
+                                  @Param("category") ItemCategory category,
+                                  @Param("using") Boolean using,
+                                  @Param("available") Boolean available);
 }

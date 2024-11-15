@@ -57,26 +57,37 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public List<ItemResponse> getItemsByFilters(Long clubId, String keyword, String category) {
+    public List<ItemResponse> getItemsByFilters(Long clubId, String keyword, String category, Boolean using, Boolean available) {
         Club club = clubRepository.getById(clubId);
 
         List<Item> items;
 
         // 조건에 따른 분기 처리
-        if ((keyword == null || keyword.isEmpty()) && (category == null || category.isEmpty())) {
-            // 카테고리와 검색어 모두 없을 경우, 모든 물품 반환
+//        if ((keyword == null || keyword.isEmpty()) && (category == null || category.isEmpty())) {
+//            // 카테고리와 검색어 모두 없을 경우, 모든 물품 반환
+//            items = itemRepository.getAllByClub(club);
+//        } else if (keyword == null || keyword.isEmpty()) {
+//            // 카테고리는 있고 검색어는 없을 경우, 카테고리로만 필터링
+//            ItemCategory itemCategory = ItemCategory.valueOf(category.toUpperCase());
+//            items = itemRepository.getAllByClubAndItemCategory(club, itemCategory);
+//        } else if (category == null || category.isEmpty()) {
+//            // 검색어는 있고 카테고리는 없을 경우, 검색어로만 필터링
+//            items = itemRepository.getAllByClubAndNameContaining(club, keyword);
+//        } else {
+//            // 카테고리와 검색어 둘 다 있을 경우, 둘 다 필터링
+//            ItemCategory itemCategory = ItemCategory.valueOf(category.toUpperCase());
+//            items = itemRepository.getAllByClubAndItemNameAndItemCategoryContaining(club, itemCategory, keyword);
+//        }
+
+        if (keyword == null && category == null && using == null && available == null) {
             items = itemRepository.getAllByClub(club);
-        } else if (keyword == null || keyword.isEmpty()) {
-            // 카테고리는 있고 검색어는 없을 경우, 카테고리로만 필터링
-            ItemCategory itemCategory = ItemCategory.valueOf(category.toUpperCase());
-            items = itemRepository.getAllByClubAndItemCategory(club, itemCategory);
-        } else if (category == null || category.isEmpty()) {
-            // 검색어는 있고 카테고리는 없을 경우, 검색어로만 필터링
-            items = itemRepository.getAllByClubAndNameContaining(club, keyword);
         } else {
-            // 카테고리와 검색어 둘 다 있을 경우, 둘 다 필터링
-            ItemCategory itemCategory = ItemCategory.valueOf(category.toUpperCase());
-            items = itemRepository.getAllByClubAndItemNameAndItemCategoryContaining(club, itemCategory, keyword);
+            if (category == null || category.isEmpty()) {
+                items = itemRepository.getItemsByFilters(club, keyword, null, using, available);
+            } else {
+                ItemCategory itemCategory = ItemCategory.valueOf(category.toUpperCase());
+                items = itemRepository.getItemsByFilters(club, keyword, itemCategory, using, available);
+            }
         }
 
         List<ItemResponse> responses = new ArrayList<>();
