@@ -1,6 +1,8 @@
 package woohakdong.server.domain.clubAccountHistory;
 
 import java.util.List;
+
+import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.clubAccount.ClubAccount;
 
 public interface ClubAccountHistoryRepository {
@@ -10,5 +12,5 @@ public interface ClubAccountHistoryRepository {
 
     List<ClubAccountHistory> findMonthlyTransactions(ClubAccount clubAccount, int year, int month);
 
-    List<ClubAccountHistory> findAllByClubAccountClubClubId(Long clubId);
+    List<ClubAccountHistory> findAllByClubAccountClub(Club club);
 }
