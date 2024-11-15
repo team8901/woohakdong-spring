@@ -60,7 +60,7 @@ public class DuesService {
             histories = clubAccountHistoryRepository.findMonthlyTransactions(clubAccount, year, month);
         } else {
             // 전체 거래 내역 조회
-            histories = clubAccountHistoryRepository.findAllByClubAccountClubClubId(clubId);
+            histories = clubAccountHistoryRepository.findAllByClubAccountClub(club);
         }
 
         // ClubAccountHistoryListResponse로 변환

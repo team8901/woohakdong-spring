@@ -3,6 +3,7 @@ package woohakdong.server.domain.clubAccountHistory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.clubAccount.ClubAccount;
 
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class ClubAccountHistoryRepositoryImpl implements ClubAccountHistoryRepos
     }
 
     @Override
-    public List<ClubAccountHistory> findAllByClubAccountClubClubId(Long clubId) {
-        return clubAccountHistoryJpaRepository.findAllByClubAccountClubClubId(clubId);
+    public List<ClubAccountHistory> findAllByClubAccountClub(Club club) {
+        return clubAccountHistoryJpaRepository.findAllByClubAccountClubOrderByClubAccountHistoryTranDateDesc(club);
     }
 }
