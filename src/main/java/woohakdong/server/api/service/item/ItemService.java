@@ -244,7 +244,7 @@ public class ItemService {
         Club club = clubRepository.getById(clubId);
         ClubMember clubMember = clubMemberRepository.getById(clubMemberId);
 
-        List<ItemHistory> histories = itemHistoryRepository.getAllByMember(clubMember.getMember());
+        List<ItemHistory> histories = itemHistoryRepository.getAllByClubAndMember(club, clubMember.getMember());
 
         List<ItemHistoryResponse> itemHistoryResponses = histories.stream()
                 .map(history -> ItemHistoryResponse.from(history, clubMember.getMember()))
