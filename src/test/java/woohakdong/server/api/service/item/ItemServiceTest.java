@@ -202,8 +202,8 @@ class ItemServiceTest {
         assertThat(itemHistoryResponses)
                 .extracting("itemRentalDate", "itemDueDate", "itemReturnDate")
                 .containsExactly(
-                        tuple(now.minusDays(10), now.minusDays(3), now.minusDays(2)),
-                        tuple(now, now.plusDays(7), null)
+                        tuple(now, now.plusDays(7), null),
+                        tuple(now.minusDays(10), now.minusDays(3), now.minusDays(2))
                 );
     }
 
