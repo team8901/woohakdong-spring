@@ -19,7 +19,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.item.dto.*;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
@@ -190,10 +189,11 @@ class ItemServiceTest {
         Member member = setUpMemberSession();
         Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, false);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
 
         LocalDateTime now = LocalDateTime.now();
-        createItemHistory(item, member, now.minusDays(10), now.minusDays(3), now.minusDays(2));
-        createItemHistory(item, member, now, now.plusDays(7), null);
+        createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3), now.minusDays(2));
+        createItemHistory(item, clubMember, now, now.plusDays(7), null);
 
         // when
         List<ItemHistoryResponse> itemHistoryResponses = itemService.getItemHistory(club.getClubId(), item.getItemId());
@@ -295,7 +295,7 @@ class ItemServiceTest {
         Item item = createItem(club, "축구공", SPORT, 7, false);
 
         // when
-        ItemResponse response = itemService.getItemInfo(club.getClubId(), item.getItemId());
+        ItemInfoResponse response = itemService.getItemInfo(club.getClubId(), item.getItemId());
 
         // then
         assertThat(response)
@@ -313,7 +313,7 @@ class ItemServiceTest {
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
 
         LocalDateTime now = LocalDateTime.of(2024, 11, 8, 2, 17, 4, 844856);
-        ItemHistory itemHistory = createItemHistory(item, member, now.minusDays(10), now.minusDays(3), now.minusDays(2));
+        ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3), now.minusDays(2));
 
         // when
         List<ItemHistoryResponse> response = itemService.getMyHistoryItems(club.getClubId());
@@ -335,7 +335,7 @@ class ItemServiceTest {
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
 
         LocalDateTime now = LocalDateTime.of(2024, 11, 8, 2, 17, 4, 844856);
-        ItemHistory itemHistory = createItemHistory(item, member, now.minusDays(10), now.minusDays(3), now.minusDays(2));
+        ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3), now.minusDays(2));
 
         // when
         List<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(), clubMember.getClubMemberId());
@@ -428,11 +428,11 @@ class ItemServiceTest {
                 .build();
     }
 
-    private ItemHistory createItemHistory(Item item, Member member, LocalDateTime rentalDate, LocalDateTime dueDate,
+    private ItemHistory createItemHistory(Item item, ClubMember clubMember, LocalDateTime rentalDate, LocalDateTime dueDate,
                                    LocalDateTime returnDate) {
         ItemHistory itemHistory = ItemHistory.builder()
                 .item(item)
-                .member(member)
+                .clubMember(clubMember)
                 .itemRentalDate(rentalDate) // 10일 전 대여
                 .itemDueDate(dueDate)     // 3일 전에 반납 예정
                 .itemReturnDate(returnDate)  // 2일 전에 반납됨

@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,7 +28,7 @@ public interface ItemControllerDocs {
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "물품 상세정보 반환", description = "물품 상세정보 반환")
     @ApiResponse(responseCode = "200", description = "물품 상세정보 반환 성공", useReturnTypeSchema = true)
-    public ItemResponse getItemInfo(@PathVariable Long clubId, @PathVariable Long itemId);
+    public ItemInfoResponse getItemInfo(@PathVariable Long clubId, @PathVariable Long itemId);
 
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "물품 대여", description = "물품이 사용중이 아니라면 대여할 수 있다.")

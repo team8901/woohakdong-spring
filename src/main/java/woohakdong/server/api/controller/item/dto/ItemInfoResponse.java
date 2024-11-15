@@ -7,7 +7,7 @@ import woohakdong.server.domain.item.ItemCategory;
 import java.time.LocalDateTime;
 
 @Builder
-public record ItemResponse(
+public record ItemInfoResponse(
         Long itemId,
         String itemName,
         String itemPhoto,
@@ -18,12 +18,10 @@ public record ItemResponse(
         Boolean itemAvailable,
         Boolean itemUsing,
         LocalDateTime itemRentalDate,
-        Integer itemRentalTime,
-        String memberName,
-        Boolean itemOverdue
+        Integer itemRentalTime
 ) {
-    public static ItemResponse of(Item item, String memberName, Boolean itemOverdue) {
-        return ItemResponse.builder()
+    public static ItemInfoResponse of(Item item) {
+        return ItemInfoResponse.builder()
                 .itemId(item.getItemId())
                 .itemName(item.getItemName())
                 .itemPhoto(item.getItemPhoto())
@@ -35,8 +33,6 @@ public record ItemResponse(
                 .itemUsing(item.getItemUsing())
                 .itemRentalDate(item.getItemRentalDate())
                 .itemRentalTime(item.getItemRentalTime())
-                .memberName(memberName)
-                .itemOverdue(itemOverdue)
                 .build();
     }
 }

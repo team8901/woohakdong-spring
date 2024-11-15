@@ -9,18 +9,18 @@ import java.time.LocalDateTime;
 @Builder
 public record ItemHistoryResponse(
         Long itemHistoryId,
-        Long memberId,
+        Long clubMemberId,
         String memberName,
         LocalDateTime itemRentalDate,
         LocalDateTime itemDueDate,
         LocalDateTime itemReturnDate,
         String itemReturnImage
 ) {
-    public static ItemHistoryResponse from(ItemHistory itemHistory, Member member) {
+    public static ItemHistoryResponse from(ItemHistory itemHistory, Long clubMemberId) {
         return ItemHistoryResponse.builder()
                 .itemHistoryId(itemHistory.getItemHistoryId())
-                .memberId(member.getMemberId())
-                .memberName(member.getMemberName())
+                .clubMemberId(clubMemberId)
+                .memberName(itemHistory.getMemberName())
                 .itemRentalDate(itemHistory.getItemRentalDate())
                 .itemDueDate(itemHistory.getItemDueDate())
                 .itemReturnDate(itemHistory.getItemReturnDate())
