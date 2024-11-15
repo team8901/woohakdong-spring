@@ -7,6 +7,7 @@ import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUN
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.item.dto.*;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
@@ -79,9 +79,26 @@ public class ItemService {
             items = itemRepository.getAllByClubAndItemNameAndItemCategoryContaining(club, itemCategory, keyword);
         }
 
-        return items.stream()
-                .map(ItemResponse::of)
-                .collect(Collectors.toList());
+        List<ItemResponse> responses = new ArrayList<>();
+
+        for (Item item : items) {
+            ItemResponse itemResponse;
+            if (Boolean.TRUE.equals(item.getItemUsing())) {
+                ItemHistory history = itemHistoryRepository.getByItemAndItemReturnDateIsNull(item);
+                if (history.getItemDueDate().isBefore(LocalDateTime.now())) {
+                    itemResponse = ItemResponse.of(item, history.getMemberName(), true);
+                }
+                else {
+                    itemResponse = ItemResponse.of(item, history.getMemberName(), false);
+                }
+            }
+            else {
+                itemResponse = ItemResponse.of(item, null, false);
+            }
+            responses.add(itemResponse);
+        }
+
+        return responses;
     }
 
     @Transactional
@@ -105,7 +122,7 @@ public class ItemService {
         // 대여 기록 추가
         LocalDateTime borrowDate = LocalDateTime.now();
         LocalDateTime dueDate = borrowDate.plusDays(item.getItemRentalMaxDay());
-        ItemHistory itemHistory = ItemHistory.create(member, item, borrowDate, dueDate);
+        ItemHistory itemHistory = ItemHistory.create(clubMember, member.getMemberName(), item, borrowDate, dueDate);
         itemHistoryRepository.save(itemHistory);
 
         ItemBorrowed itemBorrowed = ItemBorrowed.createItemBorrowed(clubMember, item, item.getItemRentalDate().plusDays(item.getItemRentalMaxDay()));
@@ -122,16 +139,17 @@ public class ItemService {
     @Transactional
     public ItemReturnResponse returnItem(Long clubId, Long itemId, ItemReturnRequest request) {
         Member member = getMemberFromJwtInformation();
-
         Club club = clubRepository.getById(clubId);
         Item item = itemRepository.getById(itemId);
+        LocalDate assignedTerm = getAssignedTerm();
+        ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
 
         if (!item.getItemUsing()) {
             throw new CustomException(ITEM_NOT_USING);
         }
 
         // 대여 기록 찾기 (반납 기록이 없는 대여 기록을 찾음)
-        ItemHistory itemHistory = itemHistoryRepository.getActiveBorrowingRecord(item, member);
+        ItemHistory itemHistory = itemHistoryRepository.getActiveBorrowingRecord(item, clubMember);
 
         // 반납 처리
         itemHistory.setItemReturnDate(LocalDateTime.now());  // 반납 시간 설정
@@ -163,25 +181,17 @@ public class ItemService {
         Item item = itemRepository.getById(itemId);
 
         List<ItemHistoryResponse> historyResponses = itemHistoryRepository.getAllByItem(item).stream()
-                .map(history -> ItemHistoryResponse.builder()
-                        .itemHistoryId(history.getItemHistoryId())
-                        .memberId(history.getMember().getMemberId())
-                        .memberName(history.getMember().getMemberName())
-                        .itemRentalDate(history.getItemRentalDate())
-                        .itemDueDate(history.getItemDueDate())
-                        .itemReturnDate(history.getItemReturnDate())
-                        .itemReturnImage(history.getItemReturnImage())
-                        .build())
+                .map(history -> ItemHistoryResponse.from(history, history.getClubMember().getClubMemberId()))
                 .collect(Collectors.toList());
 
         return historyResponses;
     }
 
-    public ItemResponse getItemInfo(Long clubId, Long itemId) {
+    public ItemInfoResponse getItemInfo(Long clubId, Long itemId) {
         Club club = clubRepository.getById(clubId);
         Item item = itemRepository.getById(itemId);
 
-        return ItemResponse.of(item);
+        return ItemInfoResponse.of(item);
     }
 
     @Transactional
@@ -231,10 +241,12 @@ public class ItemService {
     public List<ItemHistoryResponse> getMyHistoryItems(Long clubId) {
         Member member = getMemberFromJwtInformation();
         Club club = clubRepository.getById(clubId);
+        LocalDate assignedTerm = getAssignedTerm();
+        ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
 
-        List<ItemHistory> histories = itemHistoryRepository.getAllByMember(member);
+        List<ItemHistory> histories = itemHistoryRepository.getAllByMember(clubMember);
         List<ItemHistoryResponse> itemHistoryResponses = histories.stream()
-                .map(history -> ItemHistoryResponse.from(history, member))
+                .map(history -> ItemHistoryResponse.from(history, history.getClubMember().getClubMemberId()))
                 .collect(Collectors.toList());
 
         return itemHistoryResponses;
@@ -244,10 +256,10 @@ public class ItemService {
         Club club = clubRepository.getById(clubId);
         ClubMember clubMember = clubMemberRepository.getById(clubMemberId);
 
-        List<ItemHistory> histories = itemHistoryRepository.getAllByClubAndMember(club, clubMember.getMember());
+        List<ItemHistory> histories = itemHistoryRepository.getAllByClubAndMember(club, clubMember);
 
         List<ItemHistoryResponse> itemHistoryResponses = histories.stream()
-                .map(history -> ItemHistoryResponse.from(history, clubMember.getMember()))
+                .map(history -> ItemHistoryResponse.from(history, history.getClubMember().getClubMemberId()))
                 .collect(Collectors.toList());
 
         return itemHistoryResponses;

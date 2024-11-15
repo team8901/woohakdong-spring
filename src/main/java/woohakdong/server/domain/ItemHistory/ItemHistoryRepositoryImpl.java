@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import woohakdong.server.common.exception.CustomErrorInfo;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.domain.club.Club;
+import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.item.Item;
 import woohakdong.server.domain.member.Member;
 
@@ -27,8 +28,8 @@ public class ItemHistoryRepositoryImpl implements ItemHistoryRepository{
     }
 
     @Override
-    public ItemHistory getActiveBorrowingRecord(Item item, Member member) {
-        return itemHistoryJpaRepository.findByItemAndMemberAndItemReturnDateIsNull(item, member)
+    public ItemHistory getActiveBorrowingRecord(Item item, ClubMember clubMember) {
+        return itemHistoryJpaRepository.findByItemAndClubMemberAndItemReturnDateIsNull(item, clubMember)
                 .orElseThrow(() -> new CustomException(CustomErrorInfo.ITEM_HISTORY_NOT_FOUND));
     }
 
@@ -38,12 +39,18 @@ public class ItemHistoryRepositoryImpl implements ItemHistoryRepository{
     }
 
     @Override
-    public List<ItemHistory> getAllByMember(Member member) {
-        return itemHistoryJpaRepository.findByMemberOrderByItemRentalDateDesc(member);
+    public List<ItemHistory> getAllByMember(ClubMember clubMember) {
+        return itemHistoryJpaRepository.findByClubMemberOrderByItemRentalDateDesc(clubMember);
     }
 
     @Override
-    public List<ItemHistory> getAllByClubAndMember(Club club, Member member) {
-        return itemHistoryJpaRepository.findByItemClubAndMemberOrderByItemRentalDateDesc(club, member);
+    public List<ItemHistory> getAllByClubAndMember(Club club, ClubMember clubMember) {
+        return itemHistoryJpaRepository.findByItemClubAndClubMemberOrderByItemRentalDateDesc(club, clubMember);
+    }
+
+    @Override
+    public ItemHistory getByItemAndItemReturnDateIsNull(Item item) {
+        return itemHistoryJpaRepository.findByItemAndItemReturnDateIsNull(item)
+                .orElseThrow(() -> new CustomException(CustomErrorInfo.ITEM_HISTORY_NOT_FOUND));
     }
 }
