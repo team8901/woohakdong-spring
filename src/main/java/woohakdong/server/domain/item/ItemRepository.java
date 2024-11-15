@@ -1,6 +1,8 @@
 package woohakdong.server.domain.item;
 
 import java.util.List;
+
+import org.springframework.data.repository.query.Param;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.school.School;
 
@@ -22,4 +24,6 @@ public interface ItemRepository {
     List<Item> getAllByClubAndItemNameAndItemCategoryContaining(Club club, ItemCategory category, String keyword);
 
     Long countByClubSchool(School school);
+
+    List<Item> getItemsByFilters(Club club, String keyword, ItemCategory category, Boolean using, Boolean available);
 }

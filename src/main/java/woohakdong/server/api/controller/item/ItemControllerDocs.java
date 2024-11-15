@@ -23,7 +23,9 @@ public interface ItemControllerDocs {
     @ApiResponse(responseCode = "200", description = "물품 리스트 반환 성공", useReturnTypeSchema = true)
     public ListWrapperResponse<ItemResponse> getItems(@PathVariable Long clubId,
                                                       @RequestParam(required = false) String keyword,
-                                                      @RequestParam(required = false) String category);
+                                                      @RequestParam(required = false) String category,
+                                                      @RequestParam(required = false) Boolean using,
+                                                      @RequestParam(required = false) Boolean available);
 
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "물품 상세정보 반환", description = "물품 상세정보 반환")
