@@ -6,15 +6,18 @@ import java.util.List;
 import java.util.Optional;
 
 import woohakdong.server.domain.club.Club;
+import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.item.Item;
 import woohakdong.server.domain.member.Member;
 
 public interface ItemHistoryJpaRepository extends JpaRepository<ItemHistory, Long> {
-    Optional<ItemHistory> findByItemAndMemberAndItemReturnDateIsNull(Item item, Member member);
+    Optional<ItemHistory> findByItemAndClubMemberAndItemReturnDateIsNull(Item item, ClubMember clubMember);
 
     List<ItemHistory> findByItemOrderByItemRentalDateDesc(Item item);
 
-    List<ItemHistory> findByMemberOrderByItemRentalDateDesc(Member member);
+    List<ItemHistory> findByClubMemberOrderByItemRentalDateDesc(ClubMember clubMember);
 
-    List<ItemHistory> findByItemClubAndMemberOrderByItemRentalDateDesc(Club club, Member member);
+    List<ItemHistory> findByItemClubAndClubMemberOrderByItemRentalDateDesc(Club club, ClubMember clubMember);
+
+    Optional<ItemHistory> findByItemAndItemReturnDateIsNull(Item item);
 }

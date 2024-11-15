@@ -27,7 +27,7 @@ public class ItemController implements ItemControllerDocs {
     }
 
     @GetMapping("/{clubId}/items/{itemId}")
-    public ItemResponse getItemInfo(@PathVariable Long clubId, @PathVariable Long itemId) {
+    public ItemInfoResponse getItemInfo(@PathVariable Long clubId, @PathVariable Long itemId) {
         return itemService.getItemInfo(clubId, itemId);
     }
 

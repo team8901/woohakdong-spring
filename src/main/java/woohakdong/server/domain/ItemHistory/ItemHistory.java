@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import woohakdong.server.domain.BaseEntity;
+import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.item.Item;
 import woohakdong.server.domain.member.Member;
 
@@ -35,8 +36,10 @@ public class ItemHistory extends BaseEntity {
     private LocalDateTime itemDueDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "club_member_id")
+    private ClubMember clubMember;
+
+    private String memberName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
@@ -44,24 +47,26 @@ public class ItemHistory extends BaseEntity {
 
     @Builder
     private ItemHistory(String itemReturnImage, LocalDateTime itemRentalDate, LocalDateTime itemReturnDate,
-                        LocalDateTime itemDueDate, Member member, Item item) {
+                        LocalDateTime itemDueDate, ClubMember clubMember, Item item, String memberName) {
         this.itemReturnImage = itemReturnImage;
         this.itemRentalDate = itemRentalDate;
         this.itemReturnDate = itemReturnDate;
         this.itemDueDate = itemDueDate;
-        this.member = member;
+        this.clubMember = clubMember;
         this.item = item;
+        this.memberName = memberName;
     }
 
-    public static ItemHistory create(Member member, Item item, LocalDateTime itemRentalDate,
+    public static ItemHistory create(ClubMember clubMember, String memberName, Item item, LocalDateTime itemRentalDate,
                                      LocalDateTime itemDueDate) {
         return ItemHistory.builder()
                 .itemReturnImage(null)
                 .itemRentalDate(itemRentalDate)
                 .itemReturnDate(null)
                 .itemDueDate(itemDueDate)
-                .member(member)
+                .clubMember(clubMember)
                 .item(item)
+                .memberName(memberName)
                 .build();
 
     }
