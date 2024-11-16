@@ -358,7 +358,29 @@ class ItemServiceTest {
         Item item = createItem(club, "축구공", SPORT, 7, false);
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
 
-        LocalDateTime now = LocalDateTime.of(2024, 11, 8, 2, 17, 4, 844856);
+        LocalDateTime now = LocalDateTime.now();
+        ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3), null);
+
+        // when
+        List<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(), clubMember.getClubMemberId());
+
+        // then
+        assertThat(response)
+                .isNotEmpty()
+                .extracting("itemRentalDate", "itemDueDate", "itemName", "itemOverdue")
+                .containsExactly(tuple(now.minusDays(10), now.minusDays(3), "축구공", true));
+    }
+
+    @DisplayName("동아리 회원의 물품 대여 기록 연체된 것을 확인할 수 있다.")
+    @Test
+    void getClubMemberHistoryItemsOverdue_success() {
+        // given
+        Member member = setUpMemberSession();
+        Club club = createClub();
+        Item item = createItem(club, "축구공", SPORT, 7, false);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
+
+        LocalDateTime now = LocalDateTime.now();
         ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3), now.minusDays(2));
 
         // when
@@ -367,8 +389,8 @@ class ItemServiceTest {
         // then
         assertThat(response)
                 .isNotEmpty()
-                .extracting("itemRentalDate", "itemDueDate")
-                .containsExactly(tuple(now.minusDays(10), now.minusDays(3)));
+                .extracting("itemRentalDate", "itemDueDate", "itemName", "itemOverdue")
+                .containsExactly(tuple(now.minusDays(10), now.minusDays(3), "축구공", true));
     }
 
     private ItemBorrowed createItemBorrowed(ClubMember clubMember, Item item) {
