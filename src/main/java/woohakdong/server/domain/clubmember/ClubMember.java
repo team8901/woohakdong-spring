@@ -48,7 +48,7 @@ public class ClubMember extends BaseEntity {
     private Club club;
 
     @Builder
-    private ClubMember(Club club, LocalDate clubJoinedDate, LocalDate clubMemberAssignedTerm,
+    public ClubMember(Club club, LocalDate clubJoinedDate, LocalDate clubMemberAssignedTerm,
                        ClubMemberRole clubMemberRole, Member member) {
         this.club = club;
         this.clubJoinedDate = clubJoinedDate;
