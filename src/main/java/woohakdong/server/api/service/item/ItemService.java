@@ -175,7 +175,19 @@ public class ItemService {
         Item item = itemRepository.getById(itemId);
 
         List<ItemHistoryResponse> historyResponses = itemHistoryRepository.getAllByItem(item).stream()
-                .map(history -> ItemHistoryResponse.from(history, history.getClubMember().getClubMemberId()))
+                .map(history -> {
+                    Boolean isOverdue = history.getItemDueDate() != null && (
+                            (history.getItemReturnDate() == null && history.getItemDueDate().isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
+                                    (history.getItemReturnDate() != null && history.getItemReturnDate().isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
+                    );
+
+                    return ItemHistoryResponse.from(
+                            history,
+                            history.getClubMember().getClubMemberId(),
+                            item.getItemName(),
+                            isOverdue
+                    );
+                })
                 .collect(Collectors.toList());
 
         return historyResponses;
@@ -240,7 +252,19 @@ public class ItemService {
 
         List<ItemHistory> histories = itemHistoryRepository.getAllByMember(clubMember);
         List<ItemHistoryResponse> itemHistoryResponses = histories.stream()
-                .map(history -> ItemHistoryResponse.from(history, history.getClubMember().getClubMemberId()))
+                .map(history -> {
+                    Boolean isOverdue = history.getItemDueDate() != null && (
+                            (history.getItemReturnDate() == null && history.getItemDueDate().isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
+                                    (history.getItemReturnDate() != null && history.getItemReturnDate().isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
+                    );
+
+                    return ItemHistoryResponse.from(
+                            history,
+                            history.getClubMember().getClubMemberId(),
+                            history.getItem().getItemName(),
+                            isOverdue
+                    );
+                })
                 .collect(Collectors.toList());
 
         return itemHistoryResponses;
@@ -253,7 +277,19 @@ public class ItemService {
         List<ItemHistory> histories = itemHistoryRepository.getAllByClubAndMember(club, clubMember);
 
         List<ItemHistoryResponse> itemHistoryResponses = histories.stream()
-                .map(history -> ItemHistoryResponse.from(history, history.getClubMember().getClubMemberId()))
+                .map(history -> {
+                    Boolean isOverdue = history.getItemDueDate() != null && (
+                            (history.getItemReturnDate() == null && history.getItemDueDate().isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
+                                    (history.getItemReturnDate() != null && history.getItemReturnDate().isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
+                    );
+
+                    return ItemHistoryResponse.from(
+                            history,
+                            history.getClubMember().getClubMemberId(),
+                            history.getItem().getItemName(),
+                            isOverdue
+                    );
+                })
                 .collect(Collectors.toList());
 
         return itemHistoryResponses;
