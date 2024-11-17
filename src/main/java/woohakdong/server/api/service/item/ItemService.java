@@ -184,7 +184,7 @@ public class ItemService {
                     return ItemHistoryResponse.from(
                             history,
                             history.getClubMember().getClubMemberId(),
-                            item.getItemName(),
+                            item,
                             isOverdue
                     );
                 })
@@ -261,7 +261,7 @@ public class ItemService {
                     return ItemHistoryResponse.from(
                             history,
                             history.getClubMember().getClubMemberId(),
-                            history.getItem().getItemName(),
+                            history.getItem(),
                             isOverdue
                     );
                 })
@@ -286,7 +286,7 @@ public class ItemService {
                     return ItemHistoryResponse.from(
                             history,
                             history.getClubMember().getClubMemberId(),
-                            history.getItem().getItemName(),
+                            history.getItem(),
                             isOverdue
                     );
                 })

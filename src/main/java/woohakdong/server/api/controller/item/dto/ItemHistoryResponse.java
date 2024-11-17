@@ -17,9 +17,10 @@ public record ItemHistoryResponse(
         LocalDateTime itemReturnDate,
         String itemReturnImage,
         String itemName,
-        Boolean itemOverdue
+        Boolean itemOverdue,
+        Long itemId
 ) {
-    public static ItemHistoryResponse from(ItemHistory itemHistory, Long clubMemberId, String itemName, Boolean itemOverdue) {
+    public static ItemHistoryResponse from(ItemHistory itemHistory, Long clubMemberId, Item item, Boolean itemOverdue) {
         return ItemHistoryResponse.builder()
                 .itemHistoryId(itemHistory.getItemHistoryId())
                 .clubMemberId(clubMemberId)
@@ -28,8 +29,9 @@ public record ItemHistoryResponse(
                 .itemDueDate(itemHistory.getItemDueDate())
                 .itemReturnDate(itemHistory.getItemReturnDate())
                 .itemReturnImage(itemHistory.getItemReturnImage())
-                .itemName(itemName)
+                .itemName(item.getItemName())
                 .itemOverdue(itemOverdue)
+                .itemId(item.getItemId())
                 .build();
     }
 }
