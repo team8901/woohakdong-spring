@@ -65,8 +65,9 @@ public class ScheduleService {
     public List<ScheduleInfoResponse> getSchedules(Long clubId, LocalDate date) {
         Club club = clubRepository.getById(clubId);
 
-        LocalDateTime startDate = LocalDate.of(date.getYear(), date.getMonth(), 1).atStartOfDay();
-        LocalDateTime endDate = startDate.plusMonths(1).minusDays(1).withHour(23).withMinute(59).withSecond(59);
+        // 저번 달 마지막 날부터 다음 달 첫 날까지의 스케줄을 가져온다. ( 프론트 달력 이벤트 이슈로 인해 )
+        LocalDateTime startDate = LocalDate.of(date.getYear(), date.getMonth(), 1).atStartOfDay().minusDays(1);
+        LocalDateTime endDate = startDate.plusMonths(1).plusDays(1).withHour(23).withMinute(59).withSecond(59);
 
         return scheduleRepository.getSchedulesWithPeriod(club, startDate, endDate)
                 .stream()
