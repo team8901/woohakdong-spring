@@ -144,11 +144,11 @@ class ScheduleServiceTest {
     void getSchedules() {
         // Given
         Long clubId = club.getClubId();
-        createSchedule("스프링 스터디", "특강", of(2024, 10, 30, 20, 0));
+        createSchedule("스프링 스터디", "특강", of(2024, 10, 1, 20, 0));
         createSchedule("리액트 스터디", "1회차", of(2024, 11, 1, 20, 0));
         createSchedule("리액트 스터디", "2회차", of(2024, 11, 15, 20, 0));
         createSchedule("리액트 스터디", "3회차", of(2024, 11, 29, 20, 0));
-        createSchedule("플러터 스터디", "왕기초 특강", of(2024, 12, 1, 20, 0));
+        createSchedule("플러터 스터디", "왕기초 특강", of(2024, 12, 25, 20, 0));
 
         // When
         List<ScheduleInfoResponse> response = scheduleService.getSchedules(clubId, LocalDate.of(2024, 11, 1));
@@ -160,6 +160,34 @@ class ScheduleServiceTest {
                         tuple("리액트 스터디", "1회차", of(2024, 11, 1, 20, 0)),
                         tuple("리액트 스터디", "2회차", of(2024, 11, 15, 20, 0)),
                         tuple("리액트 스터디", "3회차", of(2024, 11, 29, 20, 0))
+                );
+    }
+
+    @DisplayName("특정 달의 동아리 일정을 불러올 때, 전 달의 마지막날과 다음 달의 첫날을 포함한다.")
+    @Test
+    void getSchedulesWithTwoDays() {
+        // Given
+        Long clubId = club.getClubId();
+        createSchedule("OBYB", "선후배와의 만남", of(2024, 10, 30, 23, 59));
+        createSchedule("스프링 스터디", "특강", of(2024, 10, 31, 0, 0));
+        createSchedule("리액트 스터디", "1회차", of(2024, 11, 1, 20, 0));
+        createSchedule("리액트 스터디", "2회차", of(2024, 11, 30, 20, 0));
+        createSchedule("플러터 스터디", "입문편", of(2024, 12, 1, 0, 0));
+        createSchedule("플러터 스터디", "기본편", of(2024, 12, 1, 23, 59));
+        createSchedule("플러터 스터디", "고급편", of(2024, 12, 2, 0, 0));
+
+        // When
+        List<ScheduleInfoResponse> response = scheduleService.getSchedules(clubId, LocalDate.of(2024, 11, 15));
+
+        // Then
+        assertThat(response).hasSize(5)
+                .extracting("scheduleTitle", "scheduleContent", "scheduleDateTime")
+                .containsExactlyInAnyOrder(
+                        tuple("스프링 스터디", "특강", of(2024, 10, 31, 0, 0)),
+                        tuple("리액트 스터디", "1회차", of(2024, 11, 1, 20, 0)),
+                        tuple("리액트 스터디", "2회차", of(2024, 11, 30, 20, 0)),
+                        tuple("플러터 스터디", "입문편", of(2024, 12, 1, 0, 0)),
+                        tuple("플러터 스터디", "기본편", of(2024, 12, 1, 23, 59))
                 );
     }
 
