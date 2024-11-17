@@ -3,6 +3,7 @@ package woohakdong.server.api.service.notification;
 import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,8 @@ import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
+import woohakdong.server.domain.itemBorrowed.ItemBorrowed;
+import woohakdong.server.domain.itemBorrowed.ItemBorrowedRepository;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.schedule.Schedule;
@@ -35,6 +38,7 @@ public class NotificationService {
     private final ScheduleRepository scheduleRepository;
     private final ClubMemberRepository clubMemberRepository;
     private final MemberRepository memberRepository;
+    private final ItemBorrowedRepository itemBorrowedRepository;
 
     public void sendNotificationWithClubInfoUpdate(Long clubId, LocalDate assignedTerm) {
         getMemberFromJwtInformation(); // TODO : 임원 체크
@@ -69,6 +73,21 @@ public class NotificationService {
                         schedule.getScheduleTitle(),
                         schedule.getScheduleContent(),
                         scheduleDate
+                ));
+    }
+
+    @Transactional
+    public void notifyOverdueItems() {
+        LocalDateTime now = LocalDateTime.now();
+        List<ItemBorrowed> overdueItems = itemBorrowedRepository.getByItemBorrowedReturnDateBefore(now);
+
+        overdueItems.stream()
+                .forEach(itemBorrowed -> emailService.sendOverdueNotification(
+                        itemBorrowed.getClubMember().getMember().getMemberName(),
+                        itemBorrowed.getClubMember().getMember().getMemberEmail(),
+                        itemBorrowed.getItem().getItemName(),
+                        itemBorrowed.getItem().getClub().getClubName(),
+                        itemBorrowed.getItemBorrowedReturnDate().toString()
                 ));
     }
 

@@ -3,6 +3,7 @@ package woohakdong.server.domain.itemBorrowed;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.item.Item;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ItemBorrowedRepository {
@@ -13,4 +14,6 @@ public interface ItemBorrowedRepository {
     void delete(ItemBorrowed itemBorrowed);
 
     ItemBorrowed getByItem(Item item);
+
+    List<ItemBorrowed> getByItemBorrowedReturnDateBefore(LocalDateTime currentDateTime);
 }
