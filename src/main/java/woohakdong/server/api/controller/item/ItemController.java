@@ -24,8 +24,9 @@ public class ItemController implements ItemControllerDocs {
                                                       @RequestParam(required = false) String keyword,
                                                       @RequestParam(required = false) String category,
                                                       @RequestParam(required = false) Boolean using,
-                                                      @RequestParam(required = false) Boolean available) {
-        return ListWrapperResponse.of(itemService.getItemsByFilters(clubId, keyword, category, using, available));
+                                                      @RequestParam(required = false) Boolean available,
+                                                      @RequestParam(required = false) Boolean overdue) {
+        return ListWrapperResponse.of(itemService.getItemsByFilters(clubId, keyword, category, using, available, overdue));
     }
 
     @GetMapping("/{clubId}/items/{itemId}")
