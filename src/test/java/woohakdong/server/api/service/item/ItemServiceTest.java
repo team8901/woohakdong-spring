@@ -93,7 +93,7 @@ class ItemServiceTest {
         createItem(club, "농구공", SPORT, 7, false);
 
         // When
-        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), null, null, null, null);
+        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), null, null, null, null, null);
 
         // Then
         assertThat(items).hasSize(2)
@@ -218,7 +218,7 @@ class ItemServiceTest {
         createItem(club, "농구공", SPORT, 5, false);
 
         // when
-        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", false, true);
+        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", false, true, null);
 
         // then
         assertThat(items).hasSize(2)
@@ -243,7 +243,7 @@ class ItemServiceTest {
         ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3), null);
 
         // when
-        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", true, true);
+        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", true, true, null);
 
         // then
         assertThat(items)
@@ -251,6 +251,51 @@ class ItemServiceTest {
                 .extracting("itemName", "itemCategory", "itemRentalMaxDay", "itemUsing")
                 .containsExactly(tuple("농구공", ItemCategory.SPORT, 5, true));
 
+    }
+
+    @DisplayName("연체된 물품을 검색할 수 있다.")
+    @Test
+    void searchItemsByOverdue_success() {
+        // given
+        Member member = setUpMemberSession();
+
+        Club club = createClub();
+        createItem(club, "축구공", SPORT, 7, false);
+        Item item = createItem(club, "농구공", SPORT, 5, true);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
+        LocalDateTime now = LocalDateTime.now();
+        ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3), null);
+
+        // when
+        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", true, true, true);
+
+        // then
+        assertThat(items)
+                .hasSize(1)
+                .extracting("itemName", "itemCategory", "itemRentalMaxDay", "itemUsing")
+                .containsExactly(tuple("농구공", ItemCategory.SPORT, 5, true));
+
+    }
+
+    @DisplayName("연체되지 않은 물품을 검색할 수 있다.")
+    @Test
+    void searchItemsByNotOverdue_success() {
+        // given
+        Member member = setUpMemberSession();
+
+        Club club = createClub();
+        createItem(club, "축구공", SPORT, 7, false);
+        Item item = createItem(club, "농구공", SPORT, 5, true);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
+        LocalDateTime now = LocalDateTime.now();
+        ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(3), now.plusDays(4), null);
+
+        // when
+        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", null, null, false);
+
+        // then
+        assertThat(items)
+                .hasSize(2);
     }
 
     @DisplayName("물품 이용 가능을 수정할 수 있다.")

@@ -57,7 +57,7 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public List<ItemResponse> getItemsByFilters(Long clubId, String keyword, String category, Boolean using, Boolean available) {
+    public List<ItemResponse> getItemsByFilters(Long clubId, String keyword, String category, Boolean using, Boolean available, Boolean overdue) {
         Club club = clubRepository.getById(clubId);
 
         List<Item> items;
@@ -75,21 +75,10 @@ public class ItemService {
 
         List<ItemResponse> responses = new ArrayList<>();
 
-        for (Item item : items) {
-            ItemResponse itemResponse;
-            if (Boolean.TRUE.equals(item.getItemUsing())) {
-                ItemHistory history = itemHistoryRepository.getByItemAndItemReturnDateIsNull(item);
-                if (history.getItemDueDate().isBefore(LocalDateTime.now())) {
-                    itemResponse = ItemResponse.of(item, history.getMemberName(), true);
-                }
-                else {
-                    itemResponse = ItemResponse.of(item, history.getMemberName(), false);
-                }
-            }
-            else {
-                itemResponse = ItemResponse.of(item, null, false);
-            }
-            responses.add(itemResponse);
+        if (overdue != null) {
+            getItemByOverdue(overdue, items, responses);
+        } else {
+            getItemByOhters(items, responses);
         }
 
         return responses;
@@ -309,5 +298,52 @@ public class ItemService {
 
         return memberRepository.findByMemberProvideId(provideId)
                 .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+    }
+
+    private void getItemByOhters(List<Item> items, List<ItemResponse> responses) {
+        for (Item item : items) {
+            ItemResponse itemResponse;
+            if (Boolean.TRUE.equals(item.getItemUsing())) {
+                ItemHistory history = itemHistoryRepository.getByItemAndItemReturnDateIsNull(item);
+                if (history.getItemDueDate().isBefore(LocalDateTime.now())) {
+                    itemResponse = ItemResponse.of(item, history.getMemberName(), true);
+                }
+                else {
+                    itemResponse = ItemResponse.of(item, history.getMemberName(), false);
+                }
+            }
+            else {
+                itemResponse = ItemResponse.of(item, null, false);
+            }
+            responses.add(itemResponse);
+        }
+    }
+
+    private void getItemByOverdue(Boolean overdue, List<Item> items, List<ItemResponse> responses) {
+        for (Item item : items) {
+            ItemResponse itemResponse = null;
+            if (Boolean.TRUE.equals(overdue)) {
+                if (Boolean.TRUE.equals(item.getItemUsing())) {
+                    ItemHistory history = itemHistoryRepository.getByItemAndItemReturnDateIsNull(item);
+                    if (history.getItemDueDate().isBefore(LocalDateTime.now())) {
+                        itemResponse = ItemResponse.of(item, history.getMemberName(), true);
+                    }
+                }
+            }
+            else {
+                if (Boolean.TRUE.equals(item.getItemUsing())) {
+                    ItemHistory history = itemHistoryRepository.getByItemAndItemReturnDateIsNull(item);
+                    if (history.getItemDueDate().isAfter(LocalDateTime.now())) {
+                        itemResponse = ItemResponse.of(item, history.getMemberName(), false);
+                    }
+                }
+                else {
+                    itemResponse = ItemResponse.of(item, null, false);
+                }
+            }
+            if (itemResponse != null) {
+                responses.add(itemResponse);
+            }
+        }
     }
 }

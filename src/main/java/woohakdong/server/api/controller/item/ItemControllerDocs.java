@@ -25,7 +25,8 @@ public interface ItemControllerDocs {
                                                       @RequestParam(required = false) String keyword,
                                                       @RequestParam(required = false) String category,
                                                       @RequestParam(required = false) Boolean using,
-                                                      @RequestParam(required = false) Boolean available);
+                                                      @RequestParam(required = false) Boolean available,
+                                                      @RequestParam(required = false) Boolean overdue);
 
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "물품 상세정보 반환", description = "물품 상세정보 반환")
