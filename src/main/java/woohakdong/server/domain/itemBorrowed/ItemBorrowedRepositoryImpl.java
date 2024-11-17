@@ -8,6 +8,7 @@ import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.item.Item;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -32,5 +33,9 @@ public class ItemBorrowedRepositoryImpl implements ItemBorrowedRepository {
     public ItemBorrowed getByItem(Item item) {
         return itemBorrowedJpaRepository.findByItem(item)
                 .orElseThrow(() -> new CustomException(ITEM_BORROWED_NOT_FOUND));
+    }
+
+    public List<ItemBorrowed> getByItemBorrowedReturnDateBefore(LocalDateTime currentDateTime) {
+        return itemBorrowedJpaRepository.findByItemBorrowedReturnDateBefore(currentDateTime);
     }
 }
