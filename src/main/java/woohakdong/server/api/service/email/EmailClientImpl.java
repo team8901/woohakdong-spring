@@ -17,6 +17,7 @@ public class EmailClientImpl implements EmailClient {
     private final static String CLUB_INVITE_EMAIL_SUBJECT = "%s 동아리 초대장입니다.";
     private final static String CLUB_INFO_CHANGED_EMAIL_SUBJECT = "%s 동아리 정보가 변경되었습니다.";
     private final static String SCHEDULE_NOTICE_EMAIL_SUBJECT = "%s 동아리에 새로운 일정이 등록되었습니다!";
+    private final static String ITEM_OVERDUE_NOTICE_EMAIL_SUBJECT = "%s 동아리 물품 반납 연체 알림입니다.";
 
     private final JavaMailSender mailSender;
 
@@ -39,6 +40,13 @@ public class EmailClientImpl implements EmailClient {
                                      String scheduleContent, String scheduleDate) {
         String htmlText = createScheduleInfoHtml(clubName, receiverName, scheduleTitle, scheduleContent, scheduleDate);
         sendEmail(htmlText, receiverEmail, SCHEDULE_NOTICE_EMAIL_SUBJECT.formatted(clubName));
+    }
+
+    @Override
+    public void sendOverdueNotification(String memberName, String receiverEmail, String itemName,
+                                        String clubName, String dueDate) {
+        String htmlText = createItemOverdueHtml(clubName, memberName, clubName, itemName, dueDate);
+        sendEmail(htmlText, receiverEmail, ITEM_OVERDUE_NOTICE_EMAIL_SUBJECT.formatted(clubName));
     }
 
     private void sendEmail(String htmlText, String receiverEmail, String subject) {
@@ -144,5 +152,35 @@ public class EmailClientImpl implements EmailClient {
                     </body>
                 </html>
                 """.formatted(clubName, receiverName, clubName, scheduleTitle, scheduleContent, scheduleDateTime);
+    }
+
+    private String createItemOverdueHtml(String memberName, String memberEmail, String itemName,
+                                         String clubName, String dueDate) {
+        return """
+                <html>
+                    <body style="font-family: Arial, sans-serif; color: #333; background-color: #ffffff;">
+                        <div style="background-color: #ffffff; padding: 20px; border-radius: 5px; max-width: 600px; margin: 0 auto; border: 1px solid #b3e0ff;">
+                            <h3 style="color: #3399ff;">%s 동아리의 물품 연체 알림</h3>
+
+                            <p>안녕하세요 <strong>%s</strong>님,</p>
+                            <p>다음 물품이 연체되었습니다:</p>
+
+                            <div style="background-color: #f7faff; padding: 15px; border-radius: 5px; margin-top: 10px;">
+                                <p><strong>동아리 이름:</strong> %s</p>
+                                <p><strong>물품 이름:</strong> %s</p>
+                                <p><strong>반납 예정일:</strong> %s</p>
+                            </div>
+                            
+                            <p>가능한 한 빨리 물품을 반납해주시길 부탁드립니다.</p>
+                            
+                        </div>
+
+                        <footer style="margin-top: 20px; text-align: center; font-size: 12px; color: #555;">
+                            <p>Contact us at: <a href="mailto:support@8901.dev@gmail.com" style="color: #3399ff;">8901.dev@gmail.com</a></p>
+                            <p>&copy; 2024 Woohakdong. All rights reserved.</p>
+                        </footer>
+                    </body>
+                </html>
+                """.formatted(clubName, memberName, clubName, itemName, dueDate);
     }
 }

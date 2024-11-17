@@ -36,4 +36,11 @@ public class EmailService {
         emailClient.sendEmailForSchedule(memberName, memberEmail, clubName, scheduleTitle, scheduleContent,
                 scheduleDateTime);
     }
+
+    @Async
+    @Retryable(retryFor = {CustomException.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
+    public void sendOverdueNotification(String memberName, String memberEmail, String itemName,
+                                        String clubName, String dueDate) {
+        emailClient.sendOverdueNotification(memberName, memberEmail, itemName, clubName, dueDate);
+    }
 }
