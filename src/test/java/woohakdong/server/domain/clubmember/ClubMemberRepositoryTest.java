@@ -7,6 +7,7 @@ import static woohakdong.server.domain.clubmember.ClubMemberRole.OFFICER;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 
 import java.time.LocalDate;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,6 +42,15 @@ class ClubMemberRepositoryTest {
     @Autowired
     private SchoolRepository schoolRepository;
 
+    @BeforeEach
+    void setUp() {
+        school = createSchool("ajou.ac.kr");
+        club = createClub(school);
+    }
+
+    private School school;
+    private Club club;
+
     @DisplayName("동아리에 가입한 회원에 대해 역할이 부여되었는지 확인한다.")
     @ParameterizedTest(name = "{index} =>, role={0}, expected={1}")
     @CsvSource({
@@ -52,8 +62,6 @@ class ClubMemberRepositoryTest {
     })
     void existsByClubAndMemberAndClubMemberRole(ClubMemberRole role, boolean expected) {
         // Given
-        School school = createSchool("ajou.ac.kr");
-        Club club = createClub(school);
         Member member = createMember(school, "testProvideId", "박상준", "sangjun@ajou.ac.kr");
 
         createClubMember(club, member, PRESIDENT, LocalDate.now());
@@ -78,8 +86,6 @@ class ClubMemberRepositoryTest {
     @Test
     void getByClubAndMember() {
         // Given
-        School school = createSchool("ajou.ac.kr");
-        Club club = createClub(school);
         Member member = createMember(school, "testProvideId", "박상준", "sangjun@ajou.ac.kr");
 
         // When & Then
@@ -101,6 +107,7 @@ class ClubMemberRepositoryTest {
                 .clubName("테스트 동아리")
                 .clubEnglishName("testClub")
                 .clubGroupChatLink("https://club-group-chat-link.com")
+                .clubExpirationDate(LocalDate.of(2024, 11, 19))
                 .school(school)
                 .build();
         return clubRepository.save(club);

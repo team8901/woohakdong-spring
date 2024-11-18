@@ -5,8 +5,9 @@ import static org.assertj.core.api.Assertions.tuple;
 import static woohakdong.server.domain.group.GroupType.EVENT;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,81 +28,38 @@ class GroupRepositoryTest {
     @Autowired
     private ClubRepository clubRepository;
 
+    @BeforeEach
+    void setUp() {
+        club = createClub();
+    }
+
+    private Club club;
+
     @DisplayName("동아리의 가입용 그룹을 조회할 수 있다.")
     @Test
     void findByClubAndGroupTypeAndGroupIsAvailable() {
         // Given
-        Club club = Club.builder()
-                .clubName("테스트 동아리")
-                .clubEnglishName("test_club")
-                .clubGroupChatLink("https://club-group-chat-link.com")
-                .build();
-        Club savedClub = clubRepository.save(club);
-
-        Group group1 = Group.builder()
-                .club(club)
-                .groupName("가입용 모임")
-                .groupType(JOIN)
-                .groupJoinLink("https://test.com")
-                .build();
-
-        Group group2 = Group.builder()
-                .club(club)
-                .groupType(EVENT)
-                .groupName("이벤트용 모임")
-                .groupJoinLink("https://test.com")
-                .build();
-        groupRepository.save(group1);
-        groupRepository.save(group2);
+        createGroup("가입용 모임", JOIN, 10000);
+        createGroup("이벤트용 모임", EVENT, 10000);
 
         // When
-        Group group = groupRepository.getByClubAndGroupTypeAndGroupIsAvailable(savedClub, JOIN, true);
+        Group group = groupRepository.getByClubAndGroupTypeAndGroupIsAvailable(club, JOIN, true);
 
-        // Then
-        assertThat(group.getGroupType()).isEqualTo(JOIN);
-        assertThat(group.getGroupName()).isEqualTo("가입용 모임");
+        assertThat(group)
+                .extracting("groupType", "groupName")
+                .containsExactly(JOIN, "가입용 모임");
     }
 
     @DisplayName("동아리의 이벤트용 그룹을 조회할 수 있다.")
     @Test
     void findAllByClubAndGroupType() {
         // Given
-        Club club = Club.builder()
-                .clubName("테스트 동아리")
-                .clubEnglishName("test_club")
-                .clubGroupChatLink("https://club-group-chat-link.com")
-                .build();
-        Club savedClub = clubRepository.save(club);
-
-        Group group1 = Group.builder()
-                .club(club)
-                .groupName("가입용 모임")
-                .groupType(JOIN)
-                .groupJoinLink("https://test.com")
-                .build();
-
-        Group group2 = Group.builder()
-                .club(club)
-                .groupType(EVENT)
-                .groupName("MT")
-                .groupAmount(15000)
-                .groupJoinLink("https://test.com")
-                .build();
-
-        Group group3 = Group.builder()
-                .club(club)
-                .groupType(EVENT)
-                .groupName("스터디")
-                .groupAmount(5000)
-                .groupJoinLink("https://test.com")
-                .build();
-
-        groupRepository.save(group1);
-        groupRepository.save(group2);
-        groupRepository.save(group3);
+        createGroup("가입용 모임", JOIN, 10000);
+        createGroup("MT", EVENT, 15000);
+        createGroup("스터디", EVENT, 5000);
 
         // When
-        List<Group> groups = groupRepository.getAllByClubAndGroupType(savedClub, EVENT);
+        List<Group> groups = groupRepository.getAllByClubAndGroupType(club, EVENT);
 
         // Then
         assertThat(groups).hasSize(2)
@@ -110,5 +68,26 @@ class GroupRepositoryTest {
                         tuple("MT", 15000),
                         tuple("스터디", 5000)
                 );
+    }
+
+    private Group createGroup(String name, GroupType type, Integer amount) {
+        Group group = Group.builder()
+                .club(club)
+                .groupName(name)
+                .groupType(type)
+                .groupJoinLink("https://test.com")
+                .groupAmount(amount)
+                .build();
+        return groupRepository.save(group);
+    }
+
+    private Club createClub() {
+        Club club = Club.builder()
+                .clubName("테스트 동아리")
+                .clubEnglishName("Test Club")
+                .clubGroupChatLink("https://club-group-chat-link.com")
+                .clubExpirationDate(LocalDate.of(2024, 11, 19))
+                .build();
+        return clubRepository.save(club);
     }
 }
