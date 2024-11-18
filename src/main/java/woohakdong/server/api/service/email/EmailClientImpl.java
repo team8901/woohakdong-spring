@@ -45,7 +45,7 @@ public class EmailClientImpl implements EmailClient {
     @Override
     public void sendOverdueNotification(String memberName, String receiverEmail, String itemName,
                                         String clubName, String dueDate) {
-        String htmlText = createItemOverdueHtml(clubName, memberName, clubName, itemName, dueDate);
+        String htmlText = createItemOverdueHtml(memberName, itemName, clubName, dueDate);
         sendEmail(htmlText, receiverEmail, ITEM_OVERDUE_NOTICE_EMAIL_SUBJECT.formatted(clubName));
     }
 
@@ -154,7 +154,7 @@ public class EmailClientImpl implements EmailClient {
                 """.formatted(clubName, receiverName, clubName, scheduleTitle, scheduleContent, scheduleDateTime);
     }
 
-    private String createItemOverdueHtml(String memberName, String memberEmail, String itemName,
+    private String createItemOverdueHtml(String memberName, String itemName,
                                          String clubName, String dueDate) {
         return """
                 <html>
