@@ -4,7 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
 
+import java.time.LocalDate;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,6 +31,13 @@ class ClubRepositoryTest {
     @Autowired
     private SchoolRepository schoolRepository;
 
+    @BeforeEach
+    void setUp() {
+        school = createSchool();
+    }
+
+    private School school;
+
     @DisplayName("동아리 이름 또는 영어 이름으로 동아리가 존재하는지 확인한다.")
     @ParameterizedTest(name = "{index} => clubName={0}, clubEnglishName={1}, expectedResult={2}")
     @CsvSource({
@@ -39,7 +48,6 @@ class ClubRepositoryTest {
     })
     void existsByClubNameOrClubEnglishName(String clubName, String clubEnglishName, boolean expectedResult) {
         // Given
-        School school = createSchool();
         Club club = createClub(school, "테스트동아리", "testClub");
 
         // When
@@ -53,7 +61,6 @@ class ClubRepositoryTest {
     @Test
     void validateClubExists() {
         // Given
-        School school = createSchool();
         Club club = createClub(school, "테스트동아리", "testClub");
 
         // When & Then
@@ -64,8 +71,7 @@ class ClubRepositoryTest {
     @Test
     void validateClubExistsThrowEx() {
         // Given
-        School school = createSchool();
-        Club club = createClub(school, "테스트동아리", "testClub");
+        createClub(school, "테스트동아리", "testClub");
 
         // When & Then
         assertThatThrownBy(() -> clubRepository.validateClubExists(100L))
@@ -78,6 +84,7 @@ class ClubRepositoryTest {
                 .clubName(name)
                 .clubEnglishName(clubEnglishName)
                 .clubGroupChatLink("https://club-group-chat-link.com")
+                .clubExpirationDate(LocalDate.of(2024, 11, 19))
                 .school(school)
                 .build();
         return clubRepository.save(club);
@@ -88,7 +95,6 @@ class ClubRepositoryTest {
                 .schoolDomain("ajou.ac.kr")
                 .schoolName("아주대학교")
                 .build();
-        schoolRepository.save(school);
-        return school;
+        return schoolRepository.save(school);
     }
 }

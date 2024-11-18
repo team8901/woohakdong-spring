@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -53,6 +54,9 @@ public class Club extends BaseEntity {
 
     private Integer clubDues;
 
+    @Column(nullable = false)
+    private LocalDate clubExpirationDate;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_id")
     private School school;
@@ -72,7 +76,7 @@ public class Club extends BaseEntity {
     @Builder
     private Club(String clubDescription, String clubEnglishName, String clubImage, String clubName, String clubRoom,
                  String clubGeneration, Integer clubDues, String clubGroupChatLink, String clubGroupChatPassword,
-                 School school) {
+                 LocalDate clubExpirationDate, School school) {
         this.clubDescription = clubDescription;
         this.clubEnglishName = clubEnglishName;
         this.clubImage = clubImage;
@@ -83,6 +87,7 @@ public class Club extends BaseEntity {
         this.clubGroupChatLink = clubGroupChatLink;
         this.clubGroupChatPassword = clubGroupChatPassword;
         this.school = school;
+        this.clubExpirationDate = clubExpirationDate;
     }
 
     public static Club create(String clubName, String clubEnglishName, String clubDescription, String clubImage,
@@ -99,6 +104,7 @@ public class Club extends BaseEntity {
                 .clubGroupChatLink(clubGroupChatLink)
                 .clubGroupChatPassword(clubGroupChatPassword)
                 .school(school)
+                .clubExpirationDate(LocalDate.now().plusMonths(6))
                 .build();
     }
 

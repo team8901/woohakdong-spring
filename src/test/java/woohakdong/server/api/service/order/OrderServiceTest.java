@@ -16,6 +16,7 @@ import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
@@ -93,7 +94,7 @@ class OrderServiceTest {
         school = createSchool();
         club = createClub(school);
         group = createGroup(club, 10000, JOIN);
-        AdminAccount adminAccount = createAdminAccount();
+        createAdminAccount();
     }
 
     private Member member;
@@ -274,6 +275,7 @@ class OrderServiceTest {
                 .clubGroupChatLink("https://club-group-chat-link.com")
                 .clubGroupChatPassword("1234")
                 .clubDues(10000)
+                .clubExpirationDate(LocalDate.of(2024, 11, 19))
                 .school(school)
                 .build();
         return clubRepository.save(club);

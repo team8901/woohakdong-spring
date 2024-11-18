@@ -228,6 +228,7 @@ class ScheduleServiceTest {
                 .clubName(name)
                 .clubEnglishName("testClub")
                 .clubGroupChatLink("https://club-group-chat-link.com")
+                .clubExpirationDate(LocalDate.of(2024, 11, 19))
                 .build();
         return clubRepository.save(club);
     }

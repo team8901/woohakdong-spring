@@ -209,6 +209,7 @@ class ClubMemberServiceTest {
                 .clubName("테스트 동아리")
                 .clubEnglishName("testClub")
                 .clubGroupChatLink("https://club-group-chat-link.com")
+                .clubExpirationDate(LocalDate.of(2024, 11, 19))
                 .school(school)
                 .build();
         return clubRepository.save(club);

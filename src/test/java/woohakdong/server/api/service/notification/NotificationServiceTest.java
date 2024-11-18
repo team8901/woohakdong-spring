@@ -135,6 +135,7 @@ class NotificationServiceTest {
                 .clubEnglishName("testClub")
                 .clubDescription("testDescription")
                 .clubGroupChatLink("https://club-group-chat-link.com")
+                .clubExpirationDate(LocalDate.of(2024, 11, 19))
                 .build();
         return clubRepository.save(club);
     }

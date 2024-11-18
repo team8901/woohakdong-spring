@@ -1,5 +1,6 @@
 package woohakdong.server.api.service.admin.club;
 
+import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import woohakdong.server.domain.school.SchoolRepository;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 
 
 @ActiveProfiles("test")
@@ -49,67 +51,13 @@ class AdminSchoolServiceTest {
     @BeforeEach
     void setup() {
         // 초기 데이터 설정
-        school = schoolRepository.save(School.builder()
-                .schoolName("Test School")
-                .schoolDomain("test.edu")
-                .build());
-
-        Club club1 = Club.builder()
-                .clubName("Club A")
-                .clubEnglishName("English Club A")
-                .clubGroupChatLink("qwer")
-                .school(school)
-                .build();
-
-        Club club2 = Club.builder()
-                .clubName("Club B")
-                .clubEnglishName("English Club B")
-                .clubGroupChatLink("qwer")
-                .school(school)
-                .build();
-
-        clubRepository.save(club1);
-        clubRepository.save(club2);
-
-        Member member1 = Member.builder()
-                .memberProvideId("id1")
-                .memberName("Member 1")
-                .memberEmail("member1@test.edu")
-                .school(school)
-                .build();
-
-        Member member2 = Member.builder()
-                .memberProvideId("id2")
-                .memberName("Member 2")
-                .memberEmail("member2@test.edu")
-                .school(school)
-                .build();
-
-        memberRepository.save(member1);
-        memberRepository.save(member2);
-
-        Item item1 = Item.builder()
-                .club(club1)
-                .itemName("Item 1")
-                .itemPhoto("photo1.png")
-                .itemAvailable(true)
-                .itemUsing(false)
-                .itemCategory(ItemCategory.BOOK)
-                .itemRentalMaxDay(7)
-                .build();
-
-        Item item2 = Item.builder()
-                .club(club2)
-                .itemName("Item 2")
-                .itemPhoto("photo2.png")
-                .itemAvailable(true)
-                .itemUsing(false)
-                .itemCategory(ItemCategory.BOOK)
-                .itemRentalMaxDay(7)
-                .build();
-
-        itemRepository.save(item1);
-        itemRepository.save(item2);
+        school = createSchool("Test School", "test.edu");
+        Club club1 = createClub("Club A", "English Club A");
+        Club club2 = createClub("Club B", "English Club B");
+        createMember("Member 1", "member1@test.edu", school);
+        createMember("Member 2", "member2@test.deu", school);
+        createItem(club1, "Item 1", "photo1.png");
+        createItem(club2, "Item 2", "photo2.png");
     }
 
     @Test
@@ -149,10 +97,53 @@ class AdminSchoolServiceTest {
         List<ClubListResponse> response = adminSchoolService.getClubListBySchool(school.getSchoolId());
 
         // then
-        assertThat(response).hasSize(2);
-        assertThat(response.get(0)).extracting("clubName", "schoolName")
-                .containsExactly("Club A", "Test School");
-        assertThat(response.get(1)).extracting("clubName", "schoolName")
-                .containsExactly("Club B", "Test School");
+        assertThat(response).hasSize(2)
+                .extracting("clubName", "schoolName")
+                .containsExactlyInAnyOrder(
+                        tuple("Club A", "Test School"),
+                        tuple("Club B", "Test School")
+                );
+    }
+
+    private Item createItem(Club club1, String name, String image) {
+        Item item = Item.builder()
+                .club(club1)
+                .itemName(name)
+                .itemPhoto(image)
+                .itemAvailable(true)
+                .itemUsing(false)
+                .itemCategory(ItemCategory.BOOK)
+                .itemRentalMaxDay(7)
+                .build();
+        return itemRepository.save(item);
+    }
+
+    private Member createMember(String name, String email, School school) {
+        Member member = Member.builder()
+                .memberProvideId("provide_test")
+                .memberName(name)
+                .memberEmail(email)
+                .school(school)
+                .build();
+        return memberRepository.save(member);
+    }
+
+    private Club createClub(String name, String englishName) {
+        Club club = Club.builder()
+                .clubName(name)
+                .clubEnglishName(englishName)
+                .clubGroupChatLink("qwer")
+                .school(school)
+                .clubExpirationDate(LocalDate.of(2024, 11, 19))
+                .build();
+        return clubRepository.save(club);
+    }
+
+    private School createSchool(String name, String domain) {
+        School school = School.builder()
+                .schoolName(name)
+                .schoolDomain(domain)
+                .build();
+        return schoolRepository.save(school);
     }
 }

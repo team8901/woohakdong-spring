@@ -11,6 +11,7 @@ import static woohakdong.server.domain.item.ItemCategory.SPORT;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,11 +63,19 @@ class ItemServiceTest {
     @Autowired
     private ItemBorrowedRepository itemBorrowedRepository;
 
+    @BeforeEach
+    void setUp() {
+        club = createClub();
+        member = setUpMemberSession();
+    }
+
+    private Club club;
+    private Member member;
+
     @DisplayName("물품을 등록하면 물품을 확인할 수 있다.")
     @Test
     void registerItem() {
         // Given
-        Club club = createClub();
         ItemRegisterRequest request = createItemRegisterRequest("축구공", SPORT, 7);
 
         // When
@@ -88,7 +97,6 @@ class ItemServiceTest {
     @Test
     void getItemsByClubId() {
         // Given
-        Club club = createClub();
         createItem(club, "축구공", SPORT, 7, false);
         createItem(club, "농구공", SPORT, 7, false);
 
@@ -108,8 +116,6 @@ class ItemServiceTest {
     @Test
     void borrowItemSuccess() {
         // given
-        Member member = setUpMemberSession();
-        Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, false);
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
 
@@ -129,8 +135,6 @@ class ItemServiceTest {
     @Test
     void borrowItem() {
         // Given
-        Member member = setUpMemberSession();
-        Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, false);
         item.setItemAvailable(false);
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
@@ -145,8 +149,6 @@ class ItemServiceTest {
     @Test
     void borrowItemAlreadyInUseFailure() {
         // given
-        Member member = setUpMemberSession();
-        Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, true);
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
 
@@ -160,8 +162,6 @@ class ItemServiceTest {
     @Test
     void returnItemSuccess() {
         // given
-        Member member = setUpMemberSession();
-        Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, false);
         ItemReturnRequest request = createItemReturnRequest("http://example.com/return_photo.png");
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
@@ -186,8 +186,6 @@ class ItemServiceTest {
     @Test
     void getItemHistorySuccess() {
         // given
-        Member member = setUpMemberSession();
-        Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, false);
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
 
@@ -211,9 +209,6 @@ class ItemServiceTest {
     @Test
     void searchItemsByName_success() {
         // given
-        setUpMemberSession();
-
-        Club club = createClub();
         createItem(club, "축구공", SPORT, 7, false);
         createItem(club, "농구공", SPORT, 5, false);
 
@@ -233,9 +228,6 @@ class ItemServiceTest {
     @Test
     void searchItemsByUsing_success() {
         // given
-        Member member = setUpMemberSession();
-
-        Club club = createClub();
         createItem(club, "축구공", SPORT, 7, false);
         Item item = createItem(club, "농구공", SPORT, 5, true);
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
@@ -257,9 +249,6 @@ class ItemServiceTest {
     @Test
     void searchItemsByOverdue_success() {
         // given
-        Member member = setUpMemberSession();
-
-        Club club = createClub();
         createItem(club, "축구공", SPORT, 7, false);
         Item item = createItem(club, "농구공", SPORT, 5, true);
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
@@ -281,9 +270,6 @@ class ItemServiceTest {
     @Test
     void searchItemsByNotOverdue_success() {
         // given
-        Member member = setUpMemberSession();
-
-        Club club = createClub();
         createItem(club, "축구공", SPORT, 7, false);
         Item item = createItem(club, "농구공", SPORT, 5, true);
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
@@ -302,9 +288,6 @@ class ItemServiceTest {
     @Test
     void updateItemAvailability_success() {
         // given
-        setUpMemberSession();
-
-        Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, false);
         ItemAvailableUpdateRequest request = createAvailableRequest(false);
 
@@ -320,9 +303,6 @@ class ItemServiceTest {
     @Test
     void updateItem_success() {
         // given
-        setUpMemberSession();
-
-        Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, false);
         ItemUpdateRequest updateRequest = createUpdateRequests("새로운 축구공", SPORT, 9);
 
@@ -340,8 +320,6 @@ class ItemServiceTest {
     @Test
     void getMyBorrowedItems_success() {
         // given
-        Member member = setUpMemberSession();
-        Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, false);
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
         ItemBorrowed itemBorrowed = createItemBorrowed(clubMember, item);
@@ -360,7 +338,6 @@ class ItemServiceTest {
     @Test
     void getItemInfo_success() {
         // given
-        Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, false);
 
         // when
@@ -376,8 +353,6 @@ class ItemServiceTest {
     @Test
     void getMyHistoryItems_success() {
         // given
-        Member member = setUpMemberSession();
-        Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, false);
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
 
@@ -398,8 +373,6 @@ class ItemServiceTest {
     @Test
     void getClubMemberHistoryItems_success() {
         // given
-        Member member = setUpMemberSession();
-        Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, false);
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
 
@@ -420,8 +393,6 @@ class ItemServiceTest {
     @Test
     void getClubMemberHistoryItemsOverdue_success() {
         // given
-        Member member = setUpMemberSession();
-        Club club = createClub();
         Item item = createItem(club, "축구공", SPORT, 7, false);
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
 
@@ -471,6 +442,7 @@ class ItemServiceTest {
                 .clubName("테스트 동아리")
                 .clubEnglishName("testClub")
                 .clubGroupChatLink("https://club-group-chat-link.com")
+                .clubExpirationDate(LocalDate.of(2024, 11, 19))
                 .build();
         return clubRepository.save(club);
     }

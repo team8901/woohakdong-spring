@@ -2,6 +2,7 @@ package woohakdong.server.api.service.club;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NAME_DUPLICATION;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
@@ -24,8 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
 import woohakdong.server.api.controller.club.dto.ClubAccountResponse;
 import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
-import woohakdong.server.api.controller.club.dto.ClubIdResponse;
 import woohakdong.server.api.controller.club.dto.ClubHistoryTermResponse;
+import woohakdong.server.api.controller.club.dto.ClubIdResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 import woohakdong.server.common.exception.CustomException;
@@ -92,9 +93,11 @@ class ClubServiceTest {
 
         // Then
         List<Group> groups = groupRepository.getAll();
-        assertThat(groups).hasSize(1);
-        assertThat(groups.get(0)).extracting("groupName", "groupType", "groupJoinLink")
-                .containsExactly(clubCreateRequest.clubName(), JOIN, "https://www.woohakdong.com/clubs/Durian");
+        assertThat(groups).hasSize(1)
+                .extracting("groupName", "groupType", "groupJoinLink")
+                .contains(
+                        tuple(clubCreateRequest.clubName(), JOIN, "https://www.woohakdong.com/clubs/Durian")
+                );
     }
 
     @DisplayName("동아리를 등록하면, 등록한 사람이 회장으로 등록된다.")
@@ -108,9 +111,11 @@ class ClubServiceTest {
 
         // Then
         List<ClubMember> clubMembers = clubMemberRepository.getAll();
-        assertThat(clubMembers).hasSize(1);
-        assertThat(clubMembers.get(0)).extracting("clubMemberRole", "club.clubId")
-                .containsExactly(PRESIDENT, clubIdResponse.clubId());
+        assertThat(clubMembers).hasSize(1)
+                .extracting("clubMemberRole", "club.clubId")
+                .contains(
+                        tuple(PRESIDENT, clubIdResponse.clubId())
+                );
     }
 
     @DisplayName("동아리 회장은 동아리 계좌를 등록할 수 있다.")
@@ -207,8 +212,8 @@ class ClubServiceTest {
     void checkClubHistory() {
         // Given
         Club club = createClub(school, "두리안", "Durian");
-        ClubHistory clubHistory1 = createClubHistory(club, 2023, 1);
-        ClubHistory clubHistory2 = createClubHistory(club, 2024, 1);
+        createClubHistory(club, 2023, 1);
+        createClubHistory(club, 2024, 1);
 
         // When
         List<ClubHistoryTermResponse> clubHistory = clubService.getClubHistory(club.getClubId());
@@ -225,7 +230,7 @@ class ClubServiceTest {
         // Given
         Club club = createClub(school, "두리안", "Durian");
         setClubMember(club, LocalDate.now(), PRESIDENT, member);
-        Group group = createJoinGroupForClub(club);
+        createJoinGroupForClub(club);
 
         ClubUpdateRequest request = createClubUpdateRequest();
 
@@ -304,6 +309,7 @@ class ClubServiceTest {
                 .clubDues(10000)
                 .clubGroupChatLink("https://group-chat.com")
                 .school(school)
+                .clubExpirationDate(LocalDate.of(2024, 11, 19))
                 .build();
         return clubRepository.save(club);
     }
