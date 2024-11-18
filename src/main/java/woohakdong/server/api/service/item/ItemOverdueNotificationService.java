@@ -10,7 +10,7 @@ import woohakdong.server.api.service.notification.NotificationService;
 public class ItemOverdueNotificationService {
     private final NotificationService notificationService;
 
-    @Scheduled(cron = "0 45 14 * * ?")
+    @Scheduled(cron = "0 0 17 * * ?")
     public void scheduleOverdueNotification() {
         notificationService.notifyOverdueItems();
     }

@@ -71,6 +71,7 @@ public class MockBankService implements BankService {
         Map<String, String> nhBank = new HashMap<>();
         nhBank.put("3020000011529", "PIN-1234567890"); // 계좌번호, PIN
         nhBank.put("3020000011656", "PIN-1111111111");
+        nhBank.put("3020000011843", "PIN-1111111111");
 
         Map<String, String> kdbBank = new HashMap<>();
         kdbBank.put("1000003202002", "PIN-2222222222");
