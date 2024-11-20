@@ -18,9 +18,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.group.dto.GroupJoinConfirmRequest;
-import woohakdong.server.api.controller.group.dto.GroupJoinOrderRequest;
-import woohakdong.server.api.controller.group.dto.GroupJoinOrderResponse;
+import woohakdong.server.api.controller.group.dto.PaymentCompleteReqeust;
+import woohakdong.server.api.controller.group.dto.CreateOrderRequest;
+import woohakdong.server.api.controller.group.dto.OrderIdResponse;
 import woohakdong.server.api.controller.group.dto.PaymentInfoResponse;
 import woohakdong.server.api.controller.group.dto.PortOneWebhookRequest;
 import woohakdong.server.api.service.bank.MockBankService;
@@ -59,7 +59,7 @@ public class OrderService {
     private final AdminAccountHistoryRepository adminAccountHistoryRepository;
 
     @Transactional
-    public GroupJoinOrderResponse registerOrder(Long groupId, GroupJoinOrderRequest request) {
+    public OrderIdResponse registerOrder(Long groupId, CreateOrderRequest request) {
         Member member = getMemberFromJwtInformation();
         Group group = groupRepository.getById(groupId);
 
@@ -69,11 +69,11 @@ public class OrderService {
         Order order = Order.create(request.merchantUid(), member, group);
         orderRepository.save(order);
 
-        return GroupJoinOrderResponse.from(order);
+        return OrderIdResponse.from(order);
     }
 
     @Transactional
-    public void confirmJoinOrder(Long groupId, GroupJoinConfirmRequest request) {
+    public void confirmJoinOrder(Long groupId, PaymentCompleteReqeust request, LocalDate date) {
         Member member = getMemberFromJwtInformation();
         Order order = orderRepository.getById(request.orderId());
 
@@ -91,7 +91,7 @@ public class OrderService {
 
         PaymentInfoResponse paymentInfoResponse = checkOrderWithPaymentClient(request.impUid(), order);
         savePaymentFromOrder(paymentInfoResponse, order);
-        saveNewClubMember(club, member);
+        saveNewClubMember(club, member, date);
         saveAdminAccount(order, group, member);
 
         mockBankService.transferClubFee(member.getMemberId(), group.getGroupId());
@@ -100,7 +100,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void portOnePaymentComplete(PortOneWebhookRequest request) {
+    public void portOnePaymentComplete(PortOneWebhookRequest request, LocalDate date) {
         Order order = orderRepository.getByOrderMerchantUid(request.merchantUid());
 
         if (order.isOrderComplete()) {
@@ -113,9 +113,12 @@ public class OrderService {
 
         PaymentInfoResponse paymentInfoResponse = checkOrderWithPaymentClient(request.impUid(), order);
         savePaymentFromOrder(paymentInfoResponse, order);
-        saveNewClubMember(club, member);
         saveAdminAccount(order, group, member);
-        sendClubInviteEmailToNewMember(member, club, group);
+
+        if (group.isTypeOf(JOIN)) {
+            saveNewClubMember(club, member, date);
+            sendClubInviteEmailToNewMember(member, club, group);
+        }
 
         mockBankService.transferClubFee(member.getMemberId(), group.getGroupId());
     }
@@ -133,7 +136,7 @@ public class OrderService {
         return paymentInfoResponse;
     }
 
-    protected void validateOrderCreation(GroupJoinOrderRequest request) {
+    protected void validateOrderCreation(CreateOrderRequest request) {
         if (orderRepository.existsByOrderMerchantUid(request.merchantUid())) {
             throw new CustomException(ORDER_ALREADY_EXIST);
         }
@@ -155,8 +158,8 @@ public class OrderService {
         order.completeOrder(payment);
     }
 
-    protected void saveNewClubMember(Club group, Member member) {
-        ClubMember clubMember = ClubMember.create(group, getAssignedTerm(), MEMBER, member);
+    protected void saveNewClubMember(Club group, Member member, LocalDate now) {
+        ClubMember clubMember = ClubMember.create(group, getAssignedTerm(now), MEMBER, member);
         clubMemberRepository.save(clubMember);
     }
 
@@ -180,8 +183,7 @@ public class OrderService {
         adminAccountRepository.save(adminAccount);
     }
 
-    private LocalDate getAssignedTerm() {
-        LocalDate now = LocalDate.now();
+    private LocalDate getAssignedTerm(LocalDate now) {
         int year = now.getYear();
         int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
         return LocalDate.of(year, semester, 1);

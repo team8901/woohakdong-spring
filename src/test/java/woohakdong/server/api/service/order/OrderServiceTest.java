@@ -19,7 +19,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,9 +30,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.group.dto.GroupJoinConfirmRequest;
-import woohakdong.server.api.controller.group.dto.GroupJoinOrderRequest;
-import woohakdong.server.api.controller.group.dto.GroupJoinOrderResponse;
+import woohakdong.server.api.controller.group.dto.CreateOrderRequest;
+import woohakdong.server.api.controller.group.dto.OrderIdResponse;
+import woohakdong.server.api.controller.group.dto.PaymentCompleteReqeust;
 import woohakdong.server.api.controller.group.dto.PortOneWebhookRequest;
 import woohakdong.server.api.service.bank.MockBankService;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
@@ -106,10 +105,10 @@ class OrderServiceTest {
     @Test
     void registerOrder() {
         // Given
-        GroupJoinOrderRequest request = createClubJoinOrder("m-12315");
+        CreateOrderRequest request = createClubJoinOrder("m-12315");
 
         // When
-        GroupJoinOrderResponse response = orderService.registerOrder(group.getGroupId(), request);
+        OrderIdResponse response = orderService.registerOrder(group.getGroupId(), request);
 
         // Then
         Order order = orderRepository.getById(response.orderId());
@@ -124,12 +123,12 @@ class OrderServiceTest {
         // Given
         Order order = createOrder(group, member, "m-12315");
 
-        GroupJoinConfirmRequest confirmRequest = createClubJoinConfirm("imp-12315", "m-12315", order.getOrderId());
+        PaymentCompleteReqeust confirmRequest = createClubJoinConfirm("imp-12315", "m-12315", order.getOrderId());
 
         mockingIamportResponse();
 
         // When
-        orderService.confirmJoinOrder(group.getGroupId(), confirmRequest);
+        orderService.confirmJoinOrder(group.getGroupId(), confirmRequest, LocalDate.now());
 
         // Then
         assertThat(order)
@@ -143,13 +142,13 @@ class OrderServiceTest {
         // Given
         Order order = createOrder(group, member, "m-12315");
 
-        GroupJoinConfirmRequest confirmRequest = createClubJoinConfirm("imp-12315", "m-12315", order.getOrderId());
+        PaymentCompleteReqeust confirmRequest = createClubJoinConfirm("imp-12315", "m-12315", order.getOrderId());
 
         // Given - Mocking
         mockingIamportResponse();
 
         // When
-        orderService.confirmJoinOrder(group.getGroupId(), confirmRequest);
+        orderService.confirmJoinOrder(group.getGroupId(), confirmRequest, LocalDate.now());
 
         // Then
         assertThat(order.getPayment()).isNotNull()
@@ -163,13 +162,13 @@ class OrderServiceTest {
         // Given
         Order order = createOrder(group, member, "m-12315");
 
-        GroupJoinConfirmRequest confirmRequest = createClubJoinConfirm("imp-12315", "m-12315", order.getOrderId());
+        PaymentCompleteReqeust confirmRequest = createClubJoinConfirm("imp-12315", "m-12315", order.getOrderId());
 
         // Given - Mocking
         mockingIamportResponse();
 
         // When
-        orderService.confirmJoinOrder(group.getGroupId(), confirmRequest);
+        orderService.confirmJoinOrder(group.getGroupId(), confirmRequest, LocalDate.now());
 
         // Then
         assertThat(clubMemberRepository.existsByClubAndMember(club, member)).isTrue();
@@ -187,7 +186,7 @@ class OrderServiceTest {
         mockingIamportResponse();
 
         // When
-        orderService.portOnePaymentComplete(request);
+        orderService.portOnePaymentComplete(request, LocalDate.now());
 
         // Then
         assertThat(order)
@@ -239,16 +238,16 @@ class OrderServiceTest {
         return orderRepository.save(order);
     }
 
-    private static GroupJoinConfirmRequest createClubJoinConfirm(String impUid, String merchantUid, Long orderId) {
-        return GroupJoinConfirmRequest.builder()
+    private static PaymentCompleteReqeust createClubJoinConfirm(String impUid, String merchantUid, Long orderId) {
+        return PaymentCompleteReqeust.builder()
                 .impUid(impUid)
                 .merchantUid(merchantUid)
                 .orderId(orderId)
                 .build();
     }
 
-    private GroupJoinOrderRequest createClubJoinOrder(String merchantUid) {
-        return GroupJoinOrderRequest.builder()
+    private CreateOrderRequest createClubJoinOrder(String merchantUid) {
+        return CreateOrderRequest.builder()
                 .merchantUid(merchantUid)
                 .build();
     }

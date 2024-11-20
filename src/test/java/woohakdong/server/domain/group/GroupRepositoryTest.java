@@ -43,7 +43,7 @@ class GroupRepositoryTest {
         createGroup("이벤트용 모임", EVENT, 10000);
 
         // When
-        Group group = groupRepository.getByClubAndGroupTypeAndGroupIsAvailable(club, JOIN, true);
+        Group group = groupRepository.getByClubAndGroupType(club, JOIN);
 
         assertThat(group)
                 .extracting("groupType", "groupName")

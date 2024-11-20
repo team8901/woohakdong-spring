@@ -31,8 +31,8 @@ public class GroupRepositoryImpl implements GroupRepository {
 
 
     @Override
-    public Group getByClubAndGroupTypeAndGroupIsAvailable(Club club, GroupType groupType, Boolean groupIsAvailable) {
-        return groupJpaRepository.findByClubAndGroupTypeAndGroupIsAvailable(club, groupType, groupIsAvailable)
+    public Group getByClubAndGroupType(Club club, GroupType groupType) {
+        return groupJpaRepository.findByClubAndGroupType(club, groupType)
                 .orElseThrow(() -> new CustomException(CustomErrorInfo.GROUP_NOT_FOUND));
     }
 

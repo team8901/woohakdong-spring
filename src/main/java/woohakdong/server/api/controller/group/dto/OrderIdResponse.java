@@ -4,11 +4,11 @@ import lombok.Builder;
 import woohakdong.server.domain.order.Order;
 
 @Builder
-public record GroupJoinOrderResponse(
+public record OrderIdResponse(
         Long orderId
 ) {
-    public static GroupJoinOrderResponse from(Order order) {
-        return GroupJoinOrderResponse.builder()
+    public static OrderIdResponse from(Order order) {
+        return OrderIdResponse.builder()
                 .orderId(order.getOrderId())
                 .build();
     }

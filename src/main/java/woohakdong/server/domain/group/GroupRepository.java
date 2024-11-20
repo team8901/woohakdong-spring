@@ -10,7 +10,7 @@ public interface GroupRepository {
 
     List<Group> getAll();
 
-    Group getByClubAndGroupTypeAndGroupIsAvailable(Club club, GroupType groupType, Boolean groupIsAvailable);
+    Group getByClubAndGroupType(Club club, GroupType groupType);
 
     List<Group> getAllByClubAndGroupType(Club club, GroupType groupType);
 }

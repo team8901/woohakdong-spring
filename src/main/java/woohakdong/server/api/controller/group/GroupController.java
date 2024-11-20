@@ -1,14 +1,15 @@
 package woohakdong.server.api.controller.group;
 
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import woohakdong.server.api.controller.group.dto.GroupJoinConfirmRequest;
-import woohakdong.server.api.controller.group.dto.GroupJoinOrderRequest;
-import woohakdong.server.api.controller.group.dto.GroupJoinOrderResponse;
+import woohakdong.server.api.controller.group.dto.CreateOrderRequest;
+import woohakdong.server.api.controller.group.dto.OrderIdResponse;
+import woohakdong.server.api.controller.group.dto.PaymentCompleteReqeust;
 import woohakdong.server.api.controller.group.dto.PortOneWebhookRequest;
 import woohakdong.server.api.service.order.OrderService;
 
@@ -20,21 +21,21 @@ public class GroupController implements GroupControllerDocs {
     private final OrderService orderService;
 
     @PostMapping("/{groupId}/joins")
-    public GroupJoinOrderResponse createClubJoinOrder(
+    public OrderIdResponse createClubJoinOrder(
             @PathVariable Long groupId,
-            @RequestBody GroupJoinOrderRequest request) {
+            @RequestBody CreateOrderRequest request) {
         return orderService.registerOrder(groupId, request);
     }
 
     @PostMapping("/{groupId}/joins/confirms")
     public void completeClubJoinOrder(
             @PathVariable Long groupId,
-            @RequestBody GroupJoinConfirmRequest request) {
-        orderService.confirmJoinOrder(groupId, request);
+            @RequestBody PaymentCompleteReqeust request) {
+        orderService.confirmJoinOrder(groupId, request, LocalDate.now());
     }
 
     @PostMapping("/payment/webhook")
     public void portOnePaymentComplete(@RequestBody PortOneWebhookRequest request) {
-        orderService.portOnePaymentComplete(request);
+        orderService.portOnePaymentComplete(request, LocalDate.now());
     }
 }

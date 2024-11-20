@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
-public record GroupJoinConfirmRequest(
+public record PaymentCompleteReqeust(
 
         @Schema(description = "주문 생성 시, 클라이언트 측에서 생성한 주문 번호", example = "abc123")
         @NotBlank(message = "merchantUid은 null이 될 수 없습니다.")
