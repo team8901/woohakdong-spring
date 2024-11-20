@@ -40,6 +40,8 @@ public enum CustomErrorInfo {
     ORDER_NOT_VALID_AMOUNT(400, "order not valid amount", 400032),
     CLUB_GROUP_ALREADY_JOINED(400, "club group already joined", 400033),
     ITEM_BORROWED_NOT_FOUND(400, "item borrowed not found", 400034),
+    CLUB_EXPIRED(400, "club expired", 400035),
+    CLUB_NOT_EXPIRED(400, "club not expired", 400036),
 
 
     // 401 UNAUTHORIZED

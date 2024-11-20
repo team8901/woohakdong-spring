@@ -3,9 +3,12 @@ package woohakdong.server.api.service.club;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_EXPIRED;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NAME_DUPLICATION;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
+import static woohakdong.server.domain.clubmember.ClubMemberRole.OFFICER;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
+import static woohakdong.server.domain.group.GroupType.CLUB_PAYMENT;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 import static woohakdong.server.domain.member.MemberGender.MAN;
 
@@ -89,7 +92,7 @@ class ClubServiceTest {
         ClubCreateRequest clubCreateRequest = createClubCreateRequest();
 
         // When
-        clubService.registerClub(clubCreateRequest);
+        clubService.registerClub(clubCreateRequest, LocalDate.of(2024, 3, 1));
 
         // Then
         List<Group> groups = groupRepository.getAll();
@@ -107,7 +110,7 @@ class ClubServiceTest {
         ClubCreateRequest clubCreateRequest = createClubCreateRequest();
 
         // When
-        ClubIdResponse clubIdResponse = clubService.registerClub(clubCreateRequest);
+        ClubIdResponse clubIdResponse = clubService.registerClub(clubCreateRequest, LocalDate.of(2024, 3, 1));
 
         // Then
         List<ClubMember> clubMembers = clubMemberRepository.getAll();
@@ -122,7 +125,7 @@ class ClubServiceTest {
     @Test
     void registerClubAccount() {
         // Given
-        Club club = createClub(school, "두리안", "Durian");
+        Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 11, 19));
         setClubMember(club, LocalDate.now(), PRESIDENT, member);
 
         ClubAccountRegisterRequest request = createClubAccountRegisterRequest("국민은행", "1234567890");
@@ -141,7 +144,7 @@ class ClubServiceTest {
     @Test
     void validateClubWithNames() {
         // Given
-        Club club = createClub(school, "두리안", "Durian");
+        Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 11, 19));
 
         // When & Then
         clubService.validateClubWithNames("바나나", "Banana");
@@ -152,7 +155,7 @@ class ClubServiceTest {
     @Test
     void validateClubWithNamesWithSameName() {
         // Given
-        Club club = createClub(school, "두리안", "Durian");
+        Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 3, 1));
 
         // When & Then
         assertThatThrownBy(() -> clubService.validateClubWithNames("두리안", "Banana"))
@@ -168,7 +171,7 @@ class ClubServiceTest {
     @Test
     void findClubInfo() {
         // Given
-        Club club = createClub(school, "두리안", "Durian");
+        Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 3, 1));
 
         // When
         ClubInfoResponse response = clubService.findClubInfo(club.getClubId());
@@ -183,7 +186,7 @@ class ClubServiceTest {
     @Test
     void findClubInfoWithInvalidClubId() {
         // Given
-        Club club = createClub(school, "두리안", "Durian");
+        Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 3, 1));
         Long invalidClubId = club.getClubId() + 1;
 
         // When & Then
@@ -196,7 +199,7 @@ class ClubServiceTest {
     @Test
     void findClubInfoWithEnglishName() {
         // Given
-        Club club = createClub(school, "두리안", "Durian");
+        Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 3, 1));
 
         // When
         ClubInfoResponse response = clubService.findClubInfoWithEnglishName("Durian");
@@ -211,7 +214,7 @@ class ClubServiceTest {
     @Test
     void checkClubHistory() {
         // Given
-        Club club = createClub(school, "두리안", "Durian");
+        Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 11, 19));
         createClubHistory(club, 2023, 1);
         createClubHistory(club, 2024, 1);
 
@@ -228,7 +231,7 @@ class ClubServiceTest {
     @Test
     void update() {
         // Given
-        Club club = createClub(school, "두리안", "Durian");
+        Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 11, 19));
         setClubMember(club, LocalDate.now(), PRESIDENT, member);
         createJoinGroupForClub(club);
 
@@ -248,7 +251,7 @@ class ClubServiceTest {
     @Test
     void updateWithGroup() {
         // Given
-        Club club = createClub(school, "두리안", "Durian");
+        Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 11, 19));
         setClubMember(club, LocalDate.now(), PRESIDENT, member);
         Group group = createJoinGroupForClub(club);
 
@@ -259,8 +262,8 @@ class ClubServiceTest {
 
         // Then
         assertThat(group)
-                .extracting("groupAmount", "groupIsAvailable", "groupChatLink", "groupChatPassword")
-                .containsExactly(request.clubDues(), true, request.clubGroupChatLink(),
+                .extracting("groupAmount", "groupChatLink", "groupChatPassword")
+                .containsExactly(request.clubDues(), request.clubGroupChatLink(),
                         request.clubGroupChatPassword());
     }
 
@@ -268,7 +271,7 @@ class ClubServiceTest {
     @Test
     void getClubAccount() {
         // Given
-        Club club = createClub(school, "두리안", "Durian");
+        Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 11, 19));
         ClubAccount clubAccount = createClubAccount(club, "국민은행", "1234567890");
 
         // When
@@ -279,6 +282,46 @@ class ClubServiceTest {
                 .extracting("clubAccountBankName", "clubAccountNumber")
                 .containsExactly("국민은행", "1234567890");
     }
+
+    @DisplayName("서비스 사용 기간이 만료되었는지 확인할 수 있다.")
+    @Test
+    void checkClubExpired() {
+        // Given
+        Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 7, 1));
+        LocalDate now = LocalDate.of(2024, 7, 2);
+
+        // When & Then
+        assertThatThrownBy(() -> clubService.checkClubExpired(club.getClubId(), now))
+                .isInstanceOf(CustomException.class)
+                .hasMessage(CLUB_EXPIRED.getMessage());
+    }
+
+    @DisplayName("서비스 사용 기간이 만료되었다면, 서비스 사용료 결제를 위한 그룹을 생성한다.")
+    @Test
+    void checkClubExpiredThenCreateGroupForPayment() {
+        // Given
+        Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 3, 1));
+        Member member1 = createMember("testProvideId", "김박수", "baksoo@ajou.ac.kr");
+        Member member2 = createMember("testProvideId", "이수박", "watermelon@ajou.ac.kr");
+        setClubMember(club, LocalDate.of(2024, 3, 1), PRESIDENT, member);
+        setClubMember(club, LocalDate.of(2024, 4, 1), OFFICER, member1);
+        setClubMember(club, LocalDate.of(2024, 5, 1), OFFICER, member2);
+        LocalDate now = LocalDate.of(2024, 7, 2);
+
+        // When
+        assertThatThrownBy(() -> clubService.checkClubExpired(club.getClubId(), now))
+                .isInstanceOf(CustomException.class)
+                .hasMessage(CLUB_EXPIRED.getMessage());
+
+        // Then
+        List<Group> groups = groupRepository.getAll();
+        assertThat(groups)
+                .extracting("groupType", "groupName", "groupAmount")
+                .contains(
+                        tuple(CLUB_PAYMENT, "두리안 동아리의 우학동 서비스 사용료 결제", 31500)
+                );
+    }
+
 
     private ClubAccount createClubAccount(Club club, String bankName, String accountNumber) {
         ClubAccount clubAccount = ClubAccount.builder()
@@ -301,7 +344,7 @@ class ClubServiceTest {
         return school;
     }
 
-    private Club createClub(School school, String clubName, String clubEnglishName) {
+    private Club createClub(School school, String clubName, String clubEnglishName, LocalDate expirationDate) {
         Club club = Club.builder()
                 .clubName(clubName)
                 .clubEnglishName(clubEnglishName)
@@ -309,7 +352,7 @@ class ClubServiceTest {
                 .clubDues(10000)
                 .clubGroupChatLink("https://group-chat.com")
                 .school(school)
-                .clubExpirationDate(LocalDate.of(2024, 11, 19))
+                .clubExpirationDate(expirationDate)
                 .build();
         return clubRepository.save(club);
     }
@@ -388,14 +431,20 @@ class ClubServiceTest {
                 .build();
     }
 
-    private ClubMember setClubMember(Club club, LocalDate assignedTerm, ClubMemberRole clubMemberRole, Member member) {
+    private ClubMember setClubMember(Club club, LocalDate date, ClubMemberRole clubMemberRole, Member member) {
         ClubMember clubMember = ClubMember.builder()
                 .club(club)
                 .clubJoinedDate(LocalDate.now())
-                .clubMemberAssignedTerm(assignedTerm)
+                .clubMemberAssignedTerm(getAssignedTerm(date))
                 .clubMemberRole(clubMemberRole)
                 .member(member)
                 .build();
         return clubMemberRepository.save(clubMember);
+    }
+
+    private LocalDate getAssignedTerm(LocalDate now) {
+        int year = now.getYear();
+        int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
+        return LocalDate.of(year, semester, 1);
     }
 }

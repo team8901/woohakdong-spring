@@ -68,4 +68,9 @@ public class ClubMemberRepositoryImpl implements ClubMemberRepository {
         return clubMemberJpaRepository.findByClubAndClubMemberAssignedTermAndMemberMemberNameContaining(club,
                 assignedTerm, name);
     }
+
+    @Override
+    public Integer countByClubAndAssignedTerm(Club club, LocalDate assignedTerm) {
+        return clubMemberJpaRepository.countByClubAndClubMemberAssignedTerm(club, assignedTerm);
+    }
 }

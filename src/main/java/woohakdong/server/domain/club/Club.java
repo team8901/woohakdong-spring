@@ -130,4 +130,8 @@ public class Club extends BaseEntity {
         this.clubGroupChatLink = clubGroupChatLink;
         this.clubGroupChatPassword = clubGroupChatPassword;
     }
+
+    public boolean isExpired(LocalDate date) {
+        return date.isAfter(clubExpirationDate);
+    }
 }

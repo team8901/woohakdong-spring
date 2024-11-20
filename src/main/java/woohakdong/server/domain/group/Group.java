@@ -1,5 +1,7 @@
 package woohakdong.server.domain.group;
 
+import static woohakdong.server.domain.group.GroupType.CLUB_PAYMENT;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -28,6 +30,9 @@ import woohakdong.server.domain.order.Order;
 @Table(name = "\"group\"")
 public class Group extends BaseEntity {
 
+    private static final Integer PER_MEMBER_FEE = 500;
+    private static final Integer BASE_SERVICE_FEE = 30000;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long groupId;
@@ -39,7 +44,6 @@ public class Group extends BaseEntity {
 
     private Integer groupAmount;
 
-    @Column(nullable = false)
     private String groupJoinLink;
 
     @Enumerated(EnumType.STRING)
@@ -48,8 +52,6 @@ public class Group extends BaseEntity {
     private String groupChatLink;
 
     private String groupChatPassword;
-
-    private Boolean groupIsAvailable;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id")
@@ -67,7 +69,6 @@ public class Group extends BaseEntity {
         this.groupJoinLink = groupJoinLink;
         this.groupChatLink = groupChatLink;
         this.groupChatPassword = groupChatPassword;
-        this.groupIsAvailable = true;
         this.groupType = groupType;
         this.club = club;
     }
@@ -86,16 +87,26 @@ public class Group extends BaseEntity {
                 .build();
     }
 
+    public static Group createClubPaymentGroup(Club club, Integer clubMemberCount) {
+        System.out.println("clubMemberCount = " + clubMemberCount);
+        return Group.builder()
+                .groupName(club.getClubName() + " 동아리의 우학동 서비스 사용료 결제")
+                .groupDescription(club.getClubName() + "동아리의 우학동 서비스 사용료는 " + clubMemberCount + " * 500원 입니다.")
+                .groupAmount(BASE_SERVICE_FEE + clubMemberCount * PER_MEMBER_FEE)
+                .groupJoinLink(null)
+                .groupChatLink(null)
+                .groupChatPassword(null)
+                .groupType(CLUB_PAYMENT)
+                .club(club)
+                .build();
+    }
+
     public void updateJoinGroup(String groupDescription, Integer groupAmount, String groupChatLink,
                                 String groupChatPassword) {
         this.groupDescription = groupDescription;
         this.groupAmount = groupAmount;
         this.groupChatLink = groupChatLink;
         this.groupChatPassword = groupChatPassword;
-    }
-
-    public void disableGroup() {
-        this.groupIsAvailable = false;
     }
 
     public boolean isTypeOf(GroupType groupType) {

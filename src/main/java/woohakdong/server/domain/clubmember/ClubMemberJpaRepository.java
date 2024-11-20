@@ -25,4 +25,6 @@ public interface ClubMemberJpaRepository extends JpaRepository<ClubMember, Long>
     Optional<ClubMember> findByClubAndMember(Club club, Member member);
 
     List<ClubMember> findByClubAndClubMemberAssignedTermAndMemberMemberNameContaining(Club club, LocalDate assignedTerm, String name);
+
+    Integer countByClubAndClubMemberAssignedTerm(Club club, LocalDate assignedTerm);
 }

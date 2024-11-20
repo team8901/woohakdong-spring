@@ -6,7 +6,17 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PathVariable;
 import woohakdong.server.api.controller.ListWrapperResponse;
-import woohakdong.server.api.controller.club.dto.*;
+import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
+import woohakdong.server.api.controller.club.dto.ClubAccountResponse;
+import woohakdong.server.api.controller.club.dto.ClubAccountValidateRequest;
+import woohakdong.server.api.controller.club.dto.ClubAccountValidateResponse;
+import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
+import woohakdong.server.api.controller.club.dto.ClubHistoryTermResponse;
+import woohakdong.server.api.controller.club.dto.ClubIdResponse;
+import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
+import woohakdong.server.api.controller.club.dto.ClubJoinGroupInfoResponse;
+import woohakdong.server.api.controller.club.dto.ClubNameValidateRequest;
+import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 
 @Tag(name = "Club", description = "동아리 관련 API")
 public interface ClubControllerDocs {
@@ -64,4 +74,8 @@ public interface ClubControllerDocs {
     @ApiResponse(responseCode = "200", description = "동아리 가입 기수 리스트 반환 성공", useReturnTypeSchema = true)
     public ListWrapperResponse<ClubHistoryTermResponse> getClubHistory(@PathVariable Long clubId);
 
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "동아리 사용 가능 여부 확인하기", description = "서비스 사용료 납부에 따른 동아리 사용 가능 여부를 확인합니다.")
+    @ApiResponse(responseCode = "200", description = "동아리 사용 가능")
+    public void checkClubExpired(Long clubId);
 }

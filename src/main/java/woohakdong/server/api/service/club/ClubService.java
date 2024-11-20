@@ -1,5 +1,6 @@
 package woohakdong.server.api.service.club;
 
+import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_EXPIRED;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_MEMBER_ROLE_NOT_ALLOWED;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NAME_DUPLICATION;
 import static woohakdong.server.common.exception.CustomErrorInfo.INVALID_BANK_NAME;
@@ -15,7 +16,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.club.dto.*;
+import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
+import woohakdong.server.api.controller.club.dto.ClubAccountResponse;
+import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
+import woohakdong.server.api.controller.club.dto.ClubHistoryTermResponse;
+import woohakdong.server.api.controller.club.dto.ClubIdResponse;
+import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
+import woohakdong.server.api.controller.club.dto.ClubJoinGroupInfoResponse;
+import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
@@ -38,6 +46,7 @@ import woohakdong.server.domain.school.School;
 public class ClubService {
 
     public static final String WOOHAKDONG_CLUB_PREFIX = "https://www.woohakdong.com/clubs/";
+
     private final ClubRepository clubRepository;
     private final MemberRepository memberRepository;
     private final ClubAccountRepository clubAccountRepository;
@@ -52,7 +61,7 @@ public class ClubService {
     }
 
     @Transactional
-    public ClubIdResponse registerClub(ClubCreateRequest request) {
+    public ClubIdResponse registerClub(ClubCreateRequest request, LocalDate date) {
         Member member = getMemberFromJwtInformation();
         School school = member.getSchool();
 
@@ -67,9 +76,8 @@ public class ClubService {
                 WOOHAKDONG_CLUB_PREFIX + club.getClubEnglishName(), club.getClubGroupChatLink(),
                 club.getClubGroupChatPassword(), JOIN, club);
 
-        ClubMember clubMember = ClubMember.create(club, getAssignedTerm(), PRESIDENT, member);
-
-        ClubHistory clubHistory = ClubHistory.create(club, getAssignedTerm());
+        ClubMember clubMember = ClubMember.create(club, getAssignedTerm(date), PRESIDENT, member);
+        ClubHistory clubHistory = ClubHistory.create(club, getAssignedTerm(date));
 
         club.addGroup(group);
         club.addClubMember(clubMember);
@@ -112,7 +120,7 @@ public class ClubService {
 
     public ClubJoinGroupInfoResponse getClubJoinInfo(Long clubId) {
         Club club = clubRepository.getById(clubId);
-        Group group = groupRepository.getByClubAndGroupTypeAndGroupIsAvailable(club, JOIN, true);
+        Group group = groupRepository.getByClubAndGroupType(club, JOIN);
 
         return ClubJoinGroupInfoResponse.from(group);
     }
@@ -143,12 +151,26 @@ public class ClubService {
         club.update(request.clubImage(), request.clubDescription(), request.clubRoom(), request.clubGeneration(),
                 request.clubGroupChatLink(), request.clubGroupChatPassword(), request.clubDues());
 
-        Group group = groupRepository.getByClubAndGroupTypeAndGroupIsAvailable(club, JOIN, true);
+        Group group = groupRepository.getByClubAndGroupType(club, JOIN);
         group.updateJoinGroup(club.getClubName() + "의 " + club.getClubGeneration() + "기 동아리 가입하기",
                 club.getClubDues(), club.getClubGroupChatLink(), club.getClubGroupChatPassword());
 
         return ClubInfoResponse.from(club);
     }
+
+    @Transactional
+    public void checkClubExpired(Long clubId, LocalDate date) {
+        Club club = clubRepository.getById(clubId);
+        LocalDate assignedTerm = getAssignedTerm(date).minusMonths(6);
+        Integer clubMemberNumber = clubMemberRepository.countByClubAndAssignedTerm(club, assignedTerm);
+
+        if (club.isExpired(date)) {
+            Group group = Group.createClubPaymentGroup(club, clubMemberNumber);
+            club.addGroup(group);
+            throw new CustomException(CLUB_EXPIRED);
+        }
+    }
+
 
     private Member getMemberFromJwtInformation() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -160,8 +182,7 @@ public class ClubService {
     }
 
 
-    private LocalDate getAssignedTerm() {
-        LocalDate now = LocalDate.now();
+    private LocalDate getAssignedTerm(LocalDate now) {
         int year = now.getYear();
         int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
         return LocalDate.of(year, semester, 1);

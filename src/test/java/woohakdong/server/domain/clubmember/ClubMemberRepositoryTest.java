@@ -46,10 +46,12 @@ class ClubMemberRepositoryTest {
     void setUp() {
         school = createSchool("ajou.ac.kr");
         club = createClub(school);
+        member = createMember(school, "testProvideId", "박상준", "sangjun@ajou.ac.kr");
     }
 
     private School school;
     private Club club;
+    private Member member;
 
     @DisplayName("동아리에 가입한 회원에 대해 역할이 부여되었는지 확인한다.")
     @ParameterizedTest(name = "{index} =>, role={0}, expected={1}")
@@ -62,9 +64,7 @@ class ClubMemberRepositoryTest {
     })
     void existsByClubAndMemberAndClubMemberRole(ClubMemberRole role, boolean expected) {
         // Given
-        Member member = createMember(school, "testProvideId", "박상준", "sangjun@ajou.ac.kr");
-
-        createClubMember(club, member, PRESIDENT, LocalDate.now());
+        createClubMember(club, member, PRESIDENT, LocalDate.of(2024, 11, 19));
 
         // When
         boolean result = clubMemberRepository.existsByClubAndMemberAndClubMemberRole(club, member, role);
@@ -85,13 +85,32 @@ class ClubMemberRepositoryTest {
     @DisplayName("존재하지 않는 동아리로 clubMember를 조회할 경우 예외를 발생시킨다.")
     @Test
     void getByClubAndMember() {
-        // Given
-        Member member = createMember(school, "testProvideId", "박상준", "sangjun@ajou.ac.kr");
-
         // When & Then
         assertThatThrownBy(() -> clubMemberRepository.getByClubAndMember(null, member))
                 .isInstanceOf(CustomException.class)
                 .hasMessage(CustomErrorInfo.CLUB_MEMBER_NOT_FOUND.getMessage());
+    }
+
+    @DisplayName("특정 분기에 가입한 동아리 회원의 수를 조회한다.")
+    @Test
+    void countByClubAndAssignedTerm() {
+        // Given
+        Member member1 = createMember(school, "testProvideId1", "김준상", "kimjun@ajou.ac.kr");
+        Member member2 = createMember(school, "testProvideId2", "이준상", "eejun@ajou.ac.kr");
+        Member member3 = createMember(school, "testProvideId3", "최염수", "yeomsu@ajou.ac.kr");
+        Member member4 = createMember(school, "testProvideId4", "옥수수", "corn@ajou.ac.kr");
+
+        createClubMember(club, member1, PRESIDENT, LocalDate.of(2024, 4, 1));
+        createClubMember(club, member2, OFFICER, LocalDate.of(2024, 7, 1));
+        createClubMember(club, member3, MEMBER, LocalDate.of(2024, 11, 19));
+        createClubMember(club, member4, MEMBER, LocalDate.of(2024, 12, 31));
+
+        // When
+        LocalDate assignedTerm = getAssignedTerm(LocalDate.of(2024, 11, 19));
+        Integer count = clubMemberRepository.countByClubAndAssignedTerm(club, assignedTerm);
+
+        // Then
+        assertThat(count).isEqualTo(3);
     }
 
     private School createSchool(String domain) {
