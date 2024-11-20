@@ -20,17 +20,15 @@ public class GroupController implements GroupControllerDocs {
 
     private final OrderService orderService;
 
-    @PostMapping("/{groupId}/joins")
-    public OrderIdResponse createClubJoinOrder(
-            @PathVariable Long groupId,
-            @RequestBody CreateOrderRequest request) {
+    @PostMapping("/{groupId}/orders")
+    public OrderIdResponse createClubJoinOrder(@PathVariable Long groupId,
+                                               @RequestBody CreateOrderRequest request) {
         return orderService.registerOrder(groupId, request);
     }
 
-    @PostMapping("/{groupId}/joins/confirms")
-    public void completeClubJoinOrder(
-            @PathVariable Long groupId,
-            @RequestBody PaymentCompleteReqeust request) {
+    @PostMapping("/{groupId}/orders/confirm")
+    public void completeClubJoinOrder(@PathVariable Long groupId,
+                                      @RequestBody PaymentCompleteReqeust request) {
         orderService.confirmOrderPayment(groupId, request, LocalDate.now());
     }
 
