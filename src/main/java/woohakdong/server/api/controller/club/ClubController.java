@@ -21,6 +21,7 @@ import woohakdong.server.api.controller.club.dto.ClubIdResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubJoinGroupInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubNameValidateRequest;
+import woohakdong.server.api.controller.club.dto.ClubSummaryResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 import woohakdong.server.api.service.bank.BankService;
 import woohakdong.server.api.service.club.ClubService;
@@ -79,7 +80,7 @@ public class ClubController implements ClubControllerDocs {
     }
 
     @GetMapping("/search")
-    public ClubInfoResponse getClubInfoByEnglishName(@RequestParam String clubEnglishName) {
+    public ClubSummaryResponse getClubInfoByEnglishName(@RequestParam String clubEnglishName) {
         return clubService.findClubInfoWithEnglishName(clubEnglishName);
     }
 

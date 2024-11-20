@@ -31,6 +31,7 @@ import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
 import woohakdong.server.api.controller.club.dto.ClubHistoryTermResponse;
 import woohakdong.server.api.controller.club.dto.ClubIdResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
+import woohakdong.server.api.controller.club.dto.ClubSummaryResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
@@ -202,7 +203,7 @@ class ClubServiceTest {
         Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 3, 1));
 
         // When
-        ClubInfoResponse response = clubService.findClubInfoWithEnglishName("Durian");
+        ClubSummaryResponse response = clubService.findClubInfoWithEnglishName("Durian");
 
         // Then
         assertThat(response).isNotNull()
