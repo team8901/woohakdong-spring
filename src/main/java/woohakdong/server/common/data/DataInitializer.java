@@ -119,6 +119,7 @@ public class DataInitializer implements CommandLineRunner {
                     .clubRoom("구학생회관 201호")
                     .clubGroupChatLink("https://open.kakao.com/o/gUEMLKVg")
                     .clubGroupChatPassword("1234")
+                    .clubExpirationDate(LocalDate.of(2024, 7, 1))
                     .build();
             clubRepository.save(club);
 
