@@ -19,10 +19,10 @@ import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
 import woohakdong.server.api.controller.club.dto.ClubHistoryTermResponse;
 import woohakdong.server.api.controller.club.dto.ClubIdResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
-import woohakdong.server.api.controller.club.dto.ClubJoinGroupInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubNameValidateRequest;
 import woohakdong.server.api.controller.club.dto.ClubSummaryResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
+import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
 import woohakdong.server.api.service.bank.BankService;
 import woohakdong.server.api.service.club.ClubService;
 
@@ -70,7 +70,7 @@ public class ClubController implements ClubControllerDocs {
     }
 
     @GetMapping("/{clubId}/join")
-    public ClubJoinGroupInfoResponse getClubJoinInfo(@PathVariable Long clubId) {
+    public GroupInfoResponse getClubJoinInfo(@PathVariable Long clubId) {
         return clubService.getClubJoinInfo(clubId);
     }
 
@@ -94,4 +94,8 @@ public class ClubController implements ClubControllerDocs {
         clubService.checkClubExpired(clubId, LocalDate.now());
     }
 
+    @GetMapping("/{clubId}/payment-group")
+    public GroupInfoResponse getClubPaymentGroupInfo(@PathVariable Long clubId) {
+        return clubService.getGroupPaymentInfo(clubId);
+    }
 }

@@ -134,4 +134,8 @@ public class Club extends BaseEntity {
     public boolean isExpired(LocalDate date) {
         return date.isAfter(clubExpirationDate);
     }
+
+    public void extendClubExpirationDate() {
+        this.clubExpirationDate = clubExpirationDate.plusMonths(6);
+    }
 }

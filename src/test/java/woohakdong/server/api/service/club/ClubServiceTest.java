@@ -33,6 +33,7 @@ import woohakdong.server.api.controller.club.dto.ClubIdResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubSummaryResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
+import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
@@ -45,6 +46,7 @@ import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.clubmember.ClubMemberRole;
 import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.group.GroupRepository;
+import woohakdong.server.domain.group.GroupType;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
@@ -234,7 +236,7 @@ class ClubServiceTest {
         // Given
         Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 11, 19));
         setClubMember(club, LocalDate.now(), PRESIDENT, member);
-        createJoinGroupForClub(club);
+        createGroupForClub(club, JOIN, club.getClubDues(), club.getClubName());
 
         ClubUpdateRequest request = createClubUpdateRequest();
 
@@ -254,7 +256,7 @@ class ClubServiceTest {
         // Given
         Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 11, 19));
         setClubMember(club, LocalDate.now(), PRESIDENT, member);
-        Group group = createJoinGroupForClub(club);
+        Group group = createGroupForClub(club, JOIN, club.getClubDues(), club.getClubName());
 
         ClubUpdateRequest request = createClubUpdateRequest();
 
@@ -323,6 +325,21 @@ class ClubServiceTest {
                 );
     }
 
+    @DisplayName("동아리 서비스 이용료를 납부하기 위한 그룹 정보를 조회할 수 있다.")
+    @Test
+    void getGroupPaymentInfo() {
+        // Given
+        Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 3, 1));
+        createGroupForClub(club, CLUB_PAYMENT, 35000, club.getClubName() + " 동아리의 우학동 서비스 사용료 결제");
+
+        // When
+        GroupInfoResponse response = clubService.getGroupPaymentInfo(club.getClubId());
+
+        // Then
+        assertThat(response).isNotNull()
+                .extracting("groupName", "groupAmount")
+                .containsExactly(club.getClubName() + " 동아리의 우학동 서비스 사용료 결제", 35000);
+    }
 
     private ClubAccount createClubAccount(Club club, String bankName, String accountNumber) {
         ClubAccount clubAccount = ClubAccount.builder()
@@ -358,13 +375,13 @@ class ClubServiceTest {
         return clubRepository.save(club);
     }
 
-    private Group createJoinGroupForClub(Club club) {
+    private Group createGroupForClub(Club club, GroupType groupType, Integer amount, String name) {
         Group group = Group.builder()
                 .club(club)
-                .groupType(JOIN)
-                .groupName(club.getClubName())
+                .groupType(groupType)
+                .groupName(name)
                 .groupJoinLink("https://www.wooahakdong.com/clubs/" + club.getClubEnglishName())
-                .groupAmount(club.getClubDues())
+                .groupAmount(amount)
                 .groupChatLink(club.getClubGroupChatLink())
                 .groupChatPassword(club.getClubGroupChatPassword())
                 .build();

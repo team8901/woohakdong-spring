@@ -9,6 +9,7 @@ import static woohakdong.server.common.exception.CustomErrorInfo.ORDER_NOT_VALID
 import static woohakdong.server.common.exception.CustomErrorInfo.ORDER_NOT_VALID_MERCHANT_UID;
 import static woohakdong.server.domain.admin.adminAccount.AccountType.DEPOSIT;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.MEMBER;
+import static woohakdong.server.domain.group.GroupType.CLUB_PAYMENT;
 import static woohakdong.server.domain.group.GroupType.EVENT;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 
@@ -18,9 +19,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.group.dto.PaymentCompleteReqeust;
 import woohakdong.server.api.controller.group.dto.CreateOrderRequest;
 import woohakdong.server.api.controller.group.dto.OrderIdResponse;
+import woohakdong.server.api.controller.group.dto.PaymentCompleteReqeust;
 import woohakdong.server.api.controller.group.dto.PaymentInfoResponse;
 import woohakdong.server.api.controller.group.dto.PortOneWebhookRequest;
 import woohakdong.server.api.service.bank.MockBankService;
@@ -73,7 +74,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void confirmJoinOrder(Long groupId, PaymentCompleteReqeust request, LocalDate date) {
+    public void confirmOrderPayment(Long groupId, PaymentCompleteReqeust request, LocalDate date) {
         Member member = getMemberFromJwtInformation();
         Order order = orderRepository.getById(request.orderId());
 
@@ -91,12 +92,18 @@ public class OrderService {
 
         PaymentInfoResponse paymentInfoResponse = checkOrderWithPaymentClient(request.impUid(), order);
         savePaymentFromOrder(paymentInfoResponse, order);
-        saveNewClubMember(club, member, date);
+
+        if (group.isTypeOf(JOIN)) {
+            saveNewClubMember(club, member, date);
+            sendClubInviteEmailToNewMember(member, club, group);
+        }
+
+        if (group.isTypeOf(CLUB_PAYMENT)) {
+            club.extendClubExpirationDate();
+        }
+
         saveAdminAccount(order, group, member);
-
         mockBankService.transferClubFee(member.getMemberId(), group.getGroupId());
-
-        sendClubInviteEmailToNewMember(member, club, group);
     }
 
     @Transactional
@@ -118,6 +125,10 @@ public class OrderService {
         if (group.isTypeOf(JOIN)) {
             saveNewClubMember(club, member, date);
             sendClubInviteEmailToNewMember(member, club, group);
+        }
+
+        if (group.isTypeOf(CLUB_PAYMENT)) {
+            club.extendClubExpirationDate();
         }
 
         mockBankService.transferClubFee(member.getMemberId(), group.getGroupId());

@@ -119,7 +119,7 @@ class OrderServiceTest {
 
     @DisplayName("동아리 가입 요청을 진행하면, 주문이 완료 상태로 변경된다.")
     @Test
-    void confirmJoinOrder() throws IamportResponseException, IOException {
+    void confirmOrderPayment() throws IamportResponseException, IOException {
         // Given
         Order order = createOrder(group, member, "m-12315");
 
@@ -128,7 +128,7 @@ class OrderServiceTest {
         mockingIamportResponse();
 
         // When
-        orderService.confirmJoinOrder(group.getGroupId(), confirmRequest, LocalDate.now());
+        orderService.confirmOrderPayment(group.getGroupId(), confirmRequest, LocalDate.now());
 
         // Then
         assertThat(order)
@@ -138,7 +138,7 @@ class OrderServiceTest {
 
     @DisplayName("동아리 가입 요청 완료시에, 주문에 해당하는 결제가 생성된다.")
     @Test
-    void confirmJoinOrderAndAddPayment() throws IamportResponseException, IOException {
+    void confirmOrderPaymentAndAddPayment() throws IamportResponseException, IOException {
         // Given
         Order order = createOrder(group, member, "m-12315");
 
@@ -148,7 +148,7 @@ class OrderServiceTest {
         mockingIamportResponse();
 
         // When
-        orderService.confirmJoinOrder(group.getGroupId(), confirmRequest, LocalDate.now());
+        orderService.confirmOrderPayment(group.getGroupId(), confirmRequest, LocalDate.now());
 
         // Then
         assertThat(order.getPayment()).isNotNull()
@@ -158,7 +158,7 @@ class OrderServiceTest {
 
     @DisplayName("동아리 가입 요청을 완료하면, 동아리 멤버로 추가된다.")
     @Test
-    void confirmJoinOrderAndAddClubMember() throws IamportResponseException, IOException {
+    void confirmOrderPaymentAndAddClubMember() throws IamportResponseException, IOException {
         // Given
         Order order = createOrder(group, member, "m-12315");
 
@@ -168,7 +168,7 @@ class OrderServiceTest {
         mockingIamportResponse();
 
         // When
-        orderService.confirmJoinOrder(group.getGroupId(), confirmRequest, LocalDate.now());
+        orderService.confirmOrderPayment(group.getGroupId(), confirmRequest, LocalDate.now());
 
         // Then
         assertThat(clubMemberRepository.existsByClubAndMember(club, member)).isTrue();

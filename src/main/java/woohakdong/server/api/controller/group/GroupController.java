@@ -31,7 +31,7 @@ public class GroupController implements GroupControllerDocs {
     public void completeClubJoinOrder(
             @PathVariable Long groupId,
             @RequestBody PaymentCompleteReqeust request) {
-        orderService.confirmJoinOrder(groupId, request, LocalDate.now());
+        orderService.confirmOrderPayment(groupId, request, LocalDate.now());
     }
 
     @PostMapping("/payment/webhook")
