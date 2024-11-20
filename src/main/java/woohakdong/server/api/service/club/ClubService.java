@@ -23,6 +23,7 @@ import woohakdong.server.api.controller.club.dto.ClubHistoryTermResponse;
 import woohakdong.server.api.controller.club.dto.ClubIdResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubJoinGroupInfoResponse;
+import woohakdong.server.api.controller.club.dto.ClubSummaryResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.security.jwt.CustomUserDetails;
@@ -140,9 +141,9 @@ public class ClubService {
         return ClubInfoResponse.from(club);
     }
 
-    public ClubInfoResponse findClubInfoWithEnglishName(String clubName) {
+    public ClubSummaryResponse findClubInfoWithEnglishName(String clubName) {
         Club club = clubRepository.getByClubEnglishName(clubName);
-        return ClubInfoResponse.from(club);
+        return ClubSummaryResponse.from(club);
     }
 
     @Transactional
