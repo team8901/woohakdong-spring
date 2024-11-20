@@ -14,10 +14,10 @@ import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
 import woohakdong.server.api.controller.club.dto.ClubHistoryTermResponse;
 import woohakdong.server.api.controller.club.dto.ClubIdResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
-import woohakdong.server.api.controller.club.dto.ClubJoinGroupInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubNameValidateRequest;
 import woohakdong.server.api.controller.club.dto.ClubSummaryResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
+import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
 
 @Tag(name = "Club", description = "동아리 관련 API")
 public interface ClubControllerDocs {
@@ -60,7 +60,7 @@ public interface ClubControllerDocs {
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "동아리 가입 요청을 위한 정보 불러오기", description = "동아리원들에게 제공할 링크 및 정보를 제공합니다.")
     @ApiResponse(responseCode = "200", description = "동아리 가입 요청을 위한 정보 불러오기 성공", useReturnTypeSchema = true)
-    public ClubJoinGroupInfoResponse getClubJoinInfo(Long clubId);
+    public GroupInfoResponse getClubJoinInfo(Long clubId);
 
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "가입한 동아리 목록 불러오기", description = "가입한 동아리 목록을 불러옵니다.")
@@ -79,4 +79,9 @@ public interface ClubControllerDocs {
     @Operation(summary = "동아리 사용 가능 여부 확인하기", description = "서비스 사용료 납부에 따른 동아리 사용 가능 여부를 확인합니다.")
     @ApiResponse(responseCode = "200", description = "동아리 사용 가능")
     public void checkClubExpired(Long clubId);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "동아리 서비스 사용료 납부 정보 획득하기", description = "서비스 사용료 납부 정보를 획득합니다.")
+    @ApiResponse(responseCode = "200", description = "동아리 서비스 사용료 납부 정보 획득 성공", useReturnTypeSchema = true)
+    public GroupInfoResponse getClubPaymentGroupInfo(Long clubId);
 }
