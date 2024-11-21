@@ -160,7 +160,7 @@ public class ClubService {
         return ClubInfoResponse.from(club);
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = CustomException.class)
     public void checkClubExpired(Long clubId, LocalDate date) {
         Club club = clubRepository.getById(clubId);
         LocalDate assignedTerm = getAssignedTerm(date).minusMonths(6);
