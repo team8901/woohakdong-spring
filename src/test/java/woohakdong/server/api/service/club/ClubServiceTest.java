@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_EXPIRED;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NAME_DUPLICATION;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
+import static woohakdong.server.config.TestConstants.TEST_PROVIDE_ID;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.OFFICER;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.group.GroupType.CLUB_PAYMENT;
@@ -14,17 +15,10 @@ import static woohakdong.server.domain.member.MemberGender.MAN;
 
 import java.time.LocalDate;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
 import woohakdong.server.api.controller.club.dto.ClubAccountResponse;
 import woohakdong.server.api.controller.club.dto.ClubCreateRequest;
@@ -34,8 +28,8 @@ import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubSummaryResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
+import woohakdong.server.api.service.SecurityContextSetUp;
 import woohakdong.server.common.exception.CustomException;
-import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubAccount.ClubAccount;
@@ -52,10 +46,7 @@ import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
 
-@ActiveProfiles("test")
-@SpringBootTest
-@Transactional
-class ClubServiceTest {
+class ClubServiceTest extends SecurityContextSetUp {
 
     @Autowired
     private ClubService clubService;
@@ -80,8 +71,7 @@ class ClubServiceTest {
 
     @BeforeEach
     void setUp() {
-        String provideId = setUpSecurityContextHolder("testProvideId");
-        member = createMember(provideId, "박상준", "sangjun@ajou.ac.kr");
+        member = createMember(TEST_PROVIDE_ID, "박상준", "sangjun@ajou.ac.kr");
         school = createSchool();
     }
 
@@ -421,12 +411,6 @@ class ClubServiceTest {
         return clubHistory;
     }
 
-    private @NotNull String setUpSecurityContextHolder(String provideId) {
-        CustomUserDetails userDetails = new CustomUserDetails(provideId, "USER_ROLE");
-        Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        return provideId;
-    }
 
     private Member createMember(String provideId, String name, String email) {
         Member member = Member.builder()

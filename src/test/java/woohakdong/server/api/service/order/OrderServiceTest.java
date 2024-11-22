@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static woohakdong.server.config.TestConstants.TEST_PROVIDE_ID;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 import static woohakdong.server.domain.member.MemberGender.MAN;
 import static woohakdong.server.domain.order.OrderStatus.COMPLETE;
@@ -18,24 +19,17 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.group.dto.CreateOrderRequest;
 import woohakdong.server.api.controller.group.dto.OrderIdResponse;
 import woohakdong.server.api.controller.group.dto.PaymentCompleteReqeust;
 import woohakdong.server.api.controller.group.dto.PortOneWebhookRequest;
+import woohakdong.server.api.service.SecurityContextSetUp;
 import woohakdong.server.api.service.bank.MockBankService;
-import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.admin.adminAccount.AdminAccount;
 import woohakdong.server.domain.admin.adminAccount.AdminAccountRepository;
 import woohakdong.server.domain.club.Club;
@@ -51,10 +45,7 @@ import woohakdong.server.domain.order.OrderRepository;
 import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
 
-@ActiveProfiles("test")
-@SpringBootTest
-@Transactional
-class OrderServiceTest {
+class OrderServiceTest extends SecurityContextSetUp {
 
     @Autowired
     private OrderService orderService;
@@ -88,8 +79,7 @@ class OrderServiceTest {
 
     @BeforeEach
     void setUp() {
-        String provideId = setUpSecurityContextHolder("testProvideId");
-        member = createMember(provideId, "박상준", "sangjun@ajou.ac.kr");
+        member = createMember(TEST_PROVIDE_ID, "박상준", "sangjun@ajou.ac.kr");
         school = createSchool();
         club = createClub(school);
         group = createGroup(club, 10000, JOIN);
@@ -192,13 +182,6 @@ class OrderServiceTest {
         assertThat(order)
                 .extracting("orderStatus", "orderMerchantUid", "orderAmount")
                 .containsExactly(COMPLETE, "m-12315", 10000);
-    }
-
-    private static @NotNull String setUpSecurityContextHolder(String provideId) {
-        CustomUserDetails userDetails = new CustomUserDetails(provideId, "USER_ROLE");
-        Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        return provideId;
     }
 
     private Member createMember(String provideId, String name, String email) {

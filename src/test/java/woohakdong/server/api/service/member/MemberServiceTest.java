@@ -1,31 +1,23 @@
 package woohakdong.server.api.service.member;
 
-import org.junit.jupiter.api.BeforeEach;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.member.dto.CreateMemberRequest;
 import woohakdong.server.api.controller.member.dto.MemberInfoResponse;
+import woohakdong.server.api.service.SecurityContextSetUp;
 import woohakdong.server.common.exception.CustomException;
-import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberGender;
 import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
-import static woohakdong.server.common.exception.CustomErrorInfo.*;
-
-@ActiveProfiles("test")
-@SpringBootTest
-@Transactional
-class MemberServiceTest {
+class MemberServiceTest extends SecurityContextSetUp {
 
     @Autowired
     private MemberRepository memberRepository;
@@ -35,17 +27,6 @@ class MemberServiceTest {
 
     @Autowired
     private SchoolRepository schoolRepository;
-
-    @BeforeEach
-    void setUp() {
-        // SecurityContext에 CustomUserDetails 설정
-        String provideId = "testProvideId";
-        String role = "USER_ROLE";
-        CustomUserDetails customUserDetails = new CustomUserDetails(provideId, role);
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-    }
 
     @DisplayName("회원가입된 member를 업데이트 할 수 있다.")
     @Test
