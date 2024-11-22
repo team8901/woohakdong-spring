@@ -25,6 +25,7 @@ import woohakdong.server.api.controller.item.dto.ItemReturnResponse;
 import woohakdong.server.api.controller.item.dto.ItemUpdateRequest;
 import woohakdong.server.api.controller.item.dto.ItemUpdateResponse;
 import woohakdong.server.common.exception.CustomException;
+import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.common.util.security.SecurityUtil;
 import woohakdong.server.domain.ItemHistory.ItemHistory;
 import woohakdong.server.domain.ItemHistory.ItemHistoryRepository;
@@ -45,6 +46,7 @@ import woohakdong.server.domain.member.Member;
 public class ItemService {
 
     private final SecurityUtil securityUtil;
+    private final DateUtil dateUtil;
 
     private final ItemRepository itemRepository;
     private final ClubRepository clubRepository;
@@ -93,11 +95,11 @@ public class ItemService {
     }
 
     @Transactional
-    public ItemBorrowResponse borrowItem(Long clubId, Long itemId) {
+    public ItemBorrowResponse borrowItem(Long clubId, Long itemId, LocalDate date) {
         Member member = securityUtil.getMember();
         Club club = clubRepository.getById(clubId);
         Item item = itemRepository.getByIdForUpdate(itemId);
-        LocalDate assignedTerm = getAssignedTerm();
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
         ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
 
         // 물품이 대여 가능 상태인지 확인
@@ -129,11 +131,11 @@ public class ItemService {
     }
 
     @Transactional
-    public ItemReturnResponse returnItem(Long clubId, Long itemId, ItemReturnRequest request) {
+    public ItemReturnResponse returnItem(Long clubId, Long itemId, ItemReturnRequest request, LocalDate date) {
         Member member = securityUtil.getMember();
         Club club = clubRepository.getById(clubId);
         Item item = itemRepository.getById(itemId);
-        LocalDate assignedTerm = getAssignedTerm();
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
         ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
 
         if (!item.getItemUsing()) {
@@ -229,10 +231,10 @@ public class ItemService {
         item.setItemAvailable(request.itemAvailable());
     }
 
-    public List<ItemBorrowedResponse> getMyBorrowedItems(Long clubId) {
+    public List<ItemBorrowedResponse> getMyBorrowedItems(Long clubId, LocalDate date) {
         Member member = securityUtil.getMember();
         Club club = clubRepository.getById(clubId);
-        LocalDate assignedTerm = getAssignedTerm();
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
 
         ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
         List<ItemBorrowed> borrowedItems = itemBorrowedRepository.getByClubMember(clubMember);
@@ -245,10 +247,10 @@ public class ItemService {
         return itemBorrowedResponses;
     }
 
-    public List<ItemHistoryResponse> getMyHistoryItems(Long clubId) {
+    public List<ItemHistoryResponse> getMyHistoryItems(Long clubId, LocalDate date) {
         Member member = securityUtil.getMember();
         Club club = clubRepository.getById(clubId);
-        LocalDate assignedTerm = getAssignedTerm();
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
         ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
 
         List<ItemHistory> histories = itemHistoryRepository.getAllByMember(clubMember);
@@ -300,12 +302,6 @@ public class ItemService {
         return itemHistoryResponses;
     }
 
-    private LocalDate getAssignedTerm() {
-        LocalDate now = LocalDate.now();
-        int year = now.getYear();
-        int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
-        return LocalDate.of(year, semester, 1);
-    }
 
     private void getItemByOhters(List<Item> items, List<ItemResponse> responses) {
         for (Item item : items) {

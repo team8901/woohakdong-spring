@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.clubMember.dto.ClubMemberInfoResponse;
 import woohakdong.server.common.exception.CustomException;
+import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.common.util.security.SecurityUtil;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
@@ -23,13 +24,14 @@ import woohakdong.server.domain.member.Member;
 public class ClubMemberService {
 
     private final SecurityUtil securityUtil;
+    private final DateUtil dateUtil;
 
     private final ClubMemberRepository clubMemberRepository;
     private final ClubRepository clubRepository;
 
-    public List<ClubMemberInfoResponse> getMembers(Long clubId) {
+    public List<ClubMemberInfoResponse> getMembers(Long clubId, LocalDate date) {
         Club club = clubRepository.getById(clubId);
-        LocalDate assignedTerm = getAssignedTerm();
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
 
         List<ClubMember> clubMembers = clubMemberRepository.getAllBySearchFilter(club, null, assignedTerm);
 
@@ -45,10 +47,10 @@ public class ClubMemberService {
         return ClubMemberInfoResponse.from(clubMember);
     }
 
-    public ClubMemberInfoResponse getMyInfo(Long clubId) {
+    public ClubMemberInfoResponse getMyInfo(Long clubId, LocalDate date) {
         Member member = securityUtil.getMember();
         Club club = clubRepository.getById(clubId);
-        LocalDate assignedTerm = getAssignedTerm();
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
 
         ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
 
@@ -69,20 +71,13 @@ public class ClubMemberService {
         clubMember.changeRole(clubMemberRole);
     }
 
-    public List<ClubMemberInfoResponse> getFilteredMembers(Long clubId, String name, LocalDate assignedTerm) {
-        assignedTerm = assignedTerm == null ? getAssignedTerm() : assignedTerm;
+    public List<ClubMemberInfoResponse> getFilteredMembers(Long clubId, String name, LocalDate date) {
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
         Club club = clubRepository.getById(clubId);
         List<ClubMember> clubMemberList = clubMemberRepository.getAllBySearchFilter(club, name, assignedTerm);
 
         return clubMemberList.stream()
                 .map(ClubMemberInfoResponse::from)
                 .toList();
-    }
-
-    private LocalDate getAssignedTerm() {
-        LocalDate now = LocalDate.now();
-        int year = now.getYear();
-        int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
-        return LocalDate.of(year, semester, 1);
     }
 }

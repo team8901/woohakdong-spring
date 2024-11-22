@@ -19,6 +19,7 @@ import woohakdong.server.api.controller.clubMember.dto.ClubMemberInfoResponse;
 import woohakdong.server.api.service.SecurityContextSetUp;
 import woohakdong.server.common.exception.CustomErrorInfo;
 import woohakdong.server.common.exception.CustomException;
+import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
@@ -47,6 +48,9 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
     @Autowired
     private SchoolRepository schoolRepository;
 
+    @Autowired
+    private DateUtil dateUtil;
+
     @BeforeEach
     void setUp() {
         school = createSchool("ajou.ac.kr");
@@ -66,11 +70,11 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
         Member member2 = createMember(school, "testProvideId3", "준상박", "junsang@ajou.ac.kr");
 
         LocalDate now = LocalDate.of(2024, 11, 2);
-        createClubMember(club, member1, MEMBER, getAssignedTerm(now));
-        createClubMember(club, member2, OFFICER, getAssignedTerm(now));
+        createClubMember(club, member1, MEMBER, dateUtil.getAssignedTerm(now));
+        createClubMember(club, member2, OFFICER, dateUtil.getAssignedTerm(now));
 
         // when
-        List<ClubMemberInfoResponse> responses = clubMemberService.getMembers(club.getClubId());
+        List<ClubMemberInfoResponse> responses = clubMemberService.getMembers(club.getClubId(), now);
 
         // then
         assertThat(responses).hasSize(2)
@@ -89,22 +93,20 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
         Member member2 = createMember(school, "testProvideId3", "준상박", "junsang@ajou.ac.kr");
         Member member3 = createMember(school, "testProvideId4", "김상박", "kimsang@ajou.ac.kr");
 
-        createClubMember(club, member1, MEMBER, LocalDate.of(2024, 1, 1));
-        createClubMember(club, member2, OFFICER, LocalDate.of(2024, 2, 1));
-        createClubMember(club, member3, MEMBER, LocalDate.of(2024, 6, 30));
+        createClubMember(club, member1, MEMBER, LocalDate.of(2024, 2, 28));
+        createClubMember(club, member2, OFFICER, LocalDate.of(2024, 3, 1));
         createClubMember(club, member3, OFFICER, LocalDate.of(2024, 7, 1));
 
         // when
-        List<ClubMemberInfoResponse> responses = clubMemberService.getFilteredMembers(club.getClubId(),
-                null, LocalDate.of(2024, 1, 1));
+        List<ClubMemberInfoResponse> responses = clubMemberService.getFilteredMembers(club.getClubId(), null,
+                LocalDate.of(2024, 4, 1));
 
         // then
-        assertThat(responses).hasSize(3)
+        assertThat(responses).hasSize(2)
                 .extracting("memberName", "clubMemberRole")
                 .containsExactlyInAnyOrder(
-                        tuple("박상준", MEMBER),
                         tuple("준상박", OFFICER),
-                        tuple("김상박", MEMBER)
+                        tuple("김상박", OFFICER)
                 );
     }
 
@@ -141,9 +143,10 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
     void getMyInfo() {
         // Given
         createClubMember(club, member, MEMBER, LocalDate.now());
+        LocalDate date = LocalDate.of(2024, 11, 19);
 
         // When
-        ClubMemberInfoResponse response = clubMemberService.getMyInfo(club.getClubId());
+        ClubMemberInfoResponse response = clubMemberService.getMyInfo(club.getClubId(), date);
 
         // Then
         assertThat(response)
@@ -215,20 +218,13 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
         return memberRepository.save(member);
     }
 
-    private ClubMember createClubMember(Club club, Member member, ClubMemberRole memberRole, LocalDate assignedTerm) {
+    private ClubMember createClubMember(Club club, Member member, ClubMemberRole memberRole, LocalDate date) {
         ClubMember clubMember = ClubMember.builder()
-                .clubMemberAssignedTerm(getAssignedTerm(assignedTerm))
+                .clubMemberAssignedTerm(dateUtil.getAssignedTerm(date))
                 .club(club)
                 .member(member)
                 .clubMemberRole(memberRole)
                 .build();
         return clubMemberRepository.save(clubMember);
     }
-
-    private LocalDate getAssignedTerm(LocalDate date) {
-        int year = date.getYear();
-        int semester = date.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
-        return LocalDate.of(year, semester, 1);
-    }
-
 }

@@ -24,6 +24,7 @@ import woohakdong.server.api.controller.group.dto.PortOneWebhookRequest;
 import woohakdong.server.api.service.bank.MockBankService;
 import woohakdong.server.api.service.email.EmailService;
 import woohakdong.server.common.exception.CustomException;
+import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.common.util.security.SecurityUtil;
 import woohakdong.server.domain.admin.adminAccount.AdminAccount;
 import woohakdong.server.domain.admin.adminAccount.AdminAccountRepository;
@@ -49,6 +50,7 @@ public class OrderService {
     private final PaymentClient paymentClient;
 
     private final SecurityUtil securityUtil;
+    private final DateUtil dateUtil;
 
     private final ClubMemberRepository clubMemberRepository;
     private final GroupRepository groupRepository;
@@ -166,8 +168,8 @@ public class OrderService {
         order.completeOrder(payment);
     }
 
-    protected void saveNewClubMember(Club group, Member member, LocalDate now) {
-        ClubMember clubMember = ClubMember.create(group, getAssignedTerm(now), MEMBER, member);
+    protected void saveNewClubMember(Club group, Member member, LocalDate date) {
+        ClubMember clubMember = ClubMember.create(group, dateUtil.getAssignedTerm(date), MEMBER, member);
         clubMemberRepository.save(clubMember);
     }
 
@@ -191,9 +193,4 @@ public class OrderService {
         adminAccountRepository.save(adminAccount);
     }
 
-    private LocalDate getAssignedTerm(LocalDate now) {
-        int year = now.getYear();
-        int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
-        return LocalDate.of(year, semester, 1);
-    }
 }

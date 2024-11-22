@@ -30,6 +30,7 @@ import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
 import woohakdong.server.api.service.SecurityContextSetUp;
 import woohakdong.server.common.exception.CustomException;
+import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubAccount.ClubAccount;
@@ -68,6 +69,9 @@ class ClubServiceTest extends SecurityContextSetUp {
 
     @Autowired
     private ClubMemberRepository clubMemberRepository;
+
+    @Autowired
+    private DateUtil dateUtil;
 
     @BeforeEach
     void setUp() {
@@ -120,11 +124,12 @@ class ClubServiceTest extends SecurityContextSetUp {
         // Given
         Club club = createClub(school, "두리안", "Durian", LocalDate.of(2024, 11, 19));
         setClubMember(club, LocalDate.now(), PRESIDENT, member);
+        LocalDate now = LocalDate.of(2024, 11, 19);
 
         ClubAccountRegisterRequest request = createClubAccountRegisterRequest("국민은행", "1234567890");
 
         // When
-        clubService.registerClubAccount(club.getClubId(), request);
+        clubService.registerClubAccount(club.getClubId(), request, now);
 
         // Then
         ClubAccount clubAccount = clubAccountRepository.getByClub(club);
@@ -299,7 +304,7 @@ class ClubServiceTest extends SecurityContextSetUp {
         setClubMember(club, LocalDate.of(2024, 3, 1), PRESIDENT, member);
         setClubMember(club, LocalDate.of(2024, 4, 1), OFFICER, member1);
         setClubMember(club, LocalDate.of(2024, 5, 1), OFFICER, member2);
-        LocalDate now = LocalDate.of(2024, 7, 2);
+        LocalDate now = LocalDate.of(2024, 9, 2);
 
         // When
         assertThatThrownBy(() -> clubService.checkClubExpired(club.getClubId(), now))
@@ -437,16 +442,11 @@ class ClubServiceTest extends SecurityContextSetUp {
         ClubMember clubMember = ClubMember.builder()
                 .club(club)
                 .clubJoinedDate(LocalDate.now())
-                .clubMemberAssignedTerm(getAssignedTerm(date))
+                .clubMemberAssignedTerm(dateUtil.getAssignedTerm(date))
                 .clubMemberRole(clubMemberRole)
                 .member(member)
                 .build();
         return clubMemberRepository.save(clubMember);
     }
 
-    private LocalDate getAssignedTerm(LocalDate now) {
-        int year = now.getYear();
-        int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
-        return LocalDate.of(year, semester, 1);
-    }
 }

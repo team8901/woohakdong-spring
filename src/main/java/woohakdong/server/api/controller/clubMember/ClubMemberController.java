@@ -23,8 +23,11 @@ public class ClubMemberController implements ClubMemberControllerDocs {
     @GetMapping("/{clubId}/members")
     public ListWrapperResponse<ClubMemberInfoResponse> getFilteredMembers(@PathVariable Long clubId,
                                                                           @RequestParam(required = false) LocalDate clubMemberAssignedTerm,
-                                                                          @RequestParam(required = false) String name){
-            return ListWrapperResponse.of(clubMemberService.getFilteredMembers(clubId, name, clubMemberAssignedTerm));
+                                                                          @RequestParam(required = false) String name) {
+        if (clubMemberAssignedTerm == null) {
+            clubMemberAssignedTerm = LocalDate.now();
+        }
+        return ListWrapperResponse.of(clubMemberService.getFilteredMembers(clubId, name, clubMemberAssignedTerm));
     }
 
     @GetMapping("/{clubId}/members/{clubMemberId}")
@@ -34,7 +37,7 @@ public class ClubMemberController implements ClubMemberControllerDocs {
 
     @GetMapping("/{clubId}/members/me")
     public ClubMemberInfoResponse getMyInfo(@PathVariable Long clubId) {
-        return clubMemberService.getMyInfo(clubId);
+        return clubMemberService.getMyInfo(clubId, LocalDate.now());
     }
 
     @PutMapping("/{clubId}/members/{clubMemberId}/role")

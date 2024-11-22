@@ -9,7 +9,6 @@ import static woohakdong.server.domain.group.GroupType.CLUB_PAYMENT;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +23,7 @@ import woohakdong.server.api.controller.club.dto.ClubSummaryResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
 import woohakdong.server.common.exception.CustomException;
+import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.common.util.security.SecurityUtil;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
@@ -46,6 +46,7 @@ public class ClubService {
     public static final String WOOHAKDONG_CLUB_PREFIX = "https://www.woohakdong.com/clubs/";
 
     private final SecurityUtil securityUtil;
+    private final DateUtil dateUtil;
 
     private final ClubRepository clubRepository;
     private final ClubAccountRepository clubAccountRepository;
@@ -76,8 +77,8 @@ public class ClubService {
                 WOOHAKDONG_CLUB_PREFIX + club.getClubEnglishName(), club.getClubGroupChatLink(),
                 club.getClubGroupChatPassword(), JOIN, club);
 
-        ClubMember clubMember = ClubMember.create(club, getAssignedTerm(date), PRESIDENT, member);
-        ClubHistory clubHistory = ClubHistory.create(club, getAssignedTerm(date));
+        ClubMember clubMember = ClubMember.create(club, dateUtil.getAssignedTerm(date), PRESIDENT, member);
+        ClubHistory clubHistory = ClubHistory.create(club, dateUtil.getAssignedTerm(date));
 
         club.addGroup(group);
         club.addClubMember(clubMember);
@@ -95,7 +96,7 @@ public class ClubService {
     }
 
     @Transactional
-    public void registerClubAccount(Long clubId, ClubAccountRegisterRequest request) {
+    public void registerClubAccount(Long clubId, ClubAccountRegisterRequest request, LocalDate date) {
         Member member = securityUtil.getMember();
         Club club = clubRepository.getById(clubId);
 
@@ -104,7 +105,8 @@ public class ClubService {
         }
 
         ClubAccount clubAccount = ClubAccount.create(club, request.clubAccountBankName(), request.clubAccountNumber(),
-                request.clubAccountPinTechNumber(), getBankCode(request.clubAccountBankName()), getAssignedDateTime());
+                request.clubAccountPinTechNumber(), getBankCode(request.clubAccountBankName()),
+                dateUtil.getAssignedTerm(date).atStartOfDay());
 
         clubAccountRepository.save(clubAccount);
     }
@@ -161,7 +163,7 @@ public class ClubService {
     @Transactional(noRollbackFor = CustomException.class)
     public void checkClubExpired(Long clubId, LocalDate date) {
         Club club = clubRepository.getById(clubId);
-        LocalDate assignedTerm = getAssignedTerm(date).minusMonths(6);
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date).minusMonths(6);
         Integer clubMemberNumber = clubMemberRepository.countByClubAndAssignedTerm(club, assignedTerm);
 
         if (club.isExpired(date)) {
@@ -175,19 +177,6 @@ public class ClubService {
         Club club = clubRepository.getById(clubId);
         Group group = groupRepository.getByClubAndGroupType(club, CLUB_PAYMENT);
         return GroupInfoResponse.from(group);
-    }
-
-    private LocalDate getAssignedTerm(LocalDate now) {
-        int year = now.getYear();
-        int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
-        return LocalDate.of(year, semester, 1);
-    }
-
-    private LocalDateTime getAssignedDateTime() {
-        LocalDate now = LocalDate.now();
-        int year = now.getYear();
-        int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
-        return LocalDateTime.of(year, semester, 1, 0, 0, 0);
     }
 
     private String getBankCode(String bankName) {

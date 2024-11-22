@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.service.email.EmailService;
+import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.common.util.security.SecurityUtil;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
@@ -30,16 +31,18 @@ public class NotificationService {
 
     private final EmailService emailService;
     private final SecurityUtil securityUtil;
+    private final DateUtil dateUtil;
 
     private final ClubRepository clubRepository;
     private final ScheduleRepository scheduleRepository;
     private final ClubMemberRepository clubMemberRepository;
     private final ItemBorrowedRepository itemBorrowedRepository;
 
-    public void sendNotificationWithClubInfoUpdate(Long clubId, LocalDate assignedTerm) {
+    public void sendNotificationWithClubInfoUpdate(Long clubId, LocalDate date) {
         Club club = clubRepository.getById(clubId);
         checkMemberRoleInClub(club);
-        List<ClubMember> clubMembers = clubMemberRepository.getAllBySearchFilter(club, null, assignedTerm);
+        List<ClubMember> clubMembers = clubMemberRepository.getAllBySearchFilter(club, null,
+                dateUtil.getAssignedTerm(date));
 
         clubMembers.stream()
                 .map(ClubMember::getMember)
@@ -53,10 +56,11 @@ public class NotificationService {
                 ));
     }
 
-    public void sendNotificationWithSchedule(Long clubId, Long scheduleId, LocalDate assignedTerm) {
+    public void sendNotificationWithSchedule(Long clubId, Long scheduleId, LocalDate date) {
         Club club = clubRepository.getById(clubId);
         checkMemberRoleInClub(club);
-        List<ClubMember> clubMembers = clubMemberRepository.getAllBySearchFilter(club, null, assignedTerm);
+        List<ClubMember> clubMembers = clubMemberRepository.getAllBySearchFilter(club, null,
+                dateUtil.getAssignedTerm(date));
         Schedule schedule = scheduleRepository.getById(scheduleId);
         String scheduleDate = schedule.getScheduleDateTime().format(YEAR_MONTH_DAY_HOUR);
 

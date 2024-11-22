@@ -18,6 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.common.exception.CustomErrorInfo;
 import woohakdong.server.common.exception.CustomException;
+import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.member.Member;
@@ -41,6 +42,9 @@ class ClubMemberRepositoryTest {
 
     @Autowired
     private SchoolRepository schoolRepository;
+
+    @Autowired
+    private DateUtil dateUtil;
 
     @BeforeEach
     void setUp() {
@@ -99,14 +103,16 @@ class ClubMemberRepositoryTest {
         Member member2 = createMember(school, "testProvideId2", "이준상", "eejun@ajou.ac.kr");
         Member member3 = createMember(school, "testProvideId3", "최염수", "yeomsu@ajou.ac.kr");
         Member member4 = createMember(school, "testProvideId4", "옥수수", "corn@ajou.ac.kr");
+        Member member5 = createMember(school, "testProvideId5", "박상준", "sangjunpark@ajou.ac.kr");
 
         createClubMember(club, member1, PRESIDENT, LocalDate.of(2024, 4, 1));
         createClubMember(club, member2, OFFICER, LocalDate.of(2024, 7, 1));
-        createClubMember(club, member3, MEMBER, LocalDate.of(2024, 11, 19));
+        createClubMember(club, member3, MEMBER, LocalDate.of(2024, 9, 1));
         createClubMember(club, member4, MEMBER, LocalDate.of(2024, 12, 31));
+        createClubMember(club, member5, MEMBER, LocalDate.of(2025, 1, 1));
 
         // When
-        LocalDate assignedTerm = getAssignedTerm(LocalDate.of(2024, 11, 19));
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(LocalDate.of(2024, 11, 19));
         Integer count = clubMemberRepository.countByClubAndAssignedTerm(club, assignedTerm);
 
         // Then
@@ -146,18 +152,11 @@ class ClubMemberRepositoryTest {
 
     private ClubMember createClubMember(Club club, Member member, ClubMemberRole memberRole, LocalDate assignedTerm) {
         ClubMember clubMember = ClubMember.builder()
-                .clubMemberAssignedTerm(getAssignedTerm(assignedTerm))
+                .clubMemberAssignedTerm(dateUtil.getAssignedTerm(assignedTerm))
                 .club(club)
                 .member(member)
                 .clubMemberRole(memberRole)
                 .build();
         return clubMemberRepository.save(clubMember);
     }
-
-    private LocalDate getAssignedTerm(LocalDate date) {
-        int year = date.getYear();
-        int semester = date.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
-        return LocalDate.of(year, semester, 1);
-    }
-
 }
