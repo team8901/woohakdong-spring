@@ -3,6 +3,7 @@ package woohakdong.server.api.service.clubMember;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static woohakdong.server.config.TestConstants.TEST_PROVIDE_ID;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.MEMBER;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.OFFICER;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
@@ -14,15 +15,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.clubMember.dto.ClubMemberInfoResponse;
+import woohakdong.server.api.service.SecurityContextSetUp;
 import woohakdong.server.common.exception.CustomErrorInfo;
 import woohakdong.server.common.exception.CustomException;
-import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
@@ -34,10 +30,7 @@ import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
 
 
-@ActiveProfiles("test")
-@SpringBootTest
-@Transactional
-class ClubMemberServiceTest {
+class ClubMemberServiceTest extends SecurityContextSetUp {
 
     @Autowired
     private ClubMemberService clubMemberService;
@@ -58,7 +51,7 @@ class ClubMemberServiceTest {
     void setUp() {
         school = createSchool("ajou.ac.kr");
         club = createClub(school);
-        member = createMember(school, "testProvideId1", "박상준", "sangjun@ajou.ac.kr");
+        member = createMember(school, TEST_PROVIDE_ID, "박상준", "sangjun@ajou.ac.kr");
     }
 
     private Member member;
@@ -147,7 +140,6 @@ class ClubMemberServiceTest {
     @Test
     void getMyInfo() {
         // Given
-        Member member = setUpMemberSession("박상준");
         createClubMember(club, member, MEMBER, LocalDate.now());
 
         // When
@@ -163,7 +155,6 @@ class ClubMemberServiceTest {
     @Test
     void changeClubMemberRole() {
         // Given
-        Member member = setUpMemberSession("박상준");
         createClubMember(club, member, PRESIDENT, LocalDate.now());
 
         Member member2 = createMember(school, "testProvideId2", "김상준", "kimsang@ajou.ac.kr");
@@ -183,7 +174,6 @@ class ClubMemberServiceTest {
     @Test
     void changeClubMemberRoleWithOutPRESIDENTRole() {
         // Given
-        Member member = setUpMemberSession("박상준");
         createClubMember(club, member, VICEPRESIDENT, LocalDate.now());
 
         Member member2 = createMember(school, "testProvideId2", "김상준", "kimsang@ajou.ac.kr");
@@ -241,21 +231,4 @@ class ClubMemberServiceTest {
         return LocalDate.of(year, semester, 1);
     }
 
-    private Member setUpMemberSession(String name) {
-        String provideId = "testProvideId";
-        Member member = Member.builder()
-                .memberProvideId(provideId)
-                .memberName(name)
-                .memberEmail("john.doe@example.com")
-                .build();
-        memberRepository.save(member);
-
-        String role = "USER_ROLE";
-        CustomUserDetails customUserDetails = new CustomUserDetails(provideId, role);
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-
-        return member;
-    }
 }

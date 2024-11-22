@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_NOT_AVAILABLE;
 import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_USING;
+import static woohakdong.server.config.TestConstants.TEST_PROVIDE_ID;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.MEMBER;
 import static woohakdong.server.domain.item.ItemCategory.SPORT;
 
@@ -15,14 +16,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.item.dto.*;
+import woohakdong.server.api.controller.item.dto.ItemAvailableUpdateRequest;
+import woohakdong.server.api.controller.item.dto.ItemBorrowedResponse;
+import woohakdong.server.api.controller.item.dto.ItemHistoryResponse;
+import woohakdong.server.api.controller.item.dto.ItemInfoResponse;
+import woohakdong.server.api.controller.item.dto.ItemRegisterRequest;
+import woohakdong.server.api.controller.item.dto.ItemRegisterResponse;
+import woohakdong.server.api.controller.item.dto.ItemResponse;
+import woohakdong.server.api.controller.item.dto.ItemReturnRequest;
+import woohakdong.server.api.controller.item.dto.ItemReturnResponse;
+import woohakdong.server.api.controller.item.dto.ItemUpdateRequest;
+import woohakdong.server.api.service.SecurityContextSetUp;
 import woohakdong.server.common.exception.CustomException;
-import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.ItemHistory.ItemHistory;
 import woohakdong.server.domain.ItemHistory.ItemHistoryRepository;
 import woohakdong.server.domain.club.Club;
@@ -38,10 +43,7 @@ import woohakdong.server.domain.itemBorrowed.ItemBorrowedRepository;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 
-@ActiveProfiles("test")
-@SpringBootTest
-@Transactional
-class ItemServiceTest {
+class ItemServiceTest extends SecurityContextSetUp {
     @Autowired
     private ItemService itemService;
 
@@ -50,9 +52,6 @@ class ItemServiceTest {
 
     @Autowired
     private ItemRepository itemRepository;
-
-    @Autowired
-    private MemberRepository memberRepository;
 
     @Autowired
     private ItemHistoryRepository itemHistoryRepository;
@@ -66,7 +65,7 @@ class ItemServiceTest {
     @BeforeEach
     void setUp() {
         club = createClub();
-        member = setUpMemberSession();
+        member = createExampleMember();
     }
 
     private Club club;
@@ -357,7 +356,8 @@ class ItemServiceTest {
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
 
         LocalDateTime now = LocalDateTime.of(2024, 11, 8, 2, 17, 4, 844856);
-        ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3), now.minusDays(2));
+        ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3),
+                now.minusDays(2));
 
         // when
         List<ItemHistoryResponse> response = itemService.getMyHistoryItems(club.getClubId());
@@ -380,7 +380,8 @@ class ItemServiceTest {
         ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3), null);
 
         // when
-        List<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(), clubMember.getClubMemberId());
+        List<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(),
+                clubMember.getClubMemberId());
 
         // then
         assertThat(response)
@@ -397,10 +398,12 @@ class ItemServiceTest {
         ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
 
         LocalDateTime now = LocalDateTime.now();
-        ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3), now.minusDays(2));
+        ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3),
+                now.minusDays(2));
 
         // when
-        List<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(), clubMember.getClubMemberId());
+        List<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(),
+                clubMember.getClubMemberId());
 
         // then
         assertThat(response)
@@ -417,24 +420,6 @@ class ItemServiceTest {
                 .build();
         itemBorrowedRepository.save(itemBorrowed);
         return itemBorrowed;
-    }
-
-    private Member setUpMemberSession() {
-        String provideId = "testProvideId";
-        Member member = Member.builder()
-                .memberProvideId(provideId)
-                .memberName("John Doe")
-                .memberEmail("john.doe@example.com")
-                .build();
-        memberRepository.save(member);
-
-        String role = "USER_ROLE";
-        CustomUserDetails customUserDetails = new CustomUserDetails(provideId, role);
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-
-        return member;
     }
 
     private Club createClub() {
@@ -491,8 +476,9 @@ class ItemServiceTest {
                 .build();
     }
 
-    private ItemHistory createItemHistory(Item item, ClubMember clubMember, LocalDateTime rentalDate, LocalDateTime dueDate,
-                                   LocalDateTime returnDate) {
+    private ItemHistory createItemHistory(Item item, ClubMember clubMember, LocalDateTime rentalDate,
+                                          LocalDateTime dueDate,
+                                          LocalDateTime returnDate) {
         ItemHistory itemHistory = ItemHistory.builder()
                 .item(item)
                 .clubMember(clubMember)

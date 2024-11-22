@@ -2,7 +2,9 @@ package woohakdong.server.api.service.notification;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willDoNothing;
+import static woohakdong.server.config.TestConstants.TEST_PROVIDE_ID;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.OFFICER;
+import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.member.MemberGender.MAN;
 
 import java.time.LocalDate;
@@ -11,32 +13,24 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
+import woohakdong.server.api.service.SecurityContextSetUp;
 import woohakdong.server.api.service.email.EmailClientImpl;
-import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
+import woohakdong.server.domain.clubmember.ClubMemberRole;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.schedule.Schedule;
 import woohakdong.server.domain.schedule.ScheduleRepository;
 
-@SpringBootTest
-@ActiveProfiles("test")
-@Transactional
-class NotificationServiceTest {
+class NotificationServiceTest extends SecurityContextSetUp {
 
     @Autowired
     private NotificationService notificationService;
@@ -67,20 +61,16 @@ class NotificationServiceTest {
 
     @BeforeEach
     void setUp() {
-        String provideId = "testProvideId";
-        CustomUserDetails userDetails = new CustomUserDetails(provideId, "USER_ROLE");
-        Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        member1 = createMember(provideId, "박상준", "sangjun@example.com");
+        member = createMember(TEST_PROVIDE_ID, "박상준", "sangjun@example.com");
         Member member2 = createMember("testProvideId2", "김우학", "woohak@example.com");
         Member member3 = createMember("testProvideId3", "최햇반", "hatban@example.com");
         club = createClub("두잇");
-        createClubMember(member1, club);
-        createClubMember(member2, club);
-        createClubMember(member3, club);
+        createClubMember(member, club, PRESIDENT);
+        createClubMember(member2, club, OFFICER);
+        createClubMember(member3, club, OFFICER);
     }
 
-    private Member member1;
+    private Member member;
     private Club club;
 
     @DisplayName("동아리 정보를 포함한 이메일을 동아리원들에게 전송할 수 있다.")
@@ -140,12 +130,12 @@ class NotificationServiceTest {
         return clubRepository.save(club);
     }
 
-    private ClubMember createClubMember(Member member, Club club) {
+    private ClubMember createClubMember(Member member, Club club, ClubMemberRole role) {
         ClubMember clubMember = ClubMember.builder()
                 .member(member)
                 .club(club)
                 .clubMemberAssignedTerm(LocalDate.of(2024, 7, 1))
-                .clubMemberRole(OFFICER)
+                .clubMemberRole(role)
                 .clubJoinedDate(LocalDate.of(2024, 8, 1))
                 .build();
         return clubMemberRepository.save(clubMember);
