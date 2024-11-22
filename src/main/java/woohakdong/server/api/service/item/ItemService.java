@@ -3,7 +3,6 @@ package woohakdong.server.api.service.item;
 import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_NOT_AVAILABLE;
 import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_NOT_USING;
 import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_USING;
-import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,13 +10,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.item.dto.*;
+import woohakdong.server.api.controller.item.dto.ItemAvailableUpdateRequest;
+import woohakdong.server.api.controller.item.dto.ItemBorrowResponse;
+import woohakdong.server.api.controller.item.dto.ItemBorrowedResponse;
+import woohakdong.server.api.controller.item.dto.ItemHistoryResponse;
+import woohakdong.server.api.controller.item.dto.ItemInfoResponse;
+import woohakdong.server.api.controller.item.dto.ItemRegisterRequest;
+import woohakdong.server.api.controller.item.dto.ItemRegisterResponse;
+import woohakdong.server.api.controller.item.dto.ItemResponse;
+import woohakdong.server.api.controller.item.dto.ItemReturnRequest;
+import woohakdong.server.api.controller.item.dto.ItemReturnResponse;
+import woohakdong.server.api.controller.item.dto.ItemUpdateRequest;
+import woohakdong.server.api.controller.item.dto.ItemUpdateResponse;
 import woohakdong.server.common.exception.CustomException;
-import woohakdong.server.common.security.jwt.CustomUserDetails;
+import woohakdong.server.common.util.security.SecurityUtil;
 import woohakdong.server.domain.ItemHistory.ItemHistory;
 import woohakdong.server.domain.ItemHistory.ItemHistoryRepository;
 import woohakdong.server.domain.club.Club;
@@ -30,16 +38,16 @@ import woohakdong.server.domain.item.ItemRepository;
 import woohakdong.server.domain.itemBorrowed.ItemBorrowed;
 import woohakdong.server.domain.itemBorrowed.ItemBorrowedRepository;
 import woohakdong.server.domain.member.Member;
-import woohakdong.server.domain.member.MemberRepository;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ItemService {
 
+    private final SecurityUtil securityUtil;
+
     private final ItemRepository itemRepository;
     private final ClubRepository clubRepository;
-    private final MemberRepository memberRepository;
     private final ItemHistoryRepository itemHistoryRepository;
     private final ClubMemberRepository clubMemberRepository;
     private final ItemBorrowedRepository itemBorrowedRepository;
@@ -57,9 +65,9 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public List<ItemResponse> getItemsByFilters(Long clubId, String keyword, String category, Boolean using, Boolean available, Boolean overdue) {
+    public List<ItemResponse> getItemsByFilters(Long clubId, String keyword, String category, Boolean using,
+                                                Boolean available, Boolean overdue) {
         Club club = clubRepository.getById(clubId);
-
         List<Item> items;
 
         if (keyword == null && category == null && using == null && available == null) {
@@ -86,7 +94,7 @@ public class ItemService {
 
     @Transactional
     public ItemBorrowResponse borrowItem(Long clubId, Long itemId) {
-        Member member = getMemberFromJwtInformation();
+        Member member = securityUtil.getMember();
         Club club = clubRepository.getById(clubId);
         Item item = itemRepository.getByIdForUpdate(itemId);
         LocalDate assignedTerm = getAssignedTerm();
@@ -108,7 +116,8 @@ public class ItemService {
         ItemHistory itemHistory = ItemHistory.create(clubMember, member.getMemberName(), item, borrowDate, dueDate);
         itemHistoryRepository.save(itemHistory);
 
-        ItemBorrowed itemBorrowed = ItemBorrowed.createItemBorrowed(clubMember, item, item.getItemRentalDate().plusDays(item.getItemRentalMaxDay()));
+        ItemBorrowed itemBorrowed = ItemBorrowed.createItemBorrowed(clubMember, item,
+                item.getItemRentalDate().plusDays(item.getItemRentalMaxDay()));
         itemBorrowedRepository.save(itemBorrowed);
 
         return ItemBorrowResponse.builder()
@@ -121,7 +130,7 @@ public class ItemService {
 
     @Transactional
     public ItemReturnResponse returnItem(Long clubId, Long itemId, ItemReturnRequest request) {
-        Member member = getMemberFromJwtInformation();
+        Member member = securityUtil.getMember();
         Club club = clubRepository.getById(clubId);
         Item item = itemRepository.getById(itemId);
         LocalDate assignedTerm = getAssignedTerm();
@@ -166,8 +175,10 @@ public class ItemService {
         List<ItemHistoryResponse> historyResponses = itemHistoryRepository.getAllByItem(item).stream()
                 .map(history -> {
                     Boolean isOverdue = history.getItemDueDate() != null && (
-                            (history.getItemReturnDate() == null && history.getItemDueDate().isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
-                                    (history.getItemReturnDate() != null && history.getItemReturnDate().isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
+                            (history.getItemReturnDate() == null && history.getItemDueDate()
+                                    .isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
+                                    (history.getItemReturnDate() != null && history.getItemReturnDate()
+                                            .isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
                     );
 
                     return ItemHistoryResponse.from(
@@ -219,7 +230,7 @@ public class ItemService {
     }
 
     public List<ItemBorrowedResponse> getMyBorrowedItems(Long clubId) {
-        Member member = getMemberFromJwtInformation();
+        Member member = securityUtil.getMember();
         Club club = clubRepository.getById(clubId);
         LocalDate assignedTerm = getAssignedTerm();
 
@@ -227,14 +238,15 @@ public class ItemService {
         List<ItemBorrowed> borrowedItems = itemBorrowedRepository.getByClubMember(clubMember);
 
         List<ItemBorrowedResponse> itemBorrowedResponses = borrowedItems.stream()
-                .map(itemBorrowed -> ItemBorrowedResponse.from(itemBorrowed.getItem(), itemBorrowed.getItemBorrowedReturnDate()))
+                .map(itemBorrowed -> ItemBorrowedResponse.from(itemBorrowed.getItem(),
+                        itemBorrowed.getItemBorrowedReturnDate()))
                 .collect(Collectors.toList());
 
         return itemBorrowedResponses;
     }
 
     public List<ItemHistoryResponse> getMyHistoryItems(Long clubId) {
-        Member member = getMemberFromJwtInformation();
+        Member member = securityUtil.getMember();
         Club club = clubRepository.getById(clubId);
         LocalDate assignedTerm = getAssignedTerm();
         ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
@@ -243,8 +255,10 @@ public class ItemService {
         List<ItemHistoryResponse> itemHistoryResponses = histories.stream()
                 .map(history -> {
                     Boolean isOverdue = history.getItemDueDate() != null && (
-                            (history.getItemReturnDate() == null && history.getItemDueDate().isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
-                                    (history.getItemReturnDate() != null && history.getItemReturnDate().isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
+                            (history.getItemReturnDate() == null && history.getItemDueDate()
+                                    .isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
+                                    (history.getItemReturnDate() != null && history.getItemReturnDate()
+                                            .isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
                     );
 
                     return ItemHistoryResponse.from(
@@ -268,8 +282,10 @@ public class ItemService {
         List<ItemHistoryResponse> itemHistoryResponses = histories.stream()
                 .map(history -> {
                     Boolean isOverdue = history.getItemDueDate() != null && (
-                            (history.getItemReturnDate() == null && history.getItemDueDate().isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
-                                    (history.getItemReturnDate() != null && history.getItemReturnDate().isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
+                            (history.getItemReturnDate() == null && history.getItemDueDate()
+                                    .isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
+                                    (history.getItemReturnDate() != null && history.getItemReturnDate()
+                                            .isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
                     );
 
                     return ItemHistoryResponse.from(
@@ -291,15 +307,6 @@ public class ItemService {
         return LocalDate.of(year, semester, 1);
     }
 
-    private Member getMemberFromJwtInformation() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        String provideId = userDetails.getUsername();
-
-        return memberRepository.findByMemberProvideId(provideId)
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
-    }
-
     private void getItemByOhters(List<Item> items, List<ItemResponse> responses) {
         for (Item item : items) {
             ItemResponse itemResponse;
@@ -307,12 +314,10 @@ public class ItemService {
                 ItemHistory history = itemHistoryRepository.getByItemAndItemReturnDateIsNull(item);
                 if (history.getItemDueDate().isBefore(LocalDateTime.now())) {
                     itemResponse = ItemResponse.of(item, history.getMemberName(), true);
-                }
-                else {
+                } else {
                     itemResponse = ItemResponse.of(item, history.getMemberName(), false);
                 }
-            }
-            else {
+            } else {
                 itemResponse = ItemResponse.of(item, null, false);
             }
             responses.add(itemResponse);
@@ -329,15 +334,13 @@ public class ItemService {
                         itemResponse = ItemResponse.of(item, history.getMemberName(), true);
                     }
                 }
-            }
-            else {
+            } else {
                 if (Boolean.TRUE.equals(item.getItemUsing())) {
                     ItemHistory history = itemHistoryRepository.getByItemAndItemReturnDateIsNull(item);
                     if (history.getItemDueDate().isAfter(LocalDateTime.now())) {
                         itemResponse = ItemResponse.of(item, history.getMemberName(), false);
                     }
-                }
-                else {
+                } else {
                     itemResponse = ItemResponse.of(item, null, false);
                 }
             }

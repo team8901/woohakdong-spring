@@ -2,7 +2,6 @@ package woohakdong.server.api.service.order;
 
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_ALREADY_JOINED;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_GROUP_ALREADY_JOINED;
-import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
 import static woohakdong.server.common.exception.CustomErrorInfo.ORDER_ALREADY_EXIST;
 import static woohakdong.server.common.exception.CustomErrorInfo.ORDER_NOT_FOUND;
 import static woohakdong.server.common.exception.CustomErrorInfo.ORDER_NOT_VALID_AMOUNT;
@@ -15,8 +14,6 @@ import static woohakdong.server.domain.group.GroupType.JOIN;
 
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.group.dto.CreateOrderRequest;
@@ -27,7 +24,7 @@ import woohakdong.server.api.controller.group.dto.PortOneWebhookRequest;
 import woohakdong.server.api.service.bank.MockBankService;
 import woohakdong.server.api.service.email.EmailService;
 import woohakdong.server.common.exception.CustomException;
-import woohakdong.server.common.security.jwt.CustomUserDetails;
+import woohakdong.server.common.util.security.SecurityUtil;
 import woohakdong.server.domain.admin.adminAccount.AdminAccount;
 import woohakdong.server.domain.admin.adminAccount.AdminAccountRepository;
 import woohakdong.server.domain.admin.adminAccountHistory.AdminAccountHistory;
@@ -38,7 +35,6 @@ import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.group.GroupRepository;
 import woohakdong.server.domain.member.Member;
-import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.order.Order;
 import woohakdong.server.domain.order.OrderRepository;
 import woohakdong.server.domain.payment.Payment;
@@ -52,7 +48,8 @@ public class OrderService {
     private final MockBankService mockBankService;
     private final PaymentClient paymentClient;
 
-    private final MemberRepository memberRepository;
+    private final SecurityUtil securityUtil;
+
     private final ClubMemberRepository clubMemberRepository;
     private final GroupRepository groupRepository;
     private final OrderRepository orderRepository;
@@ -61,7 +58,7 @@ public class OrderService {
 
     @Transactional
     public OrderIdResponse registerOrder(Long groupId, CreateOrderRequest request) {
-        Member member = getMemberFromJwtInformation();
+        Member member = securityUtil.getMember();
         Group group = groupRepository.getById(groupId);
 
         validateOrderCreation(request);
@@ -75,7 +72,7 @@ public class OrderService {
 
     @Transactional
     public void confirmOrderPayment(Long groupId, PaymentCompleteReqeust request, LocalDate date) {
-        Member member = getMemberFromJwtInformation();
+        Member member = securityUtil.getMember();
         Order order = orderRepository.getById(request.orderId());
 
         if (order.isOrderComplete()) {
@@ -198,14 +195,5 @@ public class OrderService {
         int year = now.getYear();
         int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
         return LocalDate.of(year, semester, 1);
-    }
-
-    private Member getMemberFromJwtInformation() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        String provideId = userDetails.getUsername();
-
-        return memberRepository.findByMemberProvideId(provideId)
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
     }
 }

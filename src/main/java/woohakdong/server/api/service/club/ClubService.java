@@ -4,7 +4,6 @@ import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_EXPIRED;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_MEMBER_ROLE_NOT_ALLOWED;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NAME_DUPLICATION;
 import static woohakdong.server.common.exception.CustomErrorInfo.INVALID_BANK_NAME;
-import static woohakdong.server.common.exception.CustomErrorInfo.MEMBER_NOT_FOUND;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.group.GroupType.CLUB_PAYMENT;
 import static woohakdong.server.domain.group.GroupType.JOIN;
@@ -13,8 +12,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.club.dto.ClubAccountRegisterRequest;
@@ -27,7 +24,7 @@ import woohakdong.server.api.controller.club.dto.ClubSummaryResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
 import woohakdong.server.common.exception.CustomException;
-import woohakdong.server.common.security.jwt.CustomUserDetails;
+import woohakdong.server.common.util.security.SecurityUtil;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubAccount.ClubAccount;
@@ -39,7 +36,6 @@ import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.group.GroupRepository;
 import woohakdong.server.domain.member.Member;
-import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
 
 @Service
@@ -49,12 +45,14 @@ public class ClubService {
 
     public static final String WOOHAKDONG_CLUB_PREFIX = "https://www.woohakdong.com/clubs/";
 
+    private final SecurityUtil securityUtil;
+
     private final ClubRepository clubRepository;
-    private final MemberRepository memberRepository;
     private final ClubAccountRepository clubAccountRepository;
     private final ClubMemberRepository clubMemberRepository;
     private final GroupRepository groupRepository;
     private final ClubHistoryRepository clubHistoryRepository;
+
 
     public void validateClubWithNames(String clubName, String clubEnglishName) {
         if (clubRepository.existsByClubNameOrClubEnglishName(clubName, clubEnglishName)) {
@@ -64,7 +62,7 @@ public class ClubService {
 
     @Transactional
     public ClubIdResponse registerClub(ClubCreateRequest request, LocalDate date) {
-        Member member = getMemberFromJwtInformation();
+        Member member = securityUtil.getMember();
         School school = member.getSchool();
 
         validateClubWithNames(request.clubName(), request.clubEnglishName());
@@ -98,7 +96,7 @@ public class ClubService {
 
     @Transactional
     public void registerClubAccount(Long clubId, ClubAccountRegisterRequest request) {
-        Member member = getMemberFromJwtInformation();
+        Member member = securityUtil.getMember();
         Club club = clubRepository.getById(clubId);
 
         if (!clubMemberRepository.existsByClubAndMemberAndClubMemberRole(club, member, PRESIDENT)) {
@@ -128,7 +126,7 @@ public class ClubService {
     }
 
     public List<ClubInfoResponse> getJoinedClubInfos() {
-        Member member = getMemberFromJwtInformation();
+        Member member = securityUtil.getMember();
         List<ClubMember> clubMembers = clubMemberRepository.getAllByMember(member);
 
         return clubMembers.stream()
@@ -177,15 +175,6 @@ public class ClubService {
         Club club = clubRepository.getById(clubId);
         Group group = groupRepository.getByClubAndGroupType(club, CLUB_PAYMENT);
         return GroupInfoResponse.from(group);
-    }
-
-    private Member getMemberFromJwtInformation() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        String provideId = userDetails.getUsername();
-
-        return memberRepository.findByMemberProvideId(provideId)
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
     }
 
     private LocalDate getAssignedTerm(LocalDate now) {
