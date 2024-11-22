@@ -92,7 +92,7 @@ public class Club extends BaseEntity {
 
     public static Club create(String clubName, String clubEnglishName, String clubDescription, String clubImage,
                               String clubRoom, String clubGeneration, Integer clubDues, String clubGroupChatLink,
-                              String clubGroupChatPassword, School school) {
+                              String clubGroupChatPassword, LocalDate date, School school) {
         return Club.builder()
                 .clubDescription(clubDescription)
                 .clubEnglishName(clubEnglishName)
@@ -104,7 +104,7 @@ public class Club extends BaseEntity {
                 .clubGroupChatLink(clubGroupChatLink)
                 .clubGroupChatPassword(clubGroupChatPassword)
                 .school(school)
-                .clubExpirationDate(LocalDate.now().plusMonths(6))
+                .clubExpirationDate(date)
                 .build();
     }
 
