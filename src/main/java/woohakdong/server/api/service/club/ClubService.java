@@ -168,8 +168,10 @@ public class ClubService {
         Integer clubMemberNumber = clubMemberRepository.countByClubAndAssignedTerm(club, assignedTerm);
 
         if (club.isExpired(date)) {
-            Group group = Group.createClubPaymentGroup(club, clubMemberNumber);
-            club.addGroup(group);
+            if ( !groupRepository.checkExistenceClubGroup(club, CLUB_PAYMENT)) {
+                Group group = Group.createClubPaymentGroup(club, clubMemberNumber);
+                club.addGroup(group);
+            }
             throw new CustomException(CLUB_EXPIRED);
         }
     }

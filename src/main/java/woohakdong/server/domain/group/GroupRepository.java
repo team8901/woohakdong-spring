@@ -13,4 +13,6 @@ public interface GroupRepository {
     Group getByClubAndGroupType(Club club, GroupType groupType);
 
     List<Group> getAllByClubAndGroupType(Club club, GroupType groupType);
+
+    boolean checkExistenceClubGroup(Club club, GroupType groupType);
 }
