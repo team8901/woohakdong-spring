@@ -1,5 +1,9 @@
 package woohakdong.server.domain.clubmember;
 
+import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_ADMIN_ROLE_NOT_ALLOWED;
+import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_MEMBER_ROLE_NOT_ALLOWED;
+import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,6 +19,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.domain.BaseEntity;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.member.Member;
@@ -70,5 +75,11 @@ public class ClubMember extends BaseEntity {
 
     public void changeRole(ClubMemberRole clubMemberRole) {
         this.clubMemberRole = clubMemberRole;
+    }
+
+    public void hasAuthorityOf(ClubMemberRole role) {
+        if (!this.clubMemberRole.hasAuthorityOf(role)) {
+            throw new CustomException(CLUB_MEMBER_ROLE_NOT_ALLOWED);
+        }
     }
 }

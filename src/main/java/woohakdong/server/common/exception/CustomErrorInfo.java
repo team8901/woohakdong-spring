@@ -42,7 +42,8 @@ public enum CustomErrorInfo {
     ITEM_BORROWED_NOT_FOUND(400, "item borrowed not found", 400034),
     CLUB_EXPIRED(400, "club expired", 400035),
     CLUB_NOT_EXPIRED(400, "club not expired", 400036),
-
+    MEMBER_ROLE_NOT_ADMIN(400, "member role is not admin", 400037),
+    CLUB_ADMIN_ROLE_NOT_ALLOWED(400, "club admin role not allowed", 400038),
 
     // 401 UNAUTHORIZED
     INVALID_ACCESS_TOKEN(401, "Invaild access token", 401001),

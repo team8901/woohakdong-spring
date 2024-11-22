@@ -96,4 +96,8 @@ public class Member extends BaseEntity {
         this.memberEmail = memberEmail;
         this.memberPassword = memberPassword;
     }
+
+    public boolean isAdmin() {
+        return this.memberRole.equals("ADMIN_ROLE");
+    }
 }
