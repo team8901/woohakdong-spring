@@ -40,4 +40,9 @@ public class GroupRepositoryImpl implements GroupRepository {
     public List<Group> getAllByClubAndGroupType(Club club, GroupType groupType) {
         return groupJpaRepository.findAllByClubAndGroupType(club, groupType);
     }
+
+    @Override
+    public boolean checkExistenceClubGroup(Club club, GroupType groupType) {
+        return groupJpaRepository.existsByClubAndGroupType(club, groupType);
+    }
 }
