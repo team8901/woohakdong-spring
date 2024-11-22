@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_NOT_AVAILABLE;
 import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_USING;
-import static woohakdong.server.config.TestConstants.TEST_PROVIDE_ID;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.MEMBER;
 import static woohakdong.server.domain.item.ItemCategory.SPORT;
 
@@ -28,6 +27,7 @@ import woohakdong.server.api.controller.item.dto.ItemReturnResponse;
 import woohakdong.server.api.controller.item.dto.ItemUpdateRequest;
 import woohakdong.server.api.service.SecurityContextSetUp;
 import woohakdong.server.common.exception.CustomException;
+import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.domain.ItemHistory.ItemHistory;
 import woohakdong.server.domain.ItemHistory.ItemHistoryRepository;
 import woohakdong.server.domain.club.Club;
@@ -41,7 +41,6 @@ import woohakdong.server.domain.item.ItemRepository;
 import woohakdong.server.domain.itemBorrowed.ItemBorrowed;
 import woohakdong.server.domain.itemBorrowed.ItemBorrowedRepository;
 import woohakdong.server.domain.member.Member;
-import woohakdong.server.domain.member.MemberRepository;
 
 class ItemServiceTest extends SecurityContextSetUp {
     @Autowired
@@ -61,6 +60,9 @@ class ItemServiceTest extends SecurityContextSetUp {
 
     @Autowired
     private ItemBorrowedRepository itemBorrowedRepository;
+
+    @Autowired
+    private DateUtil dateUtil;
 
     @BeforeEach
     void setUp() {
@@ -116,10 +118,11 @@ class ItemServiceTest extends SecurityContextSetUp {
     void borrowItemSuccess() {
         // given
         Item item = createItem(club, "축구공", SPORT, 7, false);
-        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
+        LocalDate date = LocalDate.of(2024, 11, 23);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
         // when
-        itemService.borrowItem(club.getClubId(), item.getItemId());
+        itemService.borrowItem(club.getClubId(), item.getItemId(), date);
 
         // then
         Item borrowedItem = itemRepository.getById(item.getItemId());
@@ -136,10 +139,11 @@ class ItemServiceTest extends SecurityContextSetUp {
         // Given
         Item item = createItem(club, "축구공", SPORT, 7, false);
         item.setItemAvailable(false);
-        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
+        LocalDate date = LocalDate.of(2024, 11, 23);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
         // When & Then
-        assertThatThrownBy(() -> itemService.borrowItem(club.getClubId(), item.getItemId()))
+        assertThatThrownBy(() -> itemService.borrowItem(club.getClubId(), item.getItemId(), date))
                 .isInstanceOf(CustomException.class)
                 .hasMessage(ITEM_NOT_AVAILABLE.getMessage());
     }
@@ -149,10 +153,11 @@ class ItemServiceTest extends SecurityContextSetUp {
     void borrowItemAlreadyInUseFailure() {
         // given
         Item item = createItem(club, "축구공", SPORT, 7, true);
-        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
+        LocalDate date = LocalDate.of(2024, 11, 23);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
         // when & then
-        assertThatThrownBy(() -> itemService.borrowItem(club.getClubId(), item.getItemId()))
+        assertThatThrownBy(() -> itemService.borrowItem(club.getClubId(), item.getItemId(), date))
                 .isInstanceOf(CustomException.class)
                 .hasMessage(ITEM_USING.getMessage());
     }
@@ -163,12 +168,12 @@ class ItemServiceTest extends SecurityContextSetUp {
         // given
         Item item = createItem(club, "축구공", SPORT, 7, false);
         ItemReturnRequest request = createItemReturnRequest("http://example.com/return_photo.png");
-        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
-
-        itemService.borrowItem(club.getClubId(), item.getItemId());
+        LocalDate date = LocalDate.of(2024, 11, 23);
+        createClubMember(club, member, MEMBER, date);
+        itemService.borrowItem(club.getClubId(), item.getItemId(), date);
 
         // when
-        ItemReturnResponse itemReturnResponse = itemService.returnItem(club.getClubId(), item.getItemId(), request);
+        ItemReturnResponse response = itemService.returnItem(club.getClubId(), item.getItemId(), request, date);
 
         // then
         Item returnedItem = itemRepository.getById(item.getItemId());
@@ -177,7 +182,7 @@ class ItemServiceTest extends SecurityContextSetUp {
                 .containsExactly(false, true);
 
         // 반납 기록이 잘 저장되었는지 확인
-        ItemHistory history = itemHistoryRepository.getById(itemReturnResponse.itemHistoryId());
+        ItemHistory history = itemHistoryRepository.getById(response.itemHistoryId());
         assertThat(history.getItemReturnDate()).isBefore(LocalDateTime.now());
     }
 
@@ -186,11 +191,12 @@ class ItemServiceTest extends SecurityContextSetUp {
     void getItemHistorySuccess() {
         // given
         Item item = createItem(club, "축구공", SPORT, 7, false);
-        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
+        LocalDate date = LocalDate.of(2024, 11, 23);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
-        LocalDateTime now = LocalDateTime.now();
-        createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3), now.minusDays(2));
-        createItemHistory(item, clubMember, now, now.plusDays(7), null);
+        LocalDateTime dateTime = date.atStartOfDay();
+        createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), dateTime.minusDays(2));
+        createItemHistory(item, clubMember, dateTime, dateTime.plusDays(7), null);
 
         // when
         List<ItemHistoryResponse> itemHistoryResponses = itemService.getItemHistory(club.getClubId(), item.getItemId());
@@ -199,8 +205,8 @@ class ItemServiceTest extends SecurityContextSetUp {
         assertThat(itemHistoryResponses)
                 .extracting("itemRentalDate", "itemDueDate", "itemReturnDate")
                 .containsExactly(
-                        tuple(now, now.plusDays(7), null),
-                        tuple(now.minusDays(10), now.minusDays(3), now.minusDays(2))
+                        tuple(dateTime, dateTime.plusDays(7), null),
+                        tuple(dateTime.minusDays(10), dateTime.minusDays(3), dateTime.minusDays(2))
                 );
     }
 
@@ -229,9 +235,12 @@ class ItemServiceTest extends SecurityContextSetUp {
         // given
         createItem(club, "축구공", SPORT, 7, false);
         Item item = createItem(club, "농구공", SPORT, 5, true);
-        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
-        LocalDateTime now = LocalDateTime.now();
-        ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3), null);
+        LocalDate date = LocalDate.of(2024, 11, 23);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, date);
+        LocalDateTime dateTime = date.atStartOfDay();
+
+        ItemHistory itemHistory = createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3),
+                null);
 
         // when
         List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", true, true, null);
@@ -250,9 +259,10 @@ class ItemServiceTest extends SecurityContextSetUp {
         // given
         createItem(club, "축구공", SPORT, 7, false);
         Item item = createItem(club, "농구공", SPORT, 5, true);
-        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
-        LocalDateTime now = LocalDateTime.now();
-        ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3), null);
+        LocalDate date = LocalDate.of(2024, 11, 23);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, date);
+        LocalDateTime dateTime = date.atStartOfDay();
+        createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), null);
 
         // when
         List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", true, true, true);
@@ -271,9 +281,11 @@ class ItemServiceTest extends SecurityContextSetUp {
         // given
         createItem(club, "축구공", SPORT, 7, false);
         Item item = createItem(club, "농구공", SPORT, 5, true);
-        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
-        LocalDateTime now = LocalDateTime.now();
-        ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(3), now.plusDays(4), null);
+        LocalDate date = LocalDate.of(2024, 11, 23);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, date);
+
+        LocalDateTime dateTime = date.atStartOfDay();
+        createItemHistory(item, clubMember, dateTime.minusDays(3), dateTime.plusDays(4), null);
 
         // when
         List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", null, null, false);
@@ -320,11 +332,12 @@ class ItemServiceTest extends SecurityContextSetUp {
     void getMyBorrowedItems_success() {
         // given
         Item item = createItem(club, "축구공", SPORT, 7, false);
-        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
+        LocalDate date = LocalDate.of(2024, 11, 23);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, date);
         ItemBorrowed itemBorrowed = createItemBorrowed(clubMember, item);
 
         // when
-        List<ItemBorrowedResponse> response = itemService.getMyBorrowedItems(club.getClubId());
+        List<ItemBorrowedResponse> response = itemService.getMyBorrowedItems(club.getClubId(), date);
 
         // then
         assertThat(response)
@@ -353,20 +366,21 @@ class ItemServiceTest extends SecurityContextSetUp {
     void getMyHistoryItems_success() {
         // given
         Item item = createItem(club, "축구공", SPORT, 7, false);
-        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
+        LocalDate date = LocalDate.of(2024, 11, 8);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
-        LocalDateTime now = LocalDateTime.of(2024, 11, 8, 2, 17, 4, 844856);
-        ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3),
-                now.minusDays(2));
+        LocalDateTime dateTime = date.atStartOfDay();
+        ItemHistory itemHistory = createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3),
+                dateTime.minusDays(2));
 
         // when
-        List<ItemHistoryResponse> response = itemService.getMyHistoryItems(club.getClubId());
+        List<ItemHistoryResponse> response = itemService.getMyHistoryItems(club.getClubId(), date);
 
         // then
         assertThat(response)
                 .isNotEmpty()
                 .extracting("itemRentalDate", "itemDueDate")
-                .containsExactly(tuple(now.minusDays(10), now.minusDays(3)));
+                .containsExactly(tuple(dateTime.minusDays(10), dateTime.minusDays(3)));
     }
 
     @DisplayName("동아리 회원의 물품 대여 기록 리스트를 확인할 수 있다.")
@@ -374,10 +388,11 @@ class ItemServiceTest extends SecurityContextSetUp {
     void getClubMemberHistoryItems_success() {
         // given
         Item item = createItem(club, "축구공", SPORT, 7, false);
-        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
+        LocalDate now = LocalDate.now();
+        ClubMember clubMember = createClubMember(club, member, MEMBER, now);
 
-        LocalDateTime now = LocalDateTime.now();
-        ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3), null);
+        LocalDateTime dateTime = now.atStartOfDay();
+        createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), null);
 
         // when
         List<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(),
@@ -387,7 +402,7 @@ class ItemServiceTest extends SecurityContextSetUp {
         assertThat(response)
                 .isNotEmpty()
                 .extracting("itemRentalDate", "itemDueDate", "itemName", "itemOverdue")
-                .containsExactly(tuple(now.minusDays(10), now.minusDays(3), "축구공", true));
+                .containsExactly(tuple(dateTime.minusDays(10), dateTime.minusDays(3), "축구공", true));
     }
 
     @DisplayName("동아리 회원의 물품 대여 기록 연체된 것을 확인할 수 있다.")
@@ -395,11 +410,11 @@ class ItemServiceTest extends SecurityContextSetUp {
     void getClubMemberHistoryItemsOverdue_success() {
         // given
         Item item = createItem(club, "축구공", SPORT, 7, false);
-        ClubMember clubMember = createClubMember(club, member, MEMBER, getAssignedTerm(LocalDate.now()));
+        LocalDate date = LocalDate.of(2024, 11, 23);
+        ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
-        LocalDateTime now = LocalDateTime.now();
-        ItemHistory itemHistory = createItemHistory(item, clubMember, now.minusDays(10), now.minusDays(3),
-                now.minusDays(2));
+        LocalDateTime dateTime = date.atStartOfDay();
+        createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), dateTime.minusDays(2));
 
         // when
         List<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(),
@@ -409,7 +424,7 @@ class ItemServiceTest extends SecurityContextSetUp {
         assertThat(response)
                 .isNotEmpty()
                 .extracting("itemRentalDate", "itemDueDate", "itemName", "itemOverdue")
-                .containsExactly(tuple(now.minusDays(10), now.minusDays(3), "축구공", true));
+                .containsExactly(tuple(dateTime.minusDays(10), dateTime.minusDays(3), "축구공", true));
     }
 
     private ItemBorrowed createItemBorrowed(ClubMember clubMember, Item item) {
@@ -491,19 +506,13 @@ class ItemServiceTest extends SecurityContextSetUp {
         return itemHistory;
     }
 
-    private ClubMember createClubMember(Club club, Member member, ClubMemberRole memberRole, LocalDate assignedTerm) {
+    private ClubMember createClubMember(Club club, Member member, ClubMemberRole memberRole, LocalDate date) {
         ClubMember clubMember = ClubMember.builder()
-                .clubMemberAssignedTerm(getAssignedTerm(assignedTerm))
+                .clubMemberAssignedTerm(dateUtil.getAssignedTerm(date))
                 .club(club)
                 .member(member)
                 .clubMemberRole(memberRole)
                 .build();
         return clubMemberRepository.save(clubMember);
-    }
-
-    private LocalDate getAssignedTerm(LocalDate date) {
-        int year = date.getYear();
-        int semester = date.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
-        return LocalDate.of(year, semester, 1);
     }
 }

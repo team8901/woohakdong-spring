@@ -17,13 +17,13 @@ public class NotificationController implements NotificationControllerDocs {
 
     @PostMapping("/clubs")
     public void sendNotificationWithClubInfoUpdate(@PathVariable Long clubId) {
-        notificationService.sendNotificationWithClubInfoUpdate(clubId, getAssignedTerm());
+        notificationService.sendNotificationWithClubInfoUpdate(clubId, LocalDate.now());
     }
 
     @PostMapping("/schedules/{scheduleId}")
     public void sendNotificationWithSchedule(@PathVariable Long clubId,
                                              @PathVariable Long scheduleId) {
-        notificationService.sendNotificationWithSchedule(clubId, scheduleId, getAssignedTerm());
+        notificationService.sendNotificationWithSchedule(clubId, scheduleId, LocalDate.now());
     }
 
     @PostMapping("/groups/{groupId}")
@@ -32,10 +32,5 @@ public class NotificationController implements NotificationControllerDocs {
 
     }
 
-    private LocalDate getAssignedTerm() {
-        LocalDate now = LocalDate.now();
-        int year = now.getYear();
-        int semester = now.getMonthValue() <= 6 ? 1 : 7; // 1: 1학기, 7: 2학기
-        return LocalDate.of(year, semester, 1);
-    }
+
 }

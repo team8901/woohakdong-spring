@@ -61,7 +61,7 @@ public class ClubController implements ClubControllerDocs {
 
     @PostMapping("/{clubId}/accounts")
     public void registerClubAccount(@PathVariable Long clubId, @RequestBody ClubAccountRegisterRequest request) {
-        clubService.registerClubAccount(clubId, request);
+        clubService.registerClubAccount(clubId, request, LocalDate.now());
     }
 
     @PostMapping("/accounts/validate")
