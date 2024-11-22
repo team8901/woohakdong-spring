@@ -65,20 +65,21 @@ public class ClubService {
     public ClubIdResponse registerClub(ClubCreateRequest request, LocalDate date) {
         Member member = securityUtil.getMember();
         School school = member.getSchool();
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
 
         validateClubWithNames(request.clubName(), request.clubEnglishName());
 
         Club club = Club.create(request.clubName(), request.clubEnglishName(), request.clubDescription(),
                 request.clubImage(), request.clubRoom(), request.clubGeneration(), request.clubDues(),
-                request.clubGroupChatLink(), request.clubGroupChatPassword(), school);
+                request.clubGroupChatLink(), request.clubGroupChatPassword(), assignedTerm, school);
 
         Group group = Group.create(club.getClubName(),
                 club.getClubName() + "의 " + club.getClubGeneration() + "기 동아리 가입하기", club.getClubDues(),
                 WOOHAKDONG_CLUB_PREFIX + club.getClubEnglishName(), club.getClubGroupChatLink(),
                 club.getClubGroupChatPassword(), JOIN, club);
 
-        ClubMember clubMember = ClubMember.create(club, dateUtil.getAssignedTerm(date), PRESIDENT, member);
-        ClubHistory clubHistory = ClubHistory.create(club, dateUtil.getAssignedTerm(date));
+        ClubMember clubMember = ClubMember.create(club, assignedTerm, PRESIDENT, member);
+        ClubHistory clubHistory = ClubHistory.create(club, assignedTerm);
 
         club.addGroup(group);
         club.addClubMember(clubMember);
