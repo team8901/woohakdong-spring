@@ -1,5 +1,6 @@
 package woohakdong.server.domain.school;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface SchoolRepository {
@@ -12,4 +13,8 @@ public interface SchoolRepository {
     long count();
 
     List<School> getAll();
+
+    Long countByCreatedAtAfter(LocalDateTime date);
+
+    List<School> getByCreatedAtAfter(LocalDateTime date);
 }
