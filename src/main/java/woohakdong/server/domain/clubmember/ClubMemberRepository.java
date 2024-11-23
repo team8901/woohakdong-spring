@@ -10,8 +10,6 @@ public interface ClubMemberRepository {
 
     ClubMember getById(Long clubMemberId);
 
-    ClubMember getByClubAndMember(Club club, Member member);
-
     List<ClubMember> getAllByMember(Member member);
 
     List<ClubMember> getAll();

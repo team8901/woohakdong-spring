@@ -28,12 +28,6 @@ public class ClubMemberRepositoryImpl implements ClubMemberRepository {
     }
 
     @Override
-    public ClubMember getByClubAndMember(Club club, Member member) {
-        return clubMemberJpaRepository.findByClubAndMember(club, member)
-                .orElseThrow(() -> new CustomException(CLUB_MEMBER_NOT_FOUND));
-    }
-
-    @Override
     public List<ClubMember> getAllByMember(Member member) {
         return clubMemberJpaRepository.findAllByMember(member);
     }

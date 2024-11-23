@@ -69,12 +69,12 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
         Member member1 = createMember(school, "testProvideId2", "박상준", "sangjun@ajou.ac.kr");
         Member member2 = createMember(school, "testProvideId3", "준상박", "junsang@ajou.ac.kr");
 
-        LocalDate now = LocalDate.of(2024, 11, 2);
-        createClubMember(club, member1, MEMBER, dateUtil.getAssignedTerm(now));
-        createClubMember(club, member2, OFFICER, dateUtil.getAssignedTerm(now));
+        LocalDate date = LocalDate.of(2024, 11, 2);
+        createClubMember(club, member1, MEMBER, date);
+        createClubMember(club, member2, OFFICER, date);
 
         // when
-        List<ClubMemberInfoResponse> responses = clubMemberService.getMembers(club.getClubId(), now);
+        List<ClubMemberInfoResponse> responses = clubMemberService.getMembers(club.getClubId(), date);
 
         // then
         assertThat(responses).hasSize(2)
@@ -124,10 +124,10 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
         createClubMember(club, member3, MEMBER, LocalDate.of(2024, 7, 1));
         createClubMember(club, member4, OFFICER, LocalDate.of(2024, 1, 1));
 
-        LocalDate now = LocalDate.of(2024, 1, 1);
+        LocalDate date = LocalDate.of(2024, 1, 1);
 
         // When
-        List<ClubMemberInfoResponse> responses = clubMemberService.getFilteredMembers(club.getClubId(), "가나", now);
+        List<ClubMemberInfoResponse> responses = clubMemberService.getFilteredMembers(club.getClubId(), "가나", date);
 
         // Then
         assertThat(responses).hasSize(2)
@@ -142,8 +142,8 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
     @Test
     void getMyInfo() {
         // Given
-        createClubMember(club, member, MEMBER, LocalDate.now());
         LocalDate date = LocalDate.of(2024, 11, 19);
+        createClubMember(club, member, MEMBER, date);
 
         // When
         ClubMemberInfoResponse response = clubMemberService.getMyInfo(club.getClubId(), date);
@@ -158,17 +158,22 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
     @Test
     void changeClubMemberRole() {
         // Given
-        createClubMember(club, member, PRESIDENT, LocalDate.now());
+        LocalDate date = LocalDate.of(2024, 11, 19);
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
+        createClubMember(club, member, PRESIDENT, date);
 
         Member member2 = createMember(school, "testProvideId2", "김상준", "kimsang@ajou.ac.kr");
-        ClubMember clubMember2 = createClubMember(club, member2, MEMBER, LocalDate.now());
+        ClubMember clubMember2 = createClubMember(club, member2, MEMBER, date);
+
+        Long clubId = club.getClubId();
+        Long clubMemberId = clubMember2.getClubMemberId();
 
         // When
-        clubMemberService.changeClubMemberRole(club.getClubId(), clubMember2.getClubMemberId(), OFFICER);
+        clubMemberService.changeClubMemberRole(clubId, clubMemberId, OFFICER, date);
 
         // Then
-        ClubMember savedClubMember = clubMemberRepository.getByClubAndMember(club, member2);
-        assertThat(savedClubMember)
+        ClubMember saved = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member2, assignedTerm);
+        assertThat(saved)
                 .extracting("member.memberName", "clubMemberRole")
                 .containsExactly("김상준", OFFICER);
     }
@@ -177,14 +182,18 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
     @Test
     void changeClubMemberRoleWithOutPRESIDENTRole() {
         // Given
-        createClubMember(club, member, VICEPRESIDENT, LocalDate.now());
+        LocalDate date = LocalDate.of(2024, 11, 19);
+        createClubMember(club, member, VICEPRESIDENT, date);
 
         Member member2 = createMember(school, "testProvideId2", "김상준", "kimsang@ajou.ac.kr");
-        ClubMember clubMember2 = createClubMember(club, member2, MEMBER, LocalDate.now());
+        ClubMember clubMember2 = createClubMember(club, member2, MEMBER, date);
+
+        Long clubId = club.getClubId();
+        Long clubMemberId = clubMember2.getClubMemberId();
 
         // When & Then
         assertThatThrownBy(
-                () -> clubMemberService.changeClubMemberRole(club.getClubId(), clubMember2.getClubMemberId(), OFFICER))
+                () -> clubMemberService.changeClubMemberRole(clubId, clubMemberId, OFFICER, date))
                 .isInstanceOf(CustomException.class)
                 .hasMessage(CustomErrorInfo.CLUB_MEMBER_ROLE_NOT_ALLOWED.getMessage());
     }
@@ -202,7 +211,7 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
                 .clubName("테스트 동아리")
                 .clubEnglishName("testClub")
                 .clubGroupChatLink("https://club-group-chat-link.com")
-                .clubExpirationDate(LocalDate.of(2024, 11, 19))
+                .clubExpirationDate(LocalDate.of(2025, 3, 2))
                 .school(school)
                 .build();
         return clubRepository.save(club);
@@ -219,8 +228,9 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
     }
 
     private ClubMember createClubMember(Club club, Member member, ClubMemberRole memberRole, LocalDate date) {
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
         ClubMember clubMember = ClubMember.builder()
-                .clubMemberAssignedTerm(dateUtil.getAssignedTerm(date))
+                .clubMemberAssignedTerm(assignedTerm)
                 .club(club)
                 .member(member)
                 .clubMemberRole(memberRole)

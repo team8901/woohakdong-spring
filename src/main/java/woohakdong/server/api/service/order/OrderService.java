@@ -108,8 +108,16 @@ public class OrderService {
         if (group.isTypeOf(CLUB_PAYMENT)) {
             club.extendClubExpirationDate();
             LocalDate expirationDate = club.getClubExpirationDate();
-            ClubHistory clubHistory = ClubHistory.create(club, expirationDate.plusMonths(6));
+            LocalDate newAssignedTerm = expirationDate.plusDays(1);
+            LocalDate pastAssignedTerm = newAssignedTerm.minusMonths(6);
+
+            ClubHistory clubHistory = ClubHistory.create(club, newAssignedTerm);
             clubHistoryRepository.save(clubHistory);
+
+            ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member,
+                    pastAssignedTerm);
+            ClubMember newPresident = ClubMember.createFromExisting(clubMember, newAssignedTerm);
+            clubMemberRepository.save(newPresident);
         }
 
     }
@@ -142,8 +150,16 @@ public class OrderService {
         if (group.isTypeOf(CLUB_PAYMENT)) {
             club.extendClubExpirationDate();
             LocalDate expirationDate = club.getClubExpirationDate();
-            ClubHistory clubHistory = ClubHistory.create(club, expirationDate.plusMonths(6));
+            LocalDate newAssignedTerm = expirationDate.plusDays(1);
+            LocalDate pastAssignedTerm = newAssignedTerm.minusMonths(6);
+
+            ClubHistory clubHistory = ClubHistory.create(club, newAssignedTerm);
             clubHistoryRepository.save(clubHistory);
+
+            ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member,
+                    pastAssignedTerm);
+            ClubMember newPresident = ClubMember.createFromExisting(clubMember, newAssignedTerm);
+            clubMemberRepository.save(newPresident);
         }
     }
 
@@ -176,10 +192,6 @@ public class OrderService {
             // TODO : 이벤트 그룹 가입 여부 확인
             throw new CustomException(CLUB_GROUP_ALREADY_JOINED);
         }
-    }
-
-    protected void savePaymentFromOrder(PaymentInfoResponse response, Order order) {
-
     }
 
     protected void saveNewClubMember(Club group, Member member, LocalDate date) {

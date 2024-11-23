@@ -1,8 +1,6 @@
 package woohakdong.server.domain.clubmember;
 
-import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_ADMIN_ROLE_NOT_ALLOWED;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_MEMBER_ROLE_NOT_ALLOWED;
-import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,8 +40,6 @@ public class ClubMember extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ClubMemberRole clubMemberRole;
 
-    private String clubGeneration;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
@@ -54,7 +50,7 @@ public class ClubMember extends BaseEntity {
 
     @Builder
     public ClubMember(Club club, LocalDate clubJoinedDate, LocalDate clubMemberAssignedTerm,
-                       ClubMemberRole clubMemberRole, Member member) {
+                      ClubMemberRole clubMemberRole, Member member) {
         this.club = club;
         this.clubJoinedDate = clubJoinedDate;
         this.clubMemberAssignedTerm = clubMemberAssignedTerm;
@@ -69,6 +65,16 @@ public class ClubMember extends BaseEntity {
                 .clubMemberAssignedTerm(assignedTerm)
                 .clubMemberRole(clubMemberRole)
                 .member(member)
+                .build();
+    }
+
+    public static ClubMember createFromExisting(ClubMember clubMember, LocalDate assignedTerm) {
+        return ClubMember.builder()
+                .club(clubMember.getClub())
+                .clubJoinedDate(LocalDate.now())
+                .clubMemberAssignedTerm(assignedTerm)
+                .clubMemberRole(clubMember.getClubMemberRole())
+                .member(clubMember.getMember())
                 .build();
     }
 

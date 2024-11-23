@@ -58,12 +58,13 @@ public class ClubMemberService {
     }
 
     @Transactional
-    public void changeClubMemberRole(Long clubId, Long clubMemberId, ClubMemberRole clubMemberRole) {
+    public void changeClubMemberRole(Long clubId, Long clubMemberId, ClubMemberRole clubMemberRole, LocalDate date) {
         Member member = securityUtil.getMember();
         Club club = clubRepository.getById(clubId);
-        ClubMember requestMember = clubMemberRepository.getByClubAndMember(club, member);
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
+        ClubMember president = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
 
-        if (!requestMember.getClubMemberRole().equals(ClubMemberRole.PRESIDENT)) {
+        if (!president.getClubMemberRole().equals(ClubMemberRole.PRESIDENT)) {
             throw new CustomException(CLUB_MEMBER_ROLE_NOT_ALLOWED);
         }
 
