@@ -65,7 +65,7 @@ public class ClubService {
     public ClubIdResponse registerClub(ClubCreateRequest request, LocalDate date) {
         Member member = securityUtil.getMember();
         School school = member.getSchool();
-        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date).plusMonths(6);
 
         validateClubWithNames(request.clubName(), request.clubEnglishName());
 
@@ -73,8 +73,12 @@ public class ClubService {
                 request.clubImage(), request.clubRoom(), request.clubGeneration(), request.clubDues(),
                 request.clubGroupChatLink(), request.clubGroupChatPassword(), assignedTerm, school);
 
-        Group group = Group.create(club.getClubName(),
-                club.getClubName() + "의 " + club.getClubGeneration() + "기 동아리 가입하기", club.getClubDues(),
+        String groupDescription = club.getClubName() + "신규 가입";
+        if (groupDescription.length() > 15) {
+            groupDescription = groupDescription.substring(0, 15);
+        }
+
+        Group group = Group.create(club.getClubName(), groupDescription, club.getClubDues(),
                 WOOHAKDONG_CLUB_PREFIX + club.getClubEnglishName(), club.getClubGroupChatLink(),
                 club.getClubGroupChatPassword(), JOIN, club);
 
@@ -155,8 +159,7 @@ public class ClubService {
                 request.clubGroupChatLink(), request.clubGroupChatPassword(), request.clubDues());
 
         Group group = groupRepository.getByClubAndGroupType(club, JOIN);
-        group.updateJoinGroup(club.getClubName() + "의 " + club.getClubGeneration() + "기 동아리 가입하기",
-                club.getClubDues(), club.getClubGroupChatLink(), club.getClubGroupChatPassword());
+        group.updateJoinGroup(club.getClubDues(), club.getClubGroupChatLink(), club.getClubGroupChatPassword());
 
         return ClubInfoResponse.from(club);
     }
@@ -168,7 +171,7 @@ public class ClubService {
         Integer clubMemberNumber = clubMemberRepository.countByClubAndAssignedTerm(club, assignedTerm);
 
         if (club.isExpired(date)) {
-            if ( !groupRepository.checkExistenceClubGroup(club, CLUB_PAYMENT)) {
+            if (!groupRepository.checkExistenceClubGroup(club, CLUB_PAYMENT)) {
                 Group group = Group.createClubPaymentGroup(club, clubMemberNumber);
                 club.addGroup(group);
             }

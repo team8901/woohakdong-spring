@@ -316,7 +316,7 @@ class ClubServiceTest extends SecurityContextSetUp {
         assertThat(groups)
                 .extracting("groupType", "groupName", "groupAmount")
                 .contains(
-                        tuple(CLUB_PAYMENT, "두리안 동아리의 우학동 서비스 사용료 결제", 31500)
+                        tuple(CLUB_PAYMENT, "두리안의 우학동 서비스 사용료 결제".substring(0, 15), 31500)
                 );
     }
 

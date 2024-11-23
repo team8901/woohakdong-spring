@@ -1,5 +1,6 @@
 package woohakdong.server.api.controller.group;
 
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,7 +34,7 @@ public class GroupController implements GroupControllerDocs {
     }
 
     @PostMapping("/payment/webhook")
-    public void portOnePaymentComplete(@RequestBody PortOneWebhookRequest request) {
+    public void portOnePaymentComplete(@Valid @RequestBody PortOneWebhookRequest request) {
         orderService.portOnePaymentComplete(request, LocalDate.now());
     }
 }
