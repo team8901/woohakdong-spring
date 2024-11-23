@@ -92,8 +92,11 @@ public class OrderService {
 
         Club club = group.getClub();
 
-        PaymentInfoResponse paymentInfoResponse = checkOrderWithPaymentClient(request.impUid(), order);
-        savePaymentFromOrder(paymentInfoResponse, order);
+        PaymentInfoResponse response = checkOrderWithPaymentClient(request.impUid(), order);
+        Payment payment = Payment.create(response.amount(), response.impUid(), response.merchantUid());
+        order.completeOrder(payment);
+        orderRepository.save(order);
+
         saveAdminAccount(order, group, member);
 
         if (group.isTypeOf(JOIN)) {
@@ -123,8 +126,11 @@ public class OrderService {
         Member member = order.getMember();
         Club club = group.getClub();
 
-        PaymentInfoResponse paymentInfoResponse = checkOrderWithPaymentClient(request.impUid(), order);
-        savePaymentFromOrder(paymentInfoResponse, order);
+        PaymentInfoResponse response = checkOrderWithPaymentClient(request.impUid(), order);
+        Payment payment = Payment.create(response.amount(), response.impUid(), response.merchantUid());
+        order.completeOrder(payment);
+        orderRepository.save(order);
+
         saveAdminAccount(order, group, member);
 
         if (group.isTypeOf(JOIN)) {
@@ -173,8 +179,7 @@ public class OrderService {
     }
 
     protected void savePaymentFromOrder(PaymentInfoResponse response, Order order) {
-        Payment payment = Payment.create(response.amount(), response.impUid(), response.merchantUid());
-        order.completeOrder(payment);
+
     }
 
     protected void saveNewClubMember(Club group, Member member, LocalDate date) {
