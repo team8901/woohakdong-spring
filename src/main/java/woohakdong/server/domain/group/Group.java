@@ -88,9 +88,8 @@ public class Group extends BaseEntity {
     }
 
     public static Group createClubPaymentGroup(Club club, Integer clubMemberCount) {
-        System.out.println("clubMemberCount = " + clubMemberCount);
         return Group.builder()
-                .groupName(club.getClubName() + " 동아리의 우학동 서비스 사용료 결제")
+                .groupName((club.getClubName() + "의 우학동 서비스 사용료 결제").substring(0, 15))
                 .groupDescription(club.getClubName() + "동아리의 우학동 서비스 사용료는 " + clubMemberCount + " * 500원 입니다.")
                 .groupAmount(BASE_SERVICE_FEE + clubMemberCount * PER_MEMBER_FEE)
                 .groupJoinLink(null)
@@ -101,9 +100,7 @@ public class Group extends BaseEntity {
                 .build();
     }
 
-    public void updateJoinGroup(String groupDescription, Integer groupAmount, String groupChatLink,
-                                String groupChatPassword) {
-        this.groupDescription = groupDescription;
+    public void updateJoinGroup(Integer groupAmount, String groupChatLink, String groupChatPassword) {
         this.groupAmount = groupAmount;
         this.groupChatLink = groupChatLink;
         this.groupChatPassword = groupChatPassword;

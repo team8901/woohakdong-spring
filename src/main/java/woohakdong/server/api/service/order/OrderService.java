@@ -31,6 +31,8 @@ import woohakdong.server.domain.admin.adminAccount.AdminAccountRepository;
 import woohakdong.server.domain.admin.adminAccountHistory.AdminAccountHistory;
 import woohakdong.server.domain.admin.adminAccountHistory.AdminAccountHistoryRepository;
 import woohakdong.server.domain.club.Club;
+import woohakdong.server.domain.clubHistory.ClubHistory;
+import woohakdong.server.domain.clubHistory.ClubHistoryRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.group.Group;
@@ -57,6 +59,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final AdminAccountRepository adminAccountRepository;
     private final AdminAccountHistoryRepository adminAccountHistoryRepository;
+    private final ClubHistoryRepository clubHistoryRepository;
 
     @Transactional
     public OrderIdResponse registerOrder(Long groupId, CreateOrderRequest request) {
@@ -91,18 +94,21 @@ public class OrderService {
 
         PaymentInfoResponse paymentInfoResponse = checkOrderWithPaymentClient(request.impUid(), order);
         savePaymentFromOrder(paymentInfoResponse, order);
+        saveAdminAccount(order, group, member);
 
         if (group.isTypeOf(JOIN)) {
             saveNewClubMember(club, member, date);
             sendClubInviteEmailToNewMember(member, club, group);
+            mockBankService.transferClubFee(member.getMemberId(), group.getGroupId());
         }
 
         if (group.isTypeOf(CLUB_PAYMENT)) {
             club.extendClubExpirationDate();
+            LocalDate expirationDate = club.getClubExpirationDate();
+            ClubHistory clubHistory = ClubHistory.create(club, expirationDate.plusMonths(6));
+            clubHistoryRepository.save(clubHistory);
         }
 
-        saveAdminAccount(order, group, member);
-        mockBankService.transferClubFee(member.getMemberId(), group.getGroupId());
     }
 
     @Transactional
@@ -124,13 +130,15 @@ public class OrderService {
         if (group.isTypeOf(JOIN)) {
             saveNewClubMember(club, member, date);
             sendClubInviteEmailToNewMember(member, club, group);
+            mockBankService.transferClubFee(member.getMemberId(), group.getGroupId());
         }
 
         if (group.isTypeOf(CLUB_PAYMENT)) {
             club.extendClubExpirationDate();
+            LocalDate expirationDate = club.getClubExpirationDate();
+            ClubHistory clubHistory = ClubHistory.create(club, expirationDate.plusMonths(6));
+            clubHistoryRepository.save(clubHistory);
         }
-
-        mockBankService.transferClubFee(member.getMemberId(), group.getGroupId());
     }
 
     protected PaymentInfoResponse checkOrderWithPaymentClient(String impUid, Order order) {
@@ -143,6 +151,7 @@ public class OrderService {
         if (!order.verifyOrderAmount(paymentInfoResponse.amount())) {
             throw new CustomException(ORDER_NOT_VALID_AMOUNT);
         }
+
         return paymentInfoResponse;
     }
 
@@ -184,9 +193,20 @@ public class OrderService {
         Long updatedBalance = adminAccount.getAdminAccountAmount();
         updatedBalance -= order.getOrderAmount();
 
+        String adminHistoryContent = "";
+        if (group.isTypeOf(JOIN)) {
+            adminHistoryContent = member.getMemberName() + "의" + group.getGroupName() + " 회비 결제";
+            if (adminHistoryContent.length() > 15) {
+                adminHistoryContent = adminHistoryContent.substring(0, 15);
+            }
+        }
+
+        if (group.isTypeOf(CLUB_PAYMENT)) {
+            adminHistoryContent = group.getGroupName();
+        }
+
         AdminAccountHistory history = AdminAccountHistory.create(DEPOSIT, LocalDate.now(), updatedBalance,
-                Long.valueOf(order.getOrderAmount()), adminAccount,
-                group.getGroupName() + "의 회비 결제 " + member.getMemberName() + "의 회비");
+                Long.valueOf(order.getOrderAmount()), adminAccount, adminHistoryContent);
         adminAccountHistoryRepository.save(history);
 
         adminAccount.setAdminAccountAmount(updatedBalance);
