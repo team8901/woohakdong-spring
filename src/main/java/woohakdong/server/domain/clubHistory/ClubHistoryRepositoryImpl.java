@@ -1,5 +1,6 @@
 package woohakdong.server.domain.clubHistory;
 
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -19,5 +20,15 @@ public class ClubHistoryRepositoryImpl implements ClubHistoryRepository {
     @Override
     public List<ClubHistory> getAllByClub(Club club) {
         return clubHistoryJpaRepository.findAllByClub(club);
+    }
+
+    @Override
+    public Long countByClubHistoryUsageDate(LocalDate clubHistoryUsageDate) {
+        return clubHistoryJpaRepository.countByClubHistoryUsageDate(clubHistoryUsageDate);
+    }
+
+    @Override
+    public List<Club> getDistinctClubByClubHistoryUsageDate(LocalDate clubHistoryUsageDate) {
+        return clubHistoryJpaRepository.findDistinctClubsByClubHistoryUsageDate(clubHistoryUsageDate);
     }
 }

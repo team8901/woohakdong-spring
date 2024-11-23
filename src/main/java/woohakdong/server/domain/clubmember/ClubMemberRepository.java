@@ -23,4 +23,8 @@ public interface ClubMemberRepository {
     List<ClubMember> getAllBySearchFilter(Club club, String name, LocalDate assignedTerm);
 
     Integer countByClubAndAssignedTerm(Club club, LocalDate assignedTerm);
+
+    Long countByClubMemberAssignedTerm(LocalDate clubMemberAssignedTerm);
+
+    Long count();
 }

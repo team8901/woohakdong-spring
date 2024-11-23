@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import woohakdong.server.common.exception.CustomException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -39,5 +40,15 @@ public class SchoolRepositoryImpl implements SchoolRepository{
     @Override
     public List<School> getAll() {
         return schoolJpaRepository.findAll();
+    }
+
+    @Override
+    public Long countByCreatedAtAfter(LocalDateTime date) {
+        return schoolJpaRepository.countByCreatedAtAfter(date);
+    }
+
+    @Override
+    public List<School> getByCreatedAtAfter(LocalDateTime date) {
+        return schoolJpaRepository.findByCreatedAtAfter(date);
     }
 }
