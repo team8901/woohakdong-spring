@@ -65,13 +65,14 @@ public class ClubService {
     public ClubIdResponse registerClub(ClubCreateRequest request, LocalDate date) {
         Member member = securityUtil.getMember();
         School school = member.getSchool();
-        LocalDate assignedTerm = dateUtil.getAssignedTerm(date).plusMonths(6);
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
+        LocalDate expirationDate = assignedTerm.plusMonths(6).minusDays(1);
 
         validateClubWithNames(request.clubName(), request.clubEnglishName());
 
         Club club = Club.create(request.clubName(), request.clubEnglishName(), request.clubDescription(),
                 request.clubImage(), request.clubRoom(), request.clubGeneration(), request.clubDues(),
-                request.clubGroupChatLink(), request.clubGroupChatPassword(), assignedTerm, school);
+                request.clubGroupChatLink(), request.clubGroupChatPassword(), expirationDate, school);
 
         String groupDescription = club.getClubName() + "신규 가입";
         if (groupDescription.length() > 15) {
