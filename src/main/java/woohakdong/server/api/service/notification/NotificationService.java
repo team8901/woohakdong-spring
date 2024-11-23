@@ -40,9 +40,9 @@ public class NotificationService {
 
     public void sendNotificationWithClubInfoUpdate(Long clubId, LocalDate date) {
         Club club = clubRepository.getById(clubId);
-        checkMemberRoleInClub(club);
-        List<ClubMember> clubMembers = clubMemberRepository.getAllBySearchFilter(club, null,
-                dateUtil.getAssignedTerm(date));
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
+        checkMemberRoleInClub(club, assignedTerm);
+        List<ClubMember> clubMembers = clubMemberRepository.getAllBySearchFilter(club, null, assignedTerm);
 
         clubMembers.stream()
                 .map(ClubMember::getMember)
@@ -58,9 +58,9 @@ public class NotificationService {
 
     public void sendNotificationWithSchedule(Long clubId, Long scheduleId, LocalDate date) {
         Club club = clubRepository.getById(clubId);
-        checkMemberRoleInClub(club);
-        List<ClubMember> clubMembers = clubMemberRepository.getAllBySearchFilter(club, null,
-                dateUtil.getAssignedTerm(date));
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
+        checkMemberRoleInClub(club, assignedTerm);
+        List<ClubMember> clubMembers = clubMemberRepository.getAllBySearchFilter(club, null, assignedTerm);
         Schedule schedule = scheduleRepository.getById(scheduleId);
         String scheduleDate = schedule.getScheduleDateTime().format(YEAR_MONTH_DAY_HOUR);
 
@@ -90,9 +90,9 @@ public class NotificationService {
         ));
     }
 
-    private void checkMemberRoleInClub(Club club) {
+    private void checkMemberRoleInClub(Club club, LocalDate assignedTerm) {
         Member member = securityUtil.getMember();
-        ClubMember clubMember = clubMemberRepository.getByClubAndMember(club, member);
+        ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
         clubMember.hasAuthorityOf(PRESIDENT);
     }
 }

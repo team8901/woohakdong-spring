@@ -20,6 +20,7 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import woohakdong.server.api.service.SecurityContextSetUp;
 import woohakdong.server.api.service.email.EmailClientImpl;
+import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
@@ -59,51 +60,54 @@ class NotificationServiceTest extends SecurityContextSetUp {
     @Autowired
     private MemberRepository memberRepository;
 
+    @Autowired
+    private DateUtil dateUtil;
+
     @BeforeEach
     void setUp() {
         member = createMember(TEST_PROVIDE_ID, "박상준", "sangjun@example.com");
         Member member2 = createMember("testProvideId2", "김우학", "woohak@example.com");
         Member member3 = createMember("testProvideId3", "최햇반", "hatban@example.com");
         club = createClub("두잇");
-        createClubMember(member, club, PRESIDENT);
-        createClubMember(member2, club, OFFICER);
-        createClubMember(member3, club, OFFICER);
+        createClubMember(member, club, PRESIDENT, date);
+        createClubMember(member2, club, OFFICER, date);
+        createClubMember(member3, club, OFFICER, date);
     }
 
     private Member member;
     private Club club;
+    private LocalDate date = LocalDate.of(2024, 11, 2);
+
 
     @DisplayName("동아리 정보를 포함한 이메일을 동아리원들에게 전송할 수 있다.")
     @Test
     void sendNotificationWithClubInfoUpdate() {
         // Given
         Long clubId = club.getClubId();
-        LocalDate assignedTerm = LocalDate.of(2024, 7, 1);
 
         willDoNothing()
                 .given(emailClientImpl)
                 .sendEmailForUpdateClubInfo(any(), any(), any(), any(), any(), any());
 
         // When & Then
-        notificationService.sendNotificationWithClubInfoUpdate(clubId, assignedTerm);
+        notificationService.sendNotificationWithClubInfoUpdate(clubId, date);
     }
 
     @DisplayName("일정 정보를 포함한 이메일을 동아리원들에게 전송할 수 있다.")
     @Test
     void sendNotificationWithSchedule() {
         // Given
-        Schedule schedule = createSchedule("일정 제목", "일정 내용", LocalDateTime.of(2024, 11, 7, 12, 0));
+        Schedule schedule = createSchedule("일정 제목", "일정 내용", date.atStartOfDay());
 
         Long clubId = club.getClubId();
         Long scheduleId = schedule.getScheduleId();
-        LocalDate assignedTerm = LocalDate.of(2024, 7, 1);
 
         willDoNothing()
                 .given(emailClientImpl)
                 .sendEmailForSchedule(any(), any(), any(), any(), any(), any());
 
         // When & Then
-        notificationService.sendNotificationWithSchedule(clubId, scheduleId, assignedTerm);
+        notificationService.sendNotificationWithSchedule(clubId, scheduleId, date);
     }
 
     private Member createMember(String provideId, String name, String email) {
@@ -130,13 +134,14 @@ class NotificationServiceTest extends SecurityContextSetUp {
         return clubRepository.save(club);
     }
 
-    private ClubMember createClubMember(Member member, Club club, ClubMemberRole role) {
+    private ClubMember createClubMember(Member member, Club club, ClubMemberRole role, LocalDate date) {
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
         ClubMember clubMember = ClubMember.builder()
                 .member(member)
                 .club(club)
-                .clubMemberAssignedTerm(LocalDate.of(2024, 7, 1))
+                .clubMemberAssignedTerm(assignedTerm)
                 .clubMemberRole(role)
-                .clubJoinedDate(LocalDate.of(2024, 8, 1))
+                .clubJoinedDate(date)
                 .build();
         return clubMemberRepository.save(clubMember);
     }

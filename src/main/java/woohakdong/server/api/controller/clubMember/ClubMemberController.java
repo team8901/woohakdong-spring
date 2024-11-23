@@ -44,6 +44,6 @@ public class ClubMemberController implements ClubMemberControllerDocs {
     public void changeRole(@PathVariable Long clubId,
                            @PathVariable Long clubMemberId,
                            @RequestParam ClubMemberRole clubMemberRole) {
-        clubMemberService.changeClubMemberRole(clubId, clubMemberId, clubMemberRole);
+        clubMemberService.changeClubMemberRole(clubId, clubMemberId, clubMemberRole, LocalDate.now());
     }
 }

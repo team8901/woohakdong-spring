@@ -90,7 +90,8 @@ class ClubMemberRepositoryTest {
     @Test
     void getByClubAndMember() {
         // When & Then
-        assertThatThrownBy(() -> clubMemberRepository.getByClubAndMember(null, member))
+        assertThatThrownBy(
+                () -> clubMemberRepository.getByClubAndMemberAndAssignedTerm(null, member, LocalDate.of(2024, 11, 19)))
                 .isInstanceOf(CustomException.class)
                 .hasMessage(CustomErrorInfo.CLUB_MEMBER_NOT_FOUND.getMessage());
     }
