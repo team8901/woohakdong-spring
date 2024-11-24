@@ -1,5 +1,6 @@
 package woohakdong.server.domain.ItemHistory;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import woohakdong.server.domain.club.Club;
@@ -21,4 +22,8 @@ public interface ItemHistoryRepository {
     List<ItemHistory> getAllByClubAndMember(Club club, ClubMember clubMember);
 
     ItemHistory getByItemAndItemReturnDateIsNull(Item item);
+
+    List<ItemHistory> getByItemClub(Club club);
+
+    List<ItemHistory> getByItemClubAndItemRentalDateBetween(Club club, LocalDateTime startDate, LocalDateTime endDate);
 }
