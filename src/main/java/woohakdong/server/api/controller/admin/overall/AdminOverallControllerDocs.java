@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.admin.overall.dto.ClubListResponse;
+import woohakdong.server.api.controller.admin.overall.dto.ClubPaymentResponse;
 import woohakdong.server.api.controller.admin.overall.dto.CountResponse;
 import woohakdong.server.api.controller.admin.overall.dto.SchoolListResponse;
 
@@ -45,4 +46,10 @@ public interface AdminOverallControllerDocs {
     @ApiResponse(responseCode = "200", description = "분기별 멤버 총 수 반환 성공", useReturnTypeSchema = true)
     public CountResponse getTotalMemberCount(@RequestParam(required = false)
                                                  LocalDate assignedTerm);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "분기별 동아리 결제금액", description = "분기별 동아리 결제금액을 반환합니다.")
+    @ApiResponse(responseCode = "200", description = "분기별 동아리 결제금액 반환 성공", useReturnTypeSchema = true)
+    ClubPaymentResponse getClubPaymentByTerm(@RequestParam(required = false)
+                                             LocalDate assignedTerm);
 }

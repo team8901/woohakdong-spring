@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.admin.overall.dto.ClubListResponse;
+import woohakdong.server.api.controller.admin.overall.dto.ClubPaymentResponse;
 import woohakdong.server.api.controller.admin.overall.dto.CountResponse;
 import woohakdong.server.api.controller.admin.overall.dto.SchoolListResponse;
 import woohakdong.server.domain.club.Club;
@@ -22,6 +23,9 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AdminOverallService {
+
+    private static final Integer PER_MEMBER_FEE = 500;
+    private static final Integer BASE_SERVICE_FEE = 30000;
 
     private final SchoolRepository schoolRepository;
     private final ClubRepository clubRepository;
@@ -76,5 +80,17 @@ public class AdminOverallService {
         }
         Long count = clubMemberRepository.countByClubMemberAssignedTerm(assignedTerm);
         return CountResponse.from(count);
+    }
+
+    public ClubPaymentResponse getClubPaymentByTerm(LocalDate assignedTerm) {
+        Long count;
+        if (assignedTerm == null) {
+            count = clubMemberRepository.count();
+        } else {
+            count = clubMemberRepository.countByClubMemberAssignedTerm(assignedTerm);
+        }
+
+        Long clubPayment = BASE_SERVICE_FEE + count * PER_MEMBER_FEE;
+        return ClubPaymentResponse.from(clubPayment);
     }
 }
