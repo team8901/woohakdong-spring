@@ -1,5 +1,6 @@
 package woohakdong.server.domain.ItemHistory;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -52,5 +53,15 @@ public class ItemHistoryRepositoryImpl implements ItemHistoryRepository{
     public ItemHistory getByItemAndItemReturnDateIsNull(Item item) {
         return itemHistoryJpaRepository.findByItemAndItemReturnDateIsNull(item)
                 .orElseThrow(() -> new CustomException(CustomErrorInfo.ITEM_HISTORY_NOT_FOUND));
+    }
+
+    @Override
+    public List<ItemHistory> getByItemClub(Club club) {
+        return itemHistoryJpaRepository.findByItemClub(club);
+    }
+
+    @Override
+    public List<ItemHistory> getByItemClubAndItemRentalDateBetween(Club club, LocalDateTime startDate, LocalDateTime endDate) {
+        return itemHistoryJpaRepository.findByItemClubAndItemRentalDateBetween(club, startDate, endDate);
     }
 }
