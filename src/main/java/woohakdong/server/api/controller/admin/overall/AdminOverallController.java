@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.admin.overall.dto.ClubListResponse;
+import woohakdong.server.api.controller.admin.overall.dto.ClubPaymentResponse;
 import woohakdong.server.api.controller.admin.overall.dto.CountResponse;
 import woohakdong.server.api.controller.admin.overall.dto.SchoolListResponse;
 import woohakdong.server.api.service.admin.overall.AdminOverallService;
@@ -51,5 +52,11 @@ public class AdminOverallController implements AdminOverallControllerDocs{
     public CountResponse getTotalMemberCount(@RequestParam(required = false)
                                                  LocalDate assignedTerm) {
         return adminOverallService.getTotalMemberCount(assignedTerm);
+    }
+
+    @GetMapping("/clubPayments")
+    public ClubPaymentResponse getClubPaymentByTerm(@RequestParam(required = false)
+                                                    LocalDate assignedTerm) {
+        return adminOverallService.getClubPaymentByTerm(assignedTerm);
     }
 }

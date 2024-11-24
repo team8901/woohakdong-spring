@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.admin.overall.dto.ClubListResponse;
+import woohakdong.server.api.controller.admin.overall.dto.ClubPaymentResponse;
 import woohakdong.server.api.controller.admin.overall.dto.CountResponse;
 import woohakdong.server.api.controller.admin.overall.dto.SchoolListResponse;
 import woohakdong.server.domain.club.Club;
@@ -182,6 +183,29 @@ class AdminOverallServiceTest {
 
         // then
         assertThat(response.count()).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("결제 금액 - assignedTerm이 null일 때 전체 회원 기준")
+    void getClubPaymentWithoutAssignedTerm() {
+        // When
+        ClubPaymentResponse response = adminOverallService.getClubPaymentByTerm(null);
+
+        // Then
+        assertThat(response.clubPayment()).isEqualTo(30000 + (3 * 500));
+    }
+
+    @Test
+    @DisplayName("결제 금액 - 특정 assignedTerm 기준")
+    void getClubPaymentWithAssignedTerm() {
+        // Given
+        LocalDate assignedTerm = LocalDate.of(2024, 7, 1);
+
+        // When
+        ClubPaymentResponse response = adminOverallService.getClubPaymentByTerm(assignedTerm);
+
+        // Then
+        assertThat(response.clubPayment()).isEqualTo(30000 + (3 * 500));
     }
 
 
