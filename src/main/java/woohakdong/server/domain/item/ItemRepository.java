@@ -29,4 +29,8 @@ public interface ItemRepository {
     List<Item> getItemsByFilters(Club club, String keyword, ItemCategory category, Boolean using, Boolean available);
 
     Long countByClubSchoolAndCreatedAtAfter(School school, LocalDateTime dateTime);
+
+    Long countByClubAndCreatedAtAfter(Club club, LocalDateTime dateTime);
+
+    Long countByClub(Club club);
 }
