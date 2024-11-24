@@ -1,4 +1,4 @@
-package woohakdong.server.api.service.admin.club;
+package woohakdong.server.api.service.admin.school;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

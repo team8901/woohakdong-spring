@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.admin.overall.dto.ClubListResponse;
 import woohakdong.server.api.controller.admin.overall.dto.CountResponse;
-import woohakdong.server.api.service.admin.club.AdminSchoolService;
+import woohakdong.server.api.service.admin.school.AdminSchoolService;
 
 import java.time.LocalDate;
 

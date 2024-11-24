@@ -74,4 +74,14 @@ public class ItemRepositoryImpl implements ItemRepository {
     public Long countByClubSchoolAndCreatedAtAfter(School school, LocalDateTime dateTime) {
         return itemJpaRepository.countByClubSchoolAndCreatedAtAfter(school, dateTime);
     }
+
+    @Override
+    public Long countByClubAndCreatedAtAfter(Club club, LocalDateTime dateTime){
+        return itemJpaRepository.countByClubAndCreatedAtAfter(club, dateTime);
+    }
+
+    @Override
+    public Long countByClub(Club club) {
+        return itemJpaRepository.countByClub(club);
+    }
 }

@@ -34,4 +34,8 @@ public interface ClubMemberRepository {
     Long countByClub_School(School school);
 
     Long countByClub_SchoolAndClubMemberAssignedTerm(School school, LocalDate clubMemberAssignedTerm);
+
+    List<ClubMember> getAllByClub(Club club);
+
+    List<ClubMember> getByClubAndClubMemberAssignedTerm(Club club, LocalDate assignedTerm);
 }

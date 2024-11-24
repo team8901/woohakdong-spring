@@ -1,4 +1,4 @@
-package woohakdong.server.api.service.admin.club;
+package woohakdong.server.api.service.admin.school;
 
 import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;

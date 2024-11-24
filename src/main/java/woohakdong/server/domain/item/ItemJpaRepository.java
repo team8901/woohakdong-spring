@@ -41,4 +41,8 @@ public interface ItemJpaRepository extends JpaRepository<Item, Long> {
                                   @Param("available") Boolean available);
 
     Long countByClubSchoolAndCreatedAtAfter(School school, LocalDateTime dateTime);
+
+    Long countByClubAndCreatedAtAfter(Club club, LocalDateTime dateTime);
+
+    Long countByClub(Club club);
 }

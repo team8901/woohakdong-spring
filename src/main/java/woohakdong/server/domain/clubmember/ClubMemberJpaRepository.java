@@ -34,4 +34,6 @@ public interface ClubMemberJpaRepository extends JpaRepository<ClubMember, Long>
     Long countByClub_School(School school);
 
     Long countByClub_SchoolAndClubMemberAssignedTerm(School school, LocalDate clubMemberAssignedTerm);
+
+    List<ClubMember> findAllByClub(Club club);
 }
