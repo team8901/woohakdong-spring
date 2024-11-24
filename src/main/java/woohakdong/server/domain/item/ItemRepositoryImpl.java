@@ -2,6 +2,7 @@ package woohakdong.server.domain.item;
 
 import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_NOT_FOUND;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -69,4 +70,8 @@ public class ItemRepositoryImpl implements ItemRepository {
         return itemJpaRepository.findItemsByFilters(club, keyword, category, using, available);
     }
 
+    @Override
+    public Long countByClubSchoolAndCreatedAtAfter(School school, LocalDateTime dateTime) {
+        return itemJpaRepository.countByClubSchoolAndCreatedAtAfter(school, dateTime);
+    }
 }

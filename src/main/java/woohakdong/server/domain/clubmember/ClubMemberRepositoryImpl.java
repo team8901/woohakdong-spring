@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.member.Member;
+import woohakdong.server.domain.school.School;
 
 @RequiredArgsConstructor
 @Repository
@@ -77,4 +78,15 @@ public class ClubMemberRepositoryImpl implements ClubMemberRepository {
     public Long count() {
         return clubMemberJpaRepository.count();
     }
+
+    @Override
+    public Long countByClub_School(School school) {
+        return clubMemberJpaRepository.countByClub_School(school);
+    }
+
+    @Override
+    public Long countByClub_SchoolAndClubMemberAssignedTerm(School school, LocalDate clubMemberAssignedTerm) {
+        return clubMemberJpaRepository.countByClub_SchoolAndClubMemberAssignedTerm(school, clubMemberAssignedTerm);
+    }
+
 }

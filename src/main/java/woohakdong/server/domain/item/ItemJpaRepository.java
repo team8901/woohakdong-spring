@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import woohakdong.server.domain.club.Club;
@@ -37,4 +39,6 @@ public interface ItemJpaRepository extends JpaRepository<Item, Long> {
                                   @Param("category") ItemCategory category,
                                   @Param("using") Boolean using,
                                   @Param("available") Boolean available);
+
+    Long countByClubSchoolAndCreatedAtAfter(School school, LocalDateTime dateTime);
 }
