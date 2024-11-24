@@ -224,7 +224,7 @@ class ClubServiceTest extends SecurityContextSetUp {
         // Then
         assertThat(responses).hasSize(2)
                 .extracting("clubName", "clubEnglishName")
-                .containsExactlyInAnyOrder(
+                .containsExactly(
                         tuple("두리안", "Durian"),
                         tuple("우학동", "WooHakDong")
                 );
