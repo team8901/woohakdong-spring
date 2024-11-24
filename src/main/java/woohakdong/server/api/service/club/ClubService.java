@@ -10,6 +10,8 @@ import static woohakdong.server.domain.group.GroupType.JOIN;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -137,8 +139,11 @@ public class ClubService {
         Member member = securityUtil.getMember();
         List<ClubMember> clubMembers = clubMemberRepository.getAllByMember(member);
 
-        return clubMembers.stream()
+        Set<Club> clubs = clubMembers.stream()
                 .map(ClubMember::getClub)
+                .collect(Collectors.toSet());
+
+        return clubs.stream()
                 .map(ClubInfoResponse::from)
                 .toList();
     }

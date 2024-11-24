@@ -208,6 +208,28 @@ class ClubServiceTest extends SecurityContextSetUp {
                 .containsExactly("두리안", "Durian");
     }
 
+    @DisplayName("본인이 가입한 동아리 리스트를 조회할 수 있다.")
+    @Test
+    void getJoinedClubInfos() {
+        // Given
+        Club club1 = createClub(school, "두리안", "Durian", LocalDate.of(2024, 3, 1));
+        Club club2 = createClub(school, "우학동", "WooHakDong", LocalDate.of(2024, 3, 1));
+        setClubMember(club1, LocalDate.of(2024, 3, 1), PRESIDENT, member);
+        setClubMember(club1, LocalDate.of(2024, 11, 19), OFFICER, member);
+        setClubMember(club2, LocalDate.of(2024, 3, 1), PRESIDENT, member);
+
+        // When
+        List<ClubInfoResponse> responses = clubService.getJoinedClubInfos();
+
+        // Then
+        assertThat(responses).hasSize(2)
+                .extracting("clubName", "clubEnglishName")
+                .containsExactlyInAnyOrder(
+                        tuple("두리안", "Durian"),
+                        tuple("우학동", "WooHakDong")
+                );
+    }
+
     @DisplayName("동아리의 우학동 서비스 사용 분기를 리스트로 확인할 수 있다.")
     @Test
     void checkClubHistory() {
