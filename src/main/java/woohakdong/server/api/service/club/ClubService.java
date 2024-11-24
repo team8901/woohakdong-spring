@@ -9,6 +9,7 @@ import static woohakdong.server.domain.group.GroupType.CLUB_PAYMENT;
 import static woohakdong.server.domain.group.GroupType.JOIN;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -139,11 +140,10 @@ public class ClubService {
         Member member = securityUtil.getMember();
         List<ClubMember> clubMembers = clubMemberRepository.getAllByMember(member);
 
-        Set<Club> clubs = clubMembers.stream()
+        return clubMembers.stream()
                 .map(ClubMember::getClub)
-                .collect(Collectors.toSet());
-
-        return clubs.stream()
+                .distinct() // 중복 제거
+                .sorted(Comparator.comparing(Club::getClubId)) // clubId로 정렬
                 .map(ClubInfoResponse::from)
                 .toList();
     }
