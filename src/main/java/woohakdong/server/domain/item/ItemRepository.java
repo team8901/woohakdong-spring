@@ -1,5 +1,6 @@
 package woohakdong.server.domain.item;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.repository.query.Param;
@@ -26,4 +27,6 @@ public interface ItemRepository {
     Long countByClubSchool(School school);
 
     List<Item> getItemsByFilters(Club club, String keyword, ItemCategory category, Boolean using, Boolean available);
+
+    Long countByClubSchoolAndCreatedAtAfter(School school, LocalDateTime dateTime);
 }
