@@ -85,10 +85,14 @@ public class AdminOverallService {
     public ClubPaymentResponse getClubPaymentByTerm(LocalDate assignedTerm) {
         List<Club> clubs = clubHistoryRepository.getDistinctClubByClubHistoryUsageDate(assignedTerm);
 
-        Long totalCount = clubs.stream()
-                .mapToLong(club -> clubMemberRepository.countByClubAndAssignedTerm(club, assignedTerm))
+        Long totalPayment = clubs.stream()
+                .mapToLong(club -> {
+                    Long memberCount = Long.valueOf(clubMemberRepository.countByClubAndAssignedTerm(club, assignedTerm));
+                    return BASE_SERVICE_FEE + memberCount * PER_MEMBER_FEE;
+                })
                 .sum();
 
-        return ClubPaymentResponse.from(totalCount);
+        return ClubPaymentResponse.from(totalPayment);
+
     }
 }
