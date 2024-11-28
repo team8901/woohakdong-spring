@@ -97,34 +97,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: team8901/woohakdong-manifests
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.ACTIONS_ACCESS_TOKEN }}
           path: manifests
-
-      - name: Debug Git Remote
-        run: |
-          cd manifests
-          git remote set-url origin https://github.com/team8901/woohakdong-manifests.git
 
       - name: Update Deployment Image
         run: |
           sed -i "s|image: .*|image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:prod-${{ env.COMMIT_SHA }}|" manifests/backend/woohakdong-deployment.yaml
 
-      - name: Commit Changes
+      - name: Commit and Push Changes
         run: |
           cd manifests
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add backend/woohakdong-deployment.yaml
           git commit -m "update: woohakdong-spring to prod-${{ env.COMMIT_SHA }}"
-
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "update: woohakdong-spring to prod-${{ env.COMMIT_SHA }}"
-          branch: update-woohakdong-spring-${{ env.COMMIT_SHA }}
-          title: "Update woohakdong-spring to prod-${{ env.COMMIT_SHA }}"
-          body: |
-            This pull request updates the deployment manifest to use the new image tag: `prod-${{ env.COMMIT_SHA }}`.
-          labels: |
-            deployment
+          git push origin main
