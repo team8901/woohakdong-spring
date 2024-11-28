@@ -118,7 +118,7 @@ class ItemServiceTest extends SecurityContextSetUp {
     void borrowItemSuccess() {
         // given
         Item item = createItem(club, "축구공", SPORT, 7, false);
-        LocalDate date = LocalDate.of(2024, 11, 23);
+        LocalDate date = LocalDate.now();
         ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
         // when
@@ -139,7 +139,7 @@ class ItemServiceTest extends SecurityContextSetUp {
         // Given
         Item item = createItem(club, "축구공", SPORT, 7, false);
         item.setItemAvailable(false);
-        LocalDate date = LocalDate.of(2024, 11, 23);
+        LocalDate date = LocalDate.now();
         ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
         // When & Then
@@ -153,7 +153,7 @@ class ItemServiceTest extends SecurityContextSetUp {
     void borrowItemAlreadyInUseFailure() {
         // given
         Item item = createItem(club, "축구공", SPORT, 7, true);
-        LocalDate date = LocalDate.of(2024, 11, 23);
+        LocalDate date = LocalDate.now();
         ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
         // when & then
@@ -168,7 +168,7 @@ class ItemServiceTest extends SecurityContextSetUp {
         // given
         Item item = createItem(club, "축구공", SPORT, 7, false);
         ItemReturnRequest request = createItemReturnRequest("http://example.com/return_photo.png");
-        LocalDate date = LocalDate.of(2024, 11, 23);
+        LocalDate date = LocalDate.now();
         createClubMember(club, member, MEMBER, date);
         itemService.borrowItem(club.getClubId(), item.getItemId(), date);
 
@@ -191,7 +191,7 @@ class ItemServiceTest extends SecurityContextSetUp {
     void getItemHistorySuccess() {
         // given
         Item item = createItem(club, "축구공", SPORT, 7, false);
-        LocalDate date = LocalDate.of(2024, 11, 23);
+        LocalDate date = LocalDate.now();
         ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
         LocalDateTime dateTime = date.atStartOfDay();
@@ -235,7 +235,7 @@ class ItemServiceTest extends SecurityContextSetUp {
         // given
         createItem(club, "축구공", SPORT, 7, false);
         Item item = createItem(club, "농구공", SPORT, 5, true);
-        LocalDate date = LocalDate.of(2024, 11, 23);
+        LocalDate date = LocalDate.now();
         ClubMember clubMember = createClubMember(club, member, MEMBER, date);
         LocalDateTime dateTime = date.atStartOfDay();
 
@@ -259,7 +259,7 @@ class ItemServiceTest extends SecurityContextSetUp {
         // given
         createItem(club, "축구공", SPORT, 7, false);
         Item item = createItem(club, "농구공", SPORT, 5, true);
-        LocalDate date = LocalDate.of(2024, 11, 23);
+        LocalDate date = LocalDate.now();
         ClubMember clubMember = createClubMember(club, member, MEMBER, date);
         LocalDateTime dateTime = date.atStartOfDay();
         createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), null);
@@ -281,7 +281,7 @@ class ItemServiceTest extends SecurityContextSetUp {
         // given
         createItem(club, "축구공", SPORT, 7, false);
         Item item = createItem(club, "농구공", SPORT, 5, true);
-        LocalDate date = LocalDate.of(2024, 11, 23);
+        LocalDate date = LocalDate.now();
         ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
         LocalDateTime dateTime = date.atStartOfDay();
@@ -332,7 +332,7 @@ class ItemServiceTest extends SecurityContextSetUp {
     void getMyBorrowedItems_success() {
         // given
         Item item = createItem(club, "축구공", SPORT, 7, false);
-        LocalDate date = LocalDate.of(2024, 11, 23);
+        LocalDate date = LocalDate.now();
         ClubMember clubMember = createClubMember(club, member, MEMBER, date);
         ItemBorrowed itemBorrowed = createItemBorrowed(clubMember, item);
 
@@ -366,7 +366,7 @@ class ItemServiceTest extends SecurityContextSetUp {
     void getMyHistoryItems_success() {
         // given
         Item item = createItem(club, "축구공", SPORT, 7, false);
-        LocalDate date = LocalDate.of(2024, 11, 8);
+        LocalDate date = LocalDate.now();
         ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
         LocalDateTime dateTime = date.atStartOfDay();
@@ -410,7 +410,7 @@ class ItemServiceTest extends SecurityContextSetUp {
     void getClubMemberHistoryItemsOverdue_success() {
         // given
         Item item = createItem(club, "축구공", SPORT, 7, false);
-        LocalDate date = LocalDate.of(2024, 11, 23);
+        LocalDate date = LocalDate.now();
         ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
         LocalDateTime dateTime = date.atStartOfDay();
