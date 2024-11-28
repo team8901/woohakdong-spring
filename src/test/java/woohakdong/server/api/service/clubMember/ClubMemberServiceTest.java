@@ -210,11 +210,11 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
         LocalDate date = LocalDate.of(2024, 11, 19);
         Member member2 = createMember(school, "testProvideId3", "준상박", "junsang@ajou.ac.kr");
         createClubMember(club, member, PRESIDENT, date);
-        createClubMember(club, member2, VICEPRESIDENT, date);
+        ClubMember clubMember = createClubMember(club, member2, VICEPRESIDENT, date);
         createClubAccount(club);
 
         // When
-        clubMemberService.passOnThePresidency(club.getClubId(), member2.getMemberId(), date);
+        clubMemberService.passOnThePresidency(club.getClubId(), clubMember.getClubMemberId(), date);
 
         // Then
         List<ClubMember> clubMemberList = clubMemberRepository.getAll();
@@ -233,11 +233,11 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
         LocalDate date = LocalDate.of(2024, 11, 19);
         Member member2 = createMember(school, "testProvideId3", "준상박", "junsang@ajou.ac.kr");
         createClubMember(club, member, PRESIDENT, date);
-        createClubMember(club, member2, VICEPRESIDENT, date);
-        ClubAccount clubAccount = createClubAccount(club);
+        ClubMember clubMember = createClubMember(club, member2, VICEPRESIDENT, date);
+        createClubAccount(club);
 
         // When
-        clubMemberService.passOnThePresidency(club.getClubId(), member2.getMemberId(), date);
+        clubMemberService.passOnThePresidency(club.getClubId(), clubMember.getClubMemberId(), date);
 
         // Then
         assertThatThrownBy(
