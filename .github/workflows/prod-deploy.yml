@@ -104,9 +104,9 @@ jobs:
 
       - name: Commit and Push Changes
         run: |
-          cd manifests
+          cd backend
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add deployment.yaml
+          git add woohakdong-deployment.yaml
           git commit -m "update: woohakdong-spring to prod-${{ env.COMMIT_SHA }}"
           git push origin main
