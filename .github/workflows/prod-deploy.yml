@@ -103,7 +103,7 @@ jobs:
       - name: Debug Git Remote
         run: |
           cd manifests
-          git remote set-url https://github.com/team8901/woohakdong-manifests
+          git remote set-url origin https://github.com/team8901/woohakdong-manifests.git
 
       - name: Update Deployment Image
         run: |
