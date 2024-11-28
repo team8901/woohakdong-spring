@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,5 +46,11 @@ public class ClubMemberController implements ClubMemberControllerDocs {
                            @PathVariable Long clubMemberId,
                            @RequestParam ClubMemberRole clubMemberRole) {
         clubMemberService.changeClubMemberRole(clubId, clubMemberId, clubMemberRole, LocalDate.now());
+    }
+
+    @PostMapping("/{clubId}/members/{clubMemberId}/presidency")
+    public void passOnThePresidency(@PathVariable Long clubId,
+                                    @PathVariable Long clubMemberId) {
+        clubMemberService.passOnThePresidency(clubId, clubMemberId, LocalDate.now());
     }
 }

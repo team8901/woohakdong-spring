@@ -30,5 +30,9 @@ public class ClubAccountRepositoryImpl implements ClubAccountRepository {
         return clubAccountJpaRepository.save(clubAccount);
     }
 
+    @Override
+    public void delete(ClubAccount clubAccount) {
+        clubAccountJpaRepository.delete(clubAccount);
+    }
 
 }

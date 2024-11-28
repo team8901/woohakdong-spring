@@ -33,4 +33,9 @@ public interface ClubMemberControllerDocs {
     @Operation(summary = "동아리 멤버 상세 정보 불러오기", description = "동아리 clubMemberId로 상세 정보를 불러온다.")
     @ApiResponse(responseCode = "200", description = "동아리 멤버 상세 정보 불러오기 성공", useReturnTypeSchema = true)
     public ClubMemberInfoResponse getClubMemberInfo(Long clubId, Long clubMemberId);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "동아리 멤버에게 회장 권한 위임하기", description = "동아리 멤버에게 회장 권한을 위임한다.")
+    @ApiResponse(responseCode = "200", description = "동아리 멤버에게 회장 권한 위임하기 성공", useReturnTypeSchema = true)
+    public void passOnThePresidency(Long clubId, Long clubMemberId);
 }

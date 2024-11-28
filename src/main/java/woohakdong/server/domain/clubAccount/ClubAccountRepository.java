@@ -8,4 +8,6 @@ public interface ClubAccountRepository {
     ClubAccount getByClub(Club club);
 
     ClubAccount save(ClubAccount clubAccount);
+
+    void delete(ClubAccount clubAccount);
 }
