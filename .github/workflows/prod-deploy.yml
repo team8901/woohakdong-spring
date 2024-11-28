@@ -96,11 +96,11 @@ jobs:
         with:
           repository: team8901/woohakdong-manifests
           token: ${{ secrets.GITHUB_TOKEN }}
-          path: manifests
+          path: backend
 
       - name: Update Deployment Image
         run: |
-          sed -i "s|image: .*|image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:prod-${{ env.COMMIT_SHA }}|" manifests/deployment.yaml
+          sed -i "s|image: .*|image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:prod-${{ env.COMMIT_SHA }}|" backend/woohakdong-deployment.yaml
 
       - name: Commit and Push Changes
         run: |
