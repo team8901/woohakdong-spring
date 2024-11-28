@@ -96,17 +96,17 @@ jobs:
         with:
           repository: team8901/woohakdong-manifests
           token: ${{ secrets.GITHUB_TOKEN }}
-          path: backend
+          path: manifests
 
       - name: Update Deployment Image
         run: |
-          sed -i "s|image: .*|image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:prod-${{ env.COMMIT_SHA }}|" backend/woohakdong-deployment.yaml
+          sed -i "s|image: .*|image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:prod-${{ env.COMMIT_SHA }}|" manifests/backend/woohakdong-deployment.yaml
 
       - name: Commit and Push Changes
         run: |
-          cd backend
+          cd manifests
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add woohakdong-deployment.yaml
+          git add backend/woohakdong-deployment.yaml
           git commit -m "update: woohakdong-spring to prod-${{ env.COMMIT_SHA }}"
           git push origin main
