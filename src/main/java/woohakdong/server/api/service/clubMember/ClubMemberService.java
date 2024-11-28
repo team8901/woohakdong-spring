@@ -1,6 +1,9 @@
 package woohakdong.server.api.service.clubMember;
 
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_MEMBER_ROLE_NOT_ALLOWED;
+import static woohakdong.server.domain.clubmember.ClubMemberRole.MEMBER;
+import static woohakdong.server.domain.clubmember.ClubMemberRole.OFFICER;
+import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,6 +16,8 @@ import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.common.util.security.SecurityUtil;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
+import woohakdong.server.domain.clubAccount.ClubAccount;
+import woohakdong.server.domain.clubAccount.ClubAccountRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.clubmember.ClubMemberRole;
@@ -28,6 +33,7 @@ public class ClubMemberService {
 
     private final ClubMemberRepository clubMemberRepository;
     private final ClubRepository clubRepository;
+    private final ClubAccountRepository clubAccountRepository;
 
     public List<ClubMemberInfoResponse> getMembers(Long clubId, LocalDate date) {
         Club club = clubRepository.getById(clubId);
@@ -64,7 +70,7 @@ public class ClubMemberService {
         LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
         ClubMember president = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
 
-        if (!president.getClubMemberRole().equals(ClubMemberRole.PRESIDENT)) {
+        if (!president.getClubMemberRole().equals(PRESIDENT)) {
             throw new CustomException(CLUB_MEMBER_ROLE_NOT_ALLOWED);
         }
 
@@ -80,5 +86,21 @@ public class ClubMemberService {
         return clubMemberList.stream()
                 .map(ClubMemberInfoResponse::from)
                 .toList();
+    }
+
+    @Transactional
+    public void passOnThePresidency(Long clubId, Long clubMemberId, LocalDate date) {
+        Member member = securityUtil.getMember();
+        Club club = clubRepository.getById(clubId);
+        LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
+        ClubMember president = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
+        president.hasAuthorityOf(PRESIDENT);
+
+        ClubMember clubMember = clubMemberRepository.getById(clubMemberId);
+        clubMember.changeRole(PRESIDENT);
+        president.changeRole(OFFICER);
+
+        ClubAccount clubAccount = clubAccountRepository.getByClub(club);
+        clubAccountRepository.delete(clubAccount);
     }
 }

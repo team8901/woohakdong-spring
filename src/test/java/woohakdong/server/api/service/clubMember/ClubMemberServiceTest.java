@@ -22,6 +22,8 @@ import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
+import woohakdong.server.domain.clubAccount.ClubAccount;
+import woohakdong.server.domain.clubAccount.ClubAccountRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.clubmember.ClubMemberRole;
@@ -47,6 +49,9 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
 
     @Autowired
     private SchoolRepository schoolRepository;
+
+    @Autowired
+    private ClubAccountRepository clubAccountRepository;
 
     @Autowired
     private DateUtil dateUtil;
@@ -198,6 +203,49 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
                 .hasMessage(CustomErrorInfo.CLUB_MEMBER_ROLE_NOT_ALLOWED.getMessage());
     }
 
+    @DisplayName("동아리 회장을 위임하면, 본인은 임원진으로 변경된다.")
+    @Test
+    void passOnThePresidency() {
+        // Given
+        LocalDate date = LocalDate.of(2024, 11, 19);
+        Member member2 = createMember(school, "testProvideId3", "준상박", "junsang@ajou.ac.kr");
+        createClubMember(club, member, PRESIDENT, date);
+        createClubMember(club, member2, VICEPRESIDENT, date);
+        createClubAccount(club);
+
+        // When
+        clubMemberService.passOnThePresidency(club.getClubId(), member2.getMemberId(), date);
+
+        // Then
+        List<ClubMember> clubMemberList = clubMemberRepository.getAll();
+        assertThat(clubMemberList).hasSize(2)
+                .extracting("member.memberName", "clubMemberRole")
+                .containsExactlyInAnyOrder(
+                        tuple("박상준", OFFICER),
+                        tuple("준상박", PRESIDENT)
+                );
+    }
+
+    @DisplayName("동아리 회장을 위임하면, 해당 동아리의 연동 계좌가 삭제된다.")
+    @Test
+    void passOnThePresidencyThenClubAccountRemoved() {
+        // Given
+        LocalDate date = LocalDate.of(2024, 11, 19);
+        Member member2 = createMember(school, "testProvideId3", "준상박", "junsang@ajou.ac.kr");
+        createClubMember(club, member, PRESIDENT, date);
+        createClubMember(club, member2, VICEPRESIDENT, date);
+        ClubAccount clubAccount = createClubAccount(club);
+
+        // When
+        clubMemberService.passOnThePresidency(club.getClubId(), member2.getMemberId(), date);
+
+        // Then
+        assertThatThrownBy(
+                () -> clubAccountRepository.getByClub(club))
+                .isInstanceOf(CustomException.class)
+                .hasMessage(CustomErrorInfo.CLUB_ACCOUNT_NOT_FOUND.getMessage());
+    }
+
     private School createSchool(String domain) {
         School school = School.builder()
                 .schoolDomain(domain)
@@ -237,4 +285,17 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
                 .build();
         return clubMemberRepository.save(clubMember);
     }
+
+    private ClubAccount createClubAccount(Club club) {
+        ClubAccount clubAccount = ClubAccount.builder()
+                .club(club)
+                .clubAccountBankName("아주은행")
+                .clubAccountNumber("1234567890")
+                .clubAccountPinTechNumber("PIN-123456")
+                .clubAccountBankCode("123")
+                .clubAccountBalance(0L)
+                .build();
+        return clubAccountRepository.save(clubAccount);
+    }
+
 }
