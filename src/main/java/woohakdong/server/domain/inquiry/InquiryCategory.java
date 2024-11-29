@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum InquiryCategory {
-    INQUIRY("inquiry"),
-    DECLARATION("declaration"),
-    SUGGESTION("suggestion"),
-    ETC("etc");
+    INQUIRY("문의"),
+    DECLARATION("신고"),
+    SUGGESTION("제안"),
+    ETC("기타");
 
     private final String category;
 }
