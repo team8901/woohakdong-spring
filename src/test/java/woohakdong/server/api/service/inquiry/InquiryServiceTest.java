@@ -56,8 +56,8 @@ class InquiryServiceTest extends SecurityContextSetUp {
     @Test
     void getInquiries() {
         // Given
-        inquiryRepository.save(createExampleInquiry("Test inquiry content 1", InquiryCategory.INQUIRY, member));
-        inquiryRepository.save(createExampleInquiry("Test inquiry content 2", InquiryCategory.INQUIRY, member));
+        createExampleInquiry("Test inquiry content 1", InquiryCategory.INQUIRY, member);
+        createExampleInquiry("Test inquiry content 2", InquiryCategory.INQUIRY, member);
 
         // When
         List<InquiryResponse> responses = inquiryService.getInquiries();
@@ -73,10 +73,13 @@ class InquiryServiceTest extends SecurityContextSetUp {
     }
 
     private Inquiry createExampleInquiry(String inquiryContent, InquiryCategory category, Member member) {
-        return Inquiry.builder()
+        Inquiry inquiry = Inquiry.builder()
                 .InquiryContent(inquiryContent)
                 .inquiryCategory(category)
                 .member(member)
                 .build();
+
+        inquiryRepository.save(inquiry);
+        return inquiry;
     }
 }
