@@ -46,8 +46,7 @@ class InquiryServiceTest extends SecurityContextSetUp {
 
         // Then
         List<Inquiry> inquiries = inquiryRepository.getAll();
-        assertThat(inquiries).hasSize(1);
-        assertThat(inquiries)
+        assertThat(inquiries).hasSize(1)
                 .extracting(Inquiry::getInquiryContent, Inquiry::getInquiryCategory)
                 .containsExactly(tuple("Test inquiry content", InquiryCategory.INQUIRY));
     }
@@ -63,8 +62,7 @@ class InquiryServiceTest extends SecurityContextSetUp {
         List<InquiryResponse> responses = inquiryService.getInquiries();
 
         // Then
-        assertThat(responses).hasSize(2);
-        assertThat(responses)
+        assertThat(responses).hasSize(2)
                 .extracting(InquiryResponse::inquiryContent, InquiryResponse::inquiryCategory)
                 .containsExactly(
                         tuple("Test inquiry content 1", InquiryCategory.INQUIRY),
