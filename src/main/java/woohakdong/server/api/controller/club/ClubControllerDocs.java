@@ -17,7 +17,10 @@ import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubNameValidateRequest;
 import woohakdong.server.api.controller.club.dto.ClubSummaryResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
+import woohakdong.server.api.controller.group.dto.GroupCreateRequest;
+import woohakdong.server.api.controller.group.dto.GroupIdResponse;
 import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
+import woohakdong.server.api.controller.group.dto.GroupSummaryResponse;
 
 @Tag(name = "Club", description = "동아리 관련 API")
 public interface ClubControllerDocs {
@@ -60,7 +63,7 @@ public interface ClubControllerDocs {
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "동아리 가입 요청을 위한 정보 불러오기", description = "동아리원들에게 제공할 링크 및 정보를 제공합니다.")
     @ApiResponse(responseCode = "200", description = "동아리 가입 요청을 위한 정보 불러오기 성공", useReturnTypeSchema = true)
-    public GroupInfoResponse getClubJoinInfo(Long clubId);
+    public GroupSummaryResponse getClubJoinInfo(Long clubId);
 
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "가입한 동아리 목록 불러오기", description = "가입한 동아리 목록을 불러옵니다.")
@@ -83,5 +86,15 @@ public interface ClubControllerDocs {
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "동아리 서비스 사용료 납부 정보 획득하기", description = "서비스 사용료 납부 정보를 획득합니다.")
     @ApiResponse(responseCode = "200", description = "동아리 서비스 사용료 납부 정보 획득 성공", useReturnTypeSchema = true)
-    public GroupInfoResponse getClubPaymentGroupInfo(Long clubId);
+    public GroupSummaryResponse getClubPaymentGroupInfo(Long clubId);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "동아리 내 새 그룹 생성", description = "동아리의 새로운 그룹을 생성합니다.")
+    @ApiResponse(responseCode = "200", description = "동아리 내 새 그룹 생성 성공", useReturnTypeSchema = true)
+    public GroupIdResponse createClubGroup(Long clubId, GroupCreateRequest groupCreateRequest);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "동아리 내 그룹 목록 조회", description = "동아리 내 그룹 목록을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "동아리 내 그룹 목록 조회 성공", useReturnTypeSchema = true)
+    public ListWrapperResponse<GroupInfoResponse> getClubGroupList(Long clubId);
 }
