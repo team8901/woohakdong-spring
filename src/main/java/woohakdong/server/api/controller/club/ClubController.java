@@ -1,5 +1,6 @@
 package woohakdong.server.api.controller.club;
 
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +23,10 @@ import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubNameValidateRequest;
 import woohakdong.server.api.controller.club.dto.ClubSummaryResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
+import woohakdong.server.api.controller.group.dto.GroupCreateRequest;
+import woohakdong.server.api.controller.group.dto.GroupIdResponse;
 import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
+import woohakdong.server.api.controller.group.dto.GroupSummaryResponse;
 import woohakdong.server.api.service.bank.BankService;
 import woohakdong.server.api.service.club.ClubService;
 
@@ -70,7 +74,7 @@ public class ClubController implements ClubControllerDocs {
     }
 
     @GetMapping("/{clubId}/join")
-    public GroupInfoResponse getClubJoinInfo(@PathVariable Long clubId) {
+    public GroupSummaryResponse getClubJoinInfo(@PathVariable Long clubId) {
         return clubService.getClubJoinInfo(clubId);
     }
 
@@ -95,7 +99,18 @@ public class ClubController implements ClubControllerDocs {
     }
 
     @GetMapping("/{clubId}/payment-group")
-    public GroupInfoResponse getClubPaymentGroupInfo(@PathVariable Long clubId) {
+    public GroupSummaryResponse getClubPaymentGroupInfo(@PathVariable Long clubId) {
         return clubService.getGroupPaymentInfo(clubId);
+    }
+
+    @PostMapping("/{clubId}/groups")
+    public GroupIdResponse createClubGroup(@PathVariable Long clubId,
+                                           @Valid @RequestBody GroupCreateRequest groupCreateRequest) {
+        return null;
+    }
+
+    @GetMapping("/{clubId}/groups")
+    public ListWrapperResponse<GroupInfoResponse> getClubGroupList(@PathVariable Long clubId) {
+        return null;
     }
 }

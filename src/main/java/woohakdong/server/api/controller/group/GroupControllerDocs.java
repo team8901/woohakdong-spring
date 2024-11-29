@@ -5,6 +5,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import woohakdong.server.api.controller.group.dto.CreateOrderRequest;
+import woohakdong.server.api.controller.group.dto.GroupIdResponse;
+import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
+import woohakdong.server.api.controller.group.dto.GroupUpdateRequest;
 import woohakdong.server.api.controller.group.dto.OrderIdResponse;
 import woohakdong.server.api.controller.group.dto.PaymentCompleteReqeust;
 import woohakdong.server.api.controller.group.dto.PortOneWebhookRequest;
@@ -25,4 +28,19 @@ public interface GroupControllerDocs {
     @Operation(summary = "포트원 측 결제 완료 webhook", description = "포트원 측에서 결제가 완료되었을 때, webhook을 통해 호출되는 API")
     @ApiResponse(responseCode = "200", description = "포트원 측 결제 완료 webhook 호출 성공", useReturnTypeSchema = true)
     void portOnePaymentComplete(PortOneWebhookRequest request);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "그룹 상세 조회", description = "그룹 id를 입력하면, 해당 그룹의 상세 정보를 반환합니다.")
+    @ApiResponse(responseCode = "200", description = "그룹 상세 조회 성공", useReturnTypeSchema = true)
+    GroupInfoResponse getGroupInfo(Long groupId);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "그룹 정보 수정", description = "수정할 그룹 정보를 제공하면, 해당 그룹의 정보를 수정합니다.")
+    @ApiResponse(responseCode = "200", description = "그룹 정보 수정 성공", useReturnTypeSchema = true)
+    GroupIdResponse updateGroupInfo(Long groupId, GroupUpdateRequest groupUpdateRequest);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "그룹 삭제", description = "삭제할 그룹 id를 입력하면, 해당 그룹을 삭제합니다.")
+    @ApiResponse(responseCode = "200", description = "그룹 삭제 성공", useReturnTypeSchema = true)
+    void deleteGroup(Long groupId);
 }

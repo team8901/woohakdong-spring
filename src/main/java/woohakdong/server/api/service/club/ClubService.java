@@ -11,8 +11,6 @@ import static woohakdong.server.domain.group.GroupType.JOIN;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +22,7 @@ import woohakdong.server.api.controller.club.dto.ClubIdResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubSummaryResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
-import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
+import woohakdong.server.api.controller.group.dto.GroupSummaryResponse;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.common.util.security.SecurityUtil;
@@ -129,11 +127,11 @@ public class ClubService {
                 .toList();
     }
 
-    public GroupInfoResponse getClubJoinInfo(Long clubId) {
+    public GroupSummaryResponse getClubJoinInfo(Long clubId) {
         Club club = clubRepository.getById(clubId);
         Group group = groupRepository.getByClubAndGroupType(club, JOIN);
 
-        return GroupInfoResponse.from(group);
+        return GroupSummaryResponse.from(group);
     }
 
     public List<ClubInfoResponse> getJoinedClubInfos() {
@@ -185,10 +183,10 @@ public class ClubService {
         }
     }
 
-    public GroupInfoResponse getGroupPaymentInfo(Long clubId) {
+    public GroupSummaryResponse getGroupPaymentInfo(Long clubId) {
         Club club = clubRepository.getById(clubId);
         Group group = groupRepository.getByClubAndGroupType(club, CLUB_PAYMENT);
-        return GroupInfoResponse.from(group);
+        return GroupSummaryResponse.from(group);
     }
 
     private String getBankCode(String bankName) {

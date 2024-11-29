@@ -27,7 +27,7 @@ import woohakdong.server.api.controller.club.dto.ClubIdResponse;
 import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubSummaryResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
-import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
+import woohakdong.server.api.controller.group.dto.GroupSummaryResponse;
 import woohakdong.server.api.service.SecurityContextSetUp;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.util.date.DateUtil;
@@ -350,7 +350,7 @@ class ClubServiceTest extends SecurityContextSetUp {
         createGroupForClub(club, CLUB_PAYMENT, 35000, club.getClubName() + " 동아리의 우학동 서비스 사용료 결제");
 
         // When
-        GroupInfoResponse response = clubService.getGroupPaymentInfo(club.getClubId());
+        GroupSummaryResponse response = clubService.getGroupPaymentInfo(club.getClubId());
 
         // Then
         assertThat(response).isNotNull()
