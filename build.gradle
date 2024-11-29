@@ -93,7 +93,8 @@ jacocoTestReport {
                     fileTree(dir: it, excludes: [
                             '**/*Application*',
                             '**/*dto*',
-                            '**/*common*'
+                            '**/*common*',
+                            '**/*Controller*',
                     ])
                 })
         )
