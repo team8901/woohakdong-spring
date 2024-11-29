@@ -20,4 +20,6 @@ public interface ClubAccountHistoryJpaRepository extends JpaRepository<ClubAccou
                                                      @Param("month") int month);
 
     List<ClubAccountHistory> findAllByClubAccountClubOrderByClubAccountHistoryTranDateDesc(Club club);
+
+    void deleteAllByClubAccount(ClubAccount clubAccount);
 }

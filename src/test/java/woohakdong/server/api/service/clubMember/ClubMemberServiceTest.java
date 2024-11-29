@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static woohakdong.server.config.TestConstants.TEST_PROVIDE_ID;
+import static woohakdong.server.domain.admin.adminAccount.AccountType.DEPOSIT;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.MEMBER;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.OFFICER;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
@@ -20,10 +21,13 @@ import woohakdong.server.api.service.SecurityContextSetUp;
 import woohakdong.server.common.exception.CustomErrorInfo;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.util.date.DateUtil;
+import woohakdong.server.domain.admin.adminAccount.AccountType;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubAccount.ClubAccount;
 import woohakdong.server.domain.clubAccount.ClubAccountRepository;
+import woohakdong.server.domain.clubAccountHistory.ClubAccountHistory;
+import woohakdong.server.domain.clubAccountHistory.ClubAccountHistoryRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.clubmember.ClubMemberRole;
@@ -52,6 +56,9 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
 
     @Autowired
     private ClubAccountRepository clubAccountRepository;
+
+    @Autowired
+    private ClubAccountHistoryRepository clubAccountHistoryRepository;
 
     @Autowired
     private DateUtil dateUtil;
@@ -245,6 +252,38 @@ class ClubMemberServiceTest extends SecurityContextSetUp {
                 .isInstanceOf(CustomException.class)
                 .hasMessage(CustomErrorInfo.CLUB_ACCOUNT_NOT_FOUND.getMessage());
     }
+
+    @DisplayName("동아리 회장을 위임하면, 해당 동아리의 연동 계좌의 기록도 삭제된다.")
+    @Test
+    void passOnThePresidencyThenClubAccountHistoryRemoved() {
+        // Given
+        LocalDate date = LocalDate.of(2024, 11, 19);
+        Member member2 = createMember(school, "testProvideId3", "준상박", "junsang@ajou.ac.kr");
+        createClubMember(club, member, PRESIDENT, date);
+        ClubMember clubMember = createClubMember(club, member2, VICEPRESIDENT, date);
+        ClubAccount clubAccount = createClubAccount(club);
+        createClubAccountHistory(clubAccount);
+
+        // When
+        clubMemberService.passOnThePresidency(club.getClubId(), clubMember.getClubMemberId(), date);
+
+        // Then
+        assertThat(clubAccountHistoryRepository.findAllByClubAccountClub(club))
+                .isEmpty();
+    }
+
+    private ClubAccountHistory createClubAccountHistory(ClubAccount clubAccount) {
+        ClubAccountHistory clubAccountHistory = ClubAccountHistory.builder()
+                        .clubAccount(clubAccount)
+                .clubAccountHistoryContent("테스트 입금")
+                .clubAccountHistoryBalanceAmount(1000L)
+                .clubAccountHistoryInOutType(DEPOSIT)
+                .clubAccountHistoryTranAmount(1000L)
+                .clubAccountHistoryTranDate(LocalDate.of(2024, 11, 19).atStartOfDay())
+                .build();
+        return clubAccountHistoryRepository.save(clubAccountHistory);
+    }
+
 
     private School createSchool(String domain) {
         School school = School.builder()

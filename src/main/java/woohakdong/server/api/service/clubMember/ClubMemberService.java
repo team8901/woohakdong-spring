@@ -18,6 +18,8 @@ import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubAccount.ClubAccount;
 import woohakdong.server.domain.clubAccount.ClubAccountRepository;
+import woohakdong.server.domain.clubAccountHistory.ClubAccountHistory;
+import woohakdong.server.domain.clubAccountHistory.ClubAccountHistoryRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.clubmember.ClubMemberRole;
@@ -34,6 +36,7 @@ public class ClubMemberService {
     private final ClubMemberRepository clubMemberRepository;
     private final ClubRepository clubRepository;
     private final ClubAccountRepository clubAccountRepository;
+    private final ClubAccountHistoryRepository clubAccountHistoryRepository;
 
     public List<ClubMemberInfoResponse> getMembers(Long clubId, LocalDate date) {
         Club club = clubRepository.getById(clubId);
@@ -101,6 +104,7 @@ public class ClubMemberService {
         president.changeRole(OFFICER);
 
         ClubAccount clubAccount = clubAccountRepository.getByClub(club);
+        clubAccountHistoryRepository.deleteAllByClubAccount(clubAccount);
         clubAccountRepository.delete(clubAccount);
     }
 }
