@@ -32,4 +32,9 @@ public class ClubAccountHistoryRepositoryImpl implements ClubAccountHistoryRepos
     public List<ClubAccountHistory> findAllByClubAccountClub(Club club) {
         return clubAccountHistoryJpaRepository.findAllByClubAccountClubOrderByClubAccountHistoryTranDateDesc(club);
     }
+
+    @Override
+    public void deleteAllByClubAccount(ClubAccount clubAccount) {
+        clubAccountHistoryJpaRepository.deleteAllByClubAccount(clubAccount);
+    }
 }

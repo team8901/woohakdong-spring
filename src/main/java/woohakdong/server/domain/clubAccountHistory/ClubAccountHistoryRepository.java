@@ -13,4 +13,6 @@ public interface ClubAccountHistoryRepository {
     List<ClubAccountHistory> findMonthlyTransactions(ClubAccount clubAccount, int year, int month);
 
     List<ClubAccountHistory> findAllByClubAccountClub(Club club);
+
+    void deleteAllByClubAccount(ClubAccount clubAccount);
 }
