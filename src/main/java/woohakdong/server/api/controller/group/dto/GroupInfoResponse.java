@@ -12,7 +12,9 @@ public record GroupInfoResponse(
         Integer groupAmount,
         String groupChatLink,
         String groupChatPassword,
-        Boolean groupIsActivated
+        Boolean groupIsActivated,
+        Integer groupMemberLimit,
+        Integer groupMemberCount
 ) {
     public static GroupInfoResponse from(Group group) {
         return GroupInfoResponse.builder()
@@ -24,6 +26,8 @@ public record GroupInfoResponse(
                 .groupChatLink(group.getGroupChatLink())
                 .groupChatPassword(group.getGroupChatPassword())
                 .groupIsActivated(group.getGroupIsActivated())
+                .groupMemberLimit(group.getGroupMemberLimit())
+                .groupMemberCount(group.getGroupMemberCount())
                 .build();
     }
 }

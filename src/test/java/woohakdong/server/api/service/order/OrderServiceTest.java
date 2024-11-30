@@ -245,6 +245,8 @@ class OrderServiceTest extends SecurityContextSetUp {
                 .groupChatLink(club.getClubGroupChatLink())
                 .club(club)
                 .groupIsActivated(true)
+                .groupMemberLimit(999)
+                .groupMemberCount(0)
                 .build();
         return groupRepository.save(group);
     }

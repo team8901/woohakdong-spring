@@ -78,6 +78,8 @@ class GroupRepositoryTest {
                 .groupJoinLink("https://test.com")
                 .groupAmount(amount)
                 .groupIsActivated(true)
+                .groupMemberLimit(999)
+                .groupMemberCount(0)
                 .build();
         return groupRepository.save(group);
     }

@@ -402,6 +402,8 @@ class ClubServiceTest extends SecurityContextSetUp {
                 .groupChatLink(club.getClubGroupChatLink())
                 .groupChatPassword(club.getClubGroupChatPassword())
                 .groupIsActivated(true)
+                .groupMemberLimit(999)
+                .groupMemberCount(0)
                 .build();
         club.addGroup(group);
         return group;

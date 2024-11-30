@@ -44,7 +44,8 @@ public class GroupService {
         clubMember.hasAuthorityOf(OFFICER);
 
         Group group = Group.createEventGroup(club, request.groupName(), request.groupDescription(),
-                request.groupAmount(), request.groupChatLink(), request.groupChatPassword());
+                request.groupAmount(), request.groupChatLink(), request.groupChatPassword(),
+                request.groupMemberLimit());
         Group saved = groupRepository.save(group);
         saved.setGroupJoinLink();
 
@@ -83,7 +84,7 @@ public class GroupService {
         clubMember.hasAuthorityOf(OFFICER);
 
         group.updateEventGroup(request.groupName(), request.groupDescription(), request.groupChatLink(),
-                request.groupChatPassword(), request.groupIsActivated());
+                request.groupChatPassword(), request.groupIsActivated(), request.groupMemberLimit());
 
         return GroupIdResponse.from(group);
     }

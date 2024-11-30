@@ -11,6 +11,8 @@ public record GroupUpdateRequest(
         String groupChatLink,
         String groupChatPassword,
         @NotNull
-        Boolean groupIsActivated
+        Boolean groupIsActivated,
+        @NotNull
+        Integer groupMemberLimit
 ) {
 }
