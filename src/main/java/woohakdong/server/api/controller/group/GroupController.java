@@ -18,6 +18,7 @@ import woohakdong.server.api.controller.group.dto.GroupUpdateRequest;
 import woohakdong.server.api.controller.group.dto.OrderIdResponse;
 import woohakdong.server.api.controller.group.dto.PaymentCompleteReqeust;
 import woohakdong.server.api.controller.group.dto.PortOneWebhookRequest;
+import woohakdong.server.api.service.group.GroupService;
 import woohakdong.server.api.service.order.OrderService;
 
 @RestController
@@ -26,6 +27,7 @@ import woohakdong.server.api.service.order.OrderService;
 public class GroupController implements GroupControllerDocs {
 
     private final OrderService orderService;
+    private final GroupService groupService;
 
     @PostMapping("/{groupId}/orders")
     public OrderIdResponse createClubJoinOrder(@PathVariable Long groupId,
@@ -46,17 +48,22 @@ public class GroupController implements GroupControllerDocs {
 
     @GetMapping("/{groupId}")
     public GroupInfoResponse getGroupInfo(@PathVariable Long groupId) {
-        return null;
+        return groupService.findOneGroup(groupId, LocalDate.now());
     }
 
     @PutMapping("/{groupId}")
     public GroupIdResponse updateGroupInfo(@PathVariable Long groupId,
                                            @Valid @RequestBody GroupUpdateRequest groupUpdateRequest) {
-        return null;
+        return groupService.updateGroupInfo(groupId, groupUpdateRequest, LocalDate.now());
     }
 
     @DeleteMapping("/{groupId}")
     public void deleteGroup(@PathVariable Long groupId) {
+        groupService.deleteGroup(groupId, LocalDate.now());
+    }
 
+    @PostMapping("/{groupId}/availability")
+    public void changeAvailabilityOfGroup(@PathVariable Long groupId) {
+        groupService.changeAvailabilityOfGroup(groupId, LocalDate.now());
     }
 }

@@ -77,6 +77,7 @@ class GroupRepositoryTest {
                 .groupType(type)
                 .groupJoinLink("https://test.com")
                 .groupAmount(amount)
+                .groupIsActivated(true)
                 .build();
         return groupRepository.save(group);
     }

@@ -1,6 +1,7 @@
 package woohakdong.server.domain.group;
 
 import static woohakdong.server.domain.group.GroupType.CLUB_PAYMENT;
+import static woohakdong.server.domain.group.GroupType.EVENT;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,6 +33,7 @@ public class Group extends BaseEntity {
 
     private static final Integer PER_MEMBER_FEE = 500;
     private static final Integer BASE_SERVICE_FEE = 30000;
+    private static final String BASE_SERVER_URL = "https://www.woohakdong.com/clubs/%s/groups/%s";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,6 +55,9 @@ public class Group extends BaseEntity {
 
     private String groupChatPassword;
 
+    @Column(nullable = false)
+    private Boolean groupIsActivated;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id")
     private Club club;
@@ -62,7 +67,7 @@ public class Group extends BaseEntity {
 
     @Builder
     private Group(String groupName, String groupDescription, Integer groupAmount, String groupJoinLink,
-                  String groupChatLink, String groupChatPassword, GroupType groupType, Club club) {
+                  String groupChatLink, String groupChatPassword, GroupType groupType, Club club, Boolean groupIsActivated) {
         this.groupName = groupName;
         this.groupDescription = groupDescription;
         this.groupAmount = groupAmount;
@@ -71,6 +76,7 @@ public class Group extends BaseEntity {
         this.groupChatPassword = groupChatPassword;
         this.groupType = groupType;
         this.club = club;
+        this.groupIsActivated = groupIsActivated;
     }
 
     public static Group create(String groupName, String groupDescription, Integer groupAmount, String groupJoinLink,
@@ -84,6 +90,7 @@ public class Group extends BaseEntity {
                 .groupChatPassword(groupChatPassword)
                 .groupType(groupType)
                 .club(club)
+                .groupIsActivated(true)
                 .build();
     }
 
@@ -97,6 +104,22 @@ public class Group extends BaseEntity {
                 .groupChatPassword(null)
                 .groupType(CLUB_PAYMENT)
                 .club(club)
+                .groupIsActivated(true)
+                .build();
+    }
+
+    public static Group createEventGroup(Club club, String groupName, String groupDescription, Integer groupAmount,
+                                         String groupChatLink, String groupChatPassword) {
+        return Group.builder()
+                .groupName(groupName)
+                .groupDescription(groupDescription)
+                .groupAmount(groupAmount)
+                .groupJoinLink(null)
+                .groupChatLink(groupChatLink)
+                .groupChatPassword(groupChatPassword)
+                .groupType(EVENT)
+                .club(club)
+                .groupIsActivated(true)
                 .build();
     }
 
@@ -108,5 +131,22 @@ public class Group extends BaseEntity {
 
     public boolean isTypeOf(GroupType groupType) {
         return this.groupType == groupType;
+    }
+
+    public void setGroupJoinLink() {
+        this.groupJoinLink = String.format(BASE_SERVER_URL, club.getClubEnglishName(), groupId);
+    }
+
+    public void updateEventGroup(String groupName, String groupDescription, String groupChatLink,
+                                 String groupChatPassword, Boolean groupIsActivated) {
+        this.groupName = groupName;
+        this.groupDescription = groupDescription;
+        this.groupChatLink = groupChatLink;
+        this.groupChatPassword = groupChatPassword;
+        this.groupIsActivated = groupIsActivated;
+    }
+
+    public void changeAvailability() {
+        this.groupIsActivated = !this.groupIsActivated;
     }
 }
