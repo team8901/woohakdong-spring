@@ -244,6 +244,7 @@ class OrderServiceTest extends SecurityContextSetUp {
                 .groupJoinLink("https://woohakdong.com/" + club.getClubEnglishName())
                 .groupChatLink(club.getClubGroupChatLink())
                 .club(club)
+                .groupIsActivated(true)
                 .build();
         return groupRepository.save(group);
     }

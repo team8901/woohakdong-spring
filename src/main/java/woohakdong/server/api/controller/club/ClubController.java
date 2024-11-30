@@ -29,6 +29,7 @@ import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
 import woohakdong.server.api.controller.group.dto.GroupSummaryResponse;
 import woohakdong.server.api.service.bank.BankService;
 import woohakdong.server.api.service.club.ClubService;
+import woohakdong.server.api.service.group.GroupService;
 
 @RestController
 @RequestMapping("/v1/clubs")
@@ -37,6 +38,7 @@ public class ClubController implements ClubControllerDocs {
 
     private final ClubService clubService;
     private final BankService bankService;
+    private final GroupService groupService;
 
     @PostMapping("/validate")
     public void validateClubName(@RequestBody ClubNameValidateRequest request) {
@@ -106,11 +108,11 @@ public class ClubController implements ClubControllerDocs {
     @PostMapping("/{clubId}/groups")
     public GroupIdResponse createClubGroup(@PathVariable Long clubId,
                                            @Valid @RequestBody GroupCreateRequest groupCreateRequest) {
-        return null;
+        return groupService.createEventGroup(clubId, groupCreateRequest, LocalDate.now());
     }
 
     @GetMapping("/{clubId}/groups")
     public ListWrapperResponse<GroupInfoResponse> getClubGroupList(@PathVariable Long clubId) {
-        return null;
+        return ListWrapperResponse.of(groupService.findAllEventGroupOfClub(clubId));
     }
 }

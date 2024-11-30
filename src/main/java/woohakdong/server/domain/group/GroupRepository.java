@@ -15,4 +15,6 @@ public interface GroupRepository {
     List<Group> getAllByClubAndGroupType(Club club, GroupType groupType);
 
     boolean checkExistenceClubGroup(Club club, GroupType groupType);
+
+    void delete(Group group);
 }

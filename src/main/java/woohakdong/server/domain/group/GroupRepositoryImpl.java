@@ -45,4 +45,9 @@ public class GroupRepositoryImpl implements GroupRepository {
     public boolean checkExistenceClubGroup(Club club, GroupType groupType) {
         return groupJpaRepository.existsByClubAndGroupType(club, groupType);
     }
+
+    @Override
+    public void delete(Group group) {
+        groupJpaRepository.delete(group);
+    }
 }
