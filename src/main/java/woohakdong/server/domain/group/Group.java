@@ -1,5 +1,6 @@
 package woohakdong.server.domain.group;
 
+import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_MEMBER_LIMIT_EXCEEDED;
 import static woohakdong.server.domain.group.GroupType.CLUB_PAYMENT;
 import static woohakdong.server.domain.group.GroupType.EVENT;
 
@@ -21,8 +22,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import woohakdong.server.common.exception.CustomErrorInfo;
+import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.domain.BaseEntity;
 import woohakdong.server.domain.club.Club;
+import woohakdong.server.domain.clubmember.ClubMember;
+import woohakdong.server.domain.groupmember.GroupMember;
+import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.order.Order;
 
 @Entity
@@ -56,6 +62,11 @@ public class Group extends BaseEntity {
     private String groupChatPassword;
 
     @Column(nullable = false)
+    private Integer groupMemberLimit;
+
+    private Integer groupMemberCount;
+
+    @Column(nullable = false)
     private Boolean groupIsActivated;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -65,9 +76,13 @@ public class Group extends BaseEntity {
     @OneToMany(mappedBy = "group")
     private List<Order> orders = new ArrayList<>();
 
+    @OneToMany(mappedBy = "group")
+    private List<GroupMember> groupMembers = new ArrayList<>();
+
     @Builder
     private Group(String groupName, String groupDescription, Integer groupAmount, String groupJoinLink,
-                  String groupChatLink, String groupChatPassword, GroupType groupType, Club club, Boolean groupIsActivated) {
+                  String groupChatLink, String groupChatPassword, GroupType groupType, Club club,
+                  Boolean groupIsActivated, Integer groupMemberLimit, Integer groupMemberCount) {
         this.groupName = groupName;
         this.groupDescription = groupDescription;
         this.groupAmount = groupAmount;
@@ -77,6 +92,8 @@ public class Group extends BaseEntity {
         this.groupType = groupType;
         this.club = club;
         this.groupIsActivated = groupIsActivated;
+        this.groupMemberLimit = groupMemberLimit;
+        this.groupMemberCount = groupMemberCount;
     }
 
     public static Group create(String groupName, String groupDescription, Integer groupAmount, String groupJoinLink,
@@ -91,6 +108,8 @@ public class Group extends BaseEntity {
                 .groupType(groupType)
                 .club(club)
                 .groupIsActivated(true)
+                .groupMemberLimit(999)
+                .groupMemberCount(0)
                 .build();
     }
 
@@ -105,11 +124,13 @@ public class Group extends BaseEntity {
                 .groupType(CLUB_PAYMENT)
                 .club(club)
                 .groupIsActivated(true)
+                .groupMemberLimit(1)
+                .groupMemberCount(0)
                 .build();
     }
 
     public static Group createEventGroup(Club club, String groupName, String groupDescription, Integer groupAmount,
-                                         String groupChatLink, String groupChatPassword) {
+                                         String groupChatLink, String groupChatPassword, Integer groupMemberLimit) {
         return Group.builder()
                 .groupName(groupName)
                 .groupDescription(groupDescription)
@@ -120,6 +141,8 @@ public class Group extends BaseEntity {
                 .groupType(EVENT)
                 .club(club)
                 .groupIsActivated(true)
+                .groupMemberLimit(groupMemberLimit)
+                .groupMemberCount(0)
                 .build();
     }
 
@@ -138,15 +161,24 @@ public class Group extends BaseEntity {
     }
 
     public void updateEventGroup(String groupName, String groupDescription, String groupChatLink,
-                                 String groupChatPassword, Boolean groupIsActivated) {
+                                 String groupChatPassword, Boolean groupIsActivated, Integer groupMemberLimit) {
+        if ( groupMemberLimit < this.groupMemberCount ) {
+            throw new CustomException(GROUP_MEMBER_LIMIT_EXCEEDED);
+        }
         this.groupName = groupName;
         this.groupDescription = groupDescription;
         this.groupChatLink = groupChatLink;
         this.groupChatPassword = groupChatPassword;
         this.groupIsActivated = groupIsActivated;
+        this.groupMemberLimit = groupMemberLimit;
     }
 
     public void changeAvailability() {
         this.groupIsActivated = !this.groupIsActivated;
+    }
+
+    public void joinNewMember(ClubMember clubMember) {
+        this.groupMemberCount++;
+        this.groupMembers.add(GroupMember.create(clubMember, this));
     }
 }

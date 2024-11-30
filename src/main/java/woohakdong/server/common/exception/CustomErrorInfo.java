@@ -44,6 +44,7 @@ public enum CustomErrorInfo {
     CLUB_NOT_EXPIRED(400, "club not expired", 400036),
     MEMBER_ROLE_NOT_ADMIN(400, "member role is not admin", 400037),
     CLUB_ADMIN_ROLE_NOT_ALLOWED(400, "club admin role not allowed", 400038),
+    GROUP_MEMBER_LIMIT_EXCEEDED(400, "group member limit exceeded", 400039),
 
     // 401 UNAUTHORIZED
     INVALID_ACCESS_TOKEN(401, "Invaild access token", 401001),

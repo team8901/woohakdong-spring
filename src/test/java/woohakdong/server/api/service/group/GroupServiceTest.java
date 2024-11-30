@@ -3,6 +3,7 @@ package woohakdong.server.api.service.group;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
+import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_MEMBER_LIMIT_EXCEEDED;
 import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_NOT_FOUND;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.group.GroupType.EVENT;
@@ -54,16 +55,6 @@ class GroupServiceTest extends SecurityContextSetUp {
         createClubMember(club, member, PRESIDENT);
     }
 
-    private void createClubMember(Club club, Member member, ClubMemberRole role) {
-        ClubMember clubMember = ClubMember.builder()
-                .club(club)
-                .member(member)
-                .clubMemberRole(role)
-                .clubMemberAssignedTerm(dateUtil.getAssignedTerm(LocalDate.of(2024, 11, 19)))
-                .build();
-        clubMemberRepository.save(clubMember);
-    }
-
     private Club club;
     private Member member;
 
@@ -91,7 +82,7 @@ class GroupServiceTest extends SecurityContextSetUp {
     @Test
     void getGroupInfo() {
         // Given
-        Group group = createNewGroup("동아리 MT", 0, EVENT, true);
+        Group group = createNewGroup("동아리 MT", 0, EVENT, true, 0, 999);
         LocalDate date = LocalDate.of(2024, 11, 19);
 
         // When
@@ -107,9 +98,9 @@ class GroupServiceTest extends SecurityContextSetUp {
     @Test
     void findAllEventGroupOfClub() {
         // Given
-        createNewGroup("동아리 MT", 0, EVENT, true);
-        createNewGroup("스프링 스터디", 10, EVENT, true);
-        createNewGroup("자바 스터디", 5, EVENT, true);
+        createNewGroup("동아리 MT", 0, EVENT, true, 0, 999);
+        createNewGroup("스프링 스터디", 10, EVENT, true, 0, 999);
+        createNewGroup("자바 스터디", 5, EVENT, true, 0, 999);
 
         // When
         List<GroupInfoResponse> responses = groupService.findAllEventGroupOfClub(club.getClubId());
@@ -128,8 +119,8 @@ class GroupServiceTest extends SecurityContextSetUp {
     @Test
     void updateGroupInfo() {
         // Given
-        Group group = createNewGroup("동아리 MT", 0, EVENT, true);
-        GroupUpdateRequest request = createGroupUpdateRequest("스프링 스터디", false);
+        Group group = createNewGroup("동아리 MT", 0, EVENT, true, 0, 999);
+        GroupUpdateRequest request = createGroupUpdateRequest("스프링 스터디", false, 999);
         LocalDate date = LocalDate.of(2024, 11, 19);
 
         // When
@@ -141,6 +132,67 @@ class GroupServiceTest extends SecurityContextSetUp {
                 .extracting("groupName", "groupIsActivated")
                 .contains("스프링 스터디", false);
     }
+
+    @DisplayName("그룹 정보를 수정할 때, 인원 제한을 초과하면 예외를 던진다.")
+    @Test
+    void updateGroupInfoThrowExceedException() {
+        // Given
+        Group group = createNewGroup("동아리 MT", 0, EVENT, true, 5, 10);
+        GroupUpdateRequest request = createGroupUpdateRequest("동아리 MT", true, 4);
+        LocalDate date = LocalDate.of(2024, 11, 19);
+
+        // When & Then
+        assertThatThrownBy(() -> groupService.updateGroupInfo(group.getGroupId(), request, date))
+                .isInstanceOf(CustomException.class)
+                .hasMessage(GROUP_MEMBER_LIMIT_EXCEEDED.getMessage());
+    }
+
+    @DisplayName("그룹을 삭제할 수 있다.")
+    @Test
+    void deleteGroup() {
+        // Given
+        Group group = createNewGroup("동아리 MT", 0, EVENT, true, 0, 999);
+        LocalDate date = LocalDate.of(2024, 11, 19);
+
+        // When
+        groupService.deleteGroup(group.getGroupId(), date);
+
+        // Then
+        assertThatThrownBy(() -> groupRepository.getById(group.getGroupId()))
+                .isInstanceOf(CustomException.class)
+                .hasMessage(GROUP_NOT_FOUND.getMessage());
+    }
+
+    @DisplayName("그룹의 사용 가능 여부를 변경할 수 있다.")
+    @Test
+    void changeAvailabilityOfGroup() {
+        // Given
+        Group group = createNewGroup("동아리 MT", 0, EVENT, true, 0, 999);
+        LocalDate date = LocalDate.of(2024, 11, 19);
+
+        // When
+        groupService.changeAvailabilityOfGroup(group.getGroupId(), date);
+
+        // Then
+        Group updatedGroup = groupRepository.getById(group.getGroupId());
+        assertThat(updatedGroup.getGroupIsActivated()).isFalse();
+    }
+
+
+    private Group createNewGroup(String groupName, int groupAmount, GroupType groupType, boolean activated,
+                                 int memberCount, int memberLimit) {
+        Group group = Group.builder()
+                .groupName(groupName)
+                .groupAmount(groupAmount)
+                .groupType(groupType)
+                .club(club)
+                .groupIsActivated(activated)
+                .groupMemberLimit(memberLimit)
+                .groupMemberCount(memberCount)
+                .build();
+        return groupRepository.save(group);
+    }
+
 
     private Club createClub() {
         Club club = Club.builder()
@@ -159,59 +211,28 @@ class GroupServiceTest extends SecurityContextSetUp {
                 .groupChatLink("https://test-chat.com")
                 .groupChatPassword("test-password")
                 .groupAmount(amount)
+                .groupMemberLimit(999)
                 .build();
     }
 
-    @DisplayName("그룹을 삭제할 수 있다.")
-    @Test
-    void deleteGroup() {
-        // Given
-        Group group = createNewGroup("동아리 MT", 0, EVENT, true);
-        LocalDate date = LocalDate.of(2024, 11, 19);
-
-        // When
-        groupService.deleteGroup(group.getGroupId(), date);
-
-        // Then
-        assertThatThrownBy(() -> groupRepository.getById(group.getGroupId()))
-                .isInstanceOf(CustomException.class)
-                .hasMessage(GROUP_NOT_FOUND.getMessage());
-    }
-
-    @DisplayName("그룹의 사용 가능 여부를 변경할 수 있다.")
-    @Test
-    void changeAvailabilityOfGroup() {
-        // Given
-        Group group = createNewGroup("동아리 MT", 0, EVENT, true);
-        LocalDate date = LocalDate.of(2024, 11, 19);
-
-        // When
-        groupService.changeAvailabilityOfGroup(group.getGroupId(), date);
-
-        // Then
-        Group updatedGroup = groupRepository.getById(group.getGroupId());
-        assertThat(updatedGroup.getGroupIsActivated()).isFalse();
-    }
-
-
-    private Group createNewGroup(String groupName, int groupAmount, GroupType groupType, boolean activated) {
-        Group group = Group.builder()
-                .groupName(groupName)
-                .groupAmount(groupAmount)
-                .groupType(groupType)
-                .club(club)
-                .groupIsActivated(activated)
-                .build();
-        return groupRepository.save(group);
-    }
-
-    private GroupUpdateRequest createGroupUpdateRequest(String name, boolean isActivated) {
+    private GroupUpdateRequest createGroupUpdateRequest(String name, boolean isActivated, int memberLimit) {
         return GroupUpdateRequest.builder()
                 .groupName(name)
                 .groupDescription("스프링을 공부하는 스터디입니다.")
                 .groupChatLink("https://spring-study-chat.com")
                 .groupChatPassword("spring-password")
                 .groupIsActivated(isActivated)
+                .groupMemberLimit(memberLimit)
                 .build();
+    }
+
+    private void createClubMember(Club club, Member member, ClubMemberRole role) {
+        ClubMember clubMember = ClubMember.builder()
+                .club(club)
+                .member(member)
+                .clubMemberRole(role)
+                .clubMemberAssignedTerm(dateUtil.getAssignedTerm(LocalDate.of(2024, 11, 19)))
+                .build();
+        clubMemberRepository.save(clubMember);
     }
 }

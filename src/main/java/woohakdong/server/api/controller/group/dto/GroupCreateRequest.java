@@ -10,6 +10,8 @@ public record GroupCreateRequest(
         String groupDescription,
         Integer groupAmount,
         String groupChatLink,
-        String groupChatPassword
+        String groupChatPassword,
+        @NotNull
+        Integer groupMemberLimit
 ) {
 }
