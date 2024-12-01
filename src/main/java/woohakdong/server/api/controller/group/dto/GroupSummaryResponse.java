@@ -8,6 +8,7 @@ public record GroupSummaryResponse(
         Long groupId,
         String groupName,
         String groupDescription,
+        String groupJoinLink,
         Integer groupAmount
 ) {
     public static GroupSummaryResponse from(Group group) {
@@ -15,6 +16,7 @@ public record GroupSummaryResponse(
                 .groupId(group.getGroupId())
                 .groupName(group.getGroupName())
                 .groupDescription(group.getGroupDescription())
+                .groupJoinLink(group.getGroupJoinLink())
                 .groupAmount(group.getGroupAmount())
                 .build();
     }
