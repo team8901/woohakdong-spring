@@ -116,4 +116,16 @@ public class GroupService {
 
         group.changeAvailability();
     }
+
+    @Transactional
+    public void joinGroup(Long groupId, LocalDate date) {
+        Member member = securityUtil.getMember();
+        Group group = groupRepository.getById(groupId);
+        Club club = group.getClub();
+
+        // 클럽에 속한 멤버인지 확인
+        ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member,
+                dateUtil.getAssignedTerm(date));
+        group.joinNewMember(clubMember);
+    }
 }
