@@ -4,6 +4,7 @@ import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_MEMBER_LI
 import static woohakdong.server.domain.group.GroupType.CLUB_PAYMENT;
 import static woohakdong.server.domain.group.GroupType.EVENT;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -76,7 +77,7 @@ public class Group extends BaseEntity {
     @OneToMany(mappedBy = "group")
     private List<Order> orders = new ArrayList<>();
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", cascade = CascadeType.PERSIST)
     private List<GroupMember> groupMembers = new ArrayList<>();
 
     @Builder
@@ -178,6 +179,9 @@ public class Group extends BaseEntity {
     }
 
     public void joinNewMember(ClubMember clubMember) {
+        if ( this.groupMemberCount + 1 > this.groupMemberLimit ) {
+            throw new CustomException(CustomErrorInfo.GROUP_MEMBER_LIMIT_EXCEEDED);
+        }
         this.groupMemberCount++;
         this.groupMembers.add(GroupMember.create(clubMember, this));
     }

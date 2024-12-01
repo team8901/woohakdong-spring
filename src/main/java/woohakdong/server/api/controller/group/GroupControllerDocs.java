@@ -48,4 +48,9 @@ public interface GroupControllerDocs {
     @Operation(summary = "그룹 사용 여부 on/off", description = "활성화할 그룹 id를 입력하면, 해당 그룹의 사용 여부를 변경합니다.")
     @ApiResponse(responseCode = "200", description = "그룹 사용 가능 여부 변경 성공", useReturnTypeSchema = true)
     void changeAvailabilityOfGroup(Long groupId);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "그룹 참가하기", description = "참가할 그룹 id를 입력하면, 해당 그룹에 참가합니다.")
+    @ApiResponse(responseCode = "200", description = "그룹 참가 성공", useReturnTypeSchema = true)
+    void joinGroup(Long groupId);
 }

@@ -119,7 +119,7 @@ public class DataInitializer implements CommandLineRunner {
                     .clubRoom("구학생회관 201호")
                     .clubGroupChatLink("https://open.kakao.com/o/gUEMLKVg")
                     .clubGroupChatPassword("1234")
-                    .clubExpirationDate(LocalDate.of(2024, 7, 1))
+                    .clubExpirationDate(LocalDate.of(2024, 9, 1))
                     .build();
             clubRepository.save(club);
 
@@ -129,7 +129,7 @@ public class DataInitializer implements CommandLineRunner {
                     .clubAccountBankCode("011")
                     .clubAccountBankName("농협은행")
                     .clubAccountNumber("3020000011656")
-                    .clubAccountLastUpdateDate(LocalDateTime.of(2024, 7, 1, 0, 0, 0))
+                    .clubAccountLastUpdateDate(LocalDateTime.of(2024, 9, 1, 0, 0, 0))
                     .club(club)
                     .build();
             clubAccountRepository.save(clubAccount);
@@ -138,7 +138,7 @@ public class DataInitializer implements CommandLineRunner {
                     .club(club)
                     .member(member1)
                     .clubMemberRole(ClubMemberRole.PRESIDENT)
-                    .clubMemberAssignedTerm(LocalDate.of(2024, 7, 1))
+                    .clubMemberAssignedTerm(LocalDate.of(2024, 9, 1))
                     .clubJoinedDate(LocalDate.of(2024, 7, 1))
                     .build();
             clubMemberRepository.save(clubMember);
@@ -147,7 +147,7 @@ public class DataInitializer implements CommandLineRunner {
                     .club(club)
                     .member(member2)
                     .clubMemberRole(ClubMemberRole.OFFICER)
-                    .clubMemberAssignedTerm(LocalDate.of(2024, 7, 1))
+                    .clubMemberAssignedTerm(LocalDate.of(2024, 9, 1))
                     .clubJoinedDate(LocalDate.of(2024, 7, 2))
                     .build();
             clubMemberRepository.save(clubMember2);
@@ -156,7 +156,7 @@ public class DataInitializer implements CommandLineRunner {
                     .club(club)
                     .member(member3)
                     .clubMemberRole(ClubMemberRole.MEMBER)
-                    .clubMemberAssignedTerm(LocalDate.of(2024, 7, 1))
+                    .clubMemberAssignedTerm(LocalDate.of(2024, 9, 1))
                     .clubJoinedDate(LocalDate.of(2024, 7, 3))
                     .build();
             clubMemberRepository.save(clubMember3);
@@ -169,9 +169,27 @@ public class DataInitializer implements CommandLineRunner {
                     .groupJoinLink("https://www.woohakdong.com/clubs/" + club.getClubEnglishName())
                     .groupChatLink("https://open.kakao.com/o/gUEMLKVg")
                     .groupChatPassword("1234")
+                    .groupIsActivated(true)
+                    .groupMemberLimit(999)
+                    .groupMemberCount(0)
                     .groupAmount(10000)
                     .build();
             groupRepository.save(group);
+
+            Group group2 = Group.builder()
+                    .groupName("테스트 그룹")
+                    .groupDescription("멀티 쓰레드 테스트 그룹")
+                    .club(club)
+                    .groupType(GroupType.JOIN)
+                    .groupJoinLink("https://www.woohakdong.com/clubs/" + club.getClubEnglishName() + "/test")
+                    .groupChatLink("https://open.kakao.com/o/gUEMLKVg")
+                    .groupChatPassword("1234")
+                    .groupAmount(10000)
+                    .groupMemberLimit(5)
+                    .groupMemberCount(0)
+                    .groupIsActivated(true)
+                    .build();
+            groupRepository.save(group2);
         }
     }
 }

@@ -20,6 +20,7 @@ import woohakdong.server.api.controller.group.dto.PaymentCompleteReqeust;
 import woohakdong.server.api.controller.group.dto.PortOneWebhookRequest;
 import woohakdong.server.api.service.group.GroupService;
 import woohakdong.server.api.service.order.OrderService;
+import woohakdong.server.domain.member.Member;
 
 @RestController
 @RequestMapping("/v1/groups")
@@ -65,5 +66,10 @@ public class GroupController implements GroupControllerDocs {
     @PostMapping("/{groupId}/availability")
     public void changeAvailabilityOfGroup(@PathVariable Long groupId) {
         groupService.changeAvailabilityOfGroup(groupId, LocalDate.now());
+    }
+
+    @PostMapping("/{groupId}/join")
+    public void joinGroup(@PathVariable Long groupId) {
+        groupService.joinGroup(groupId, LocalDate.now());
     }
 }
