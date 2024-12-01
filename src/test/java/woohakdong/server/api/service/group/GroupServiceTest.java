@@ -199,7 +199,7 @@ class GroupServiceTest extends SecurityContextSetUp {
         LocalDate date = LocalDate.of(2024, 11, 19);
 
         // When
-//        groupService.joinGroup(group.getGroupId(), date);
+        groupService.joinGroup(group.getGroupId(), date);
 
         // Then
         Group updatedGroup = groupRepository.getById(group.getGroupId());
