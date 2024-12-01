@@ -52,3 +52,24 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+---
+spring:
+  config:
+    activate:
+      on-profile: redis-dev
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+---
+spring:
+  config:
+    activate:
+      on-profile: redis-prod
+
+  data:
+    redis:
+      host: ${PROD_REDIS_HOST}
+      port: 6379

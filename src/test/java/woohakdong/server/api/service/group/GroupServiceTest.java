@@ -5,33 +5,21 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_MEMBER_LIMIT_EXCEEDED;
 import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_NOT_FOUND;
-import static woohakdong.server.config.TestConstants.TEST_PROVIDE_ID;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.group.GroupType.EVENT;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.group.dto.GroupCreateRequest;
 import woohakdong.server.api.controller.group.dto.GroupIdResponse;
 import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
 import woohakdong.server.api.controller.group.dto.GroupUpdateRequest;
 import woohakdong.server.api.service.SecurityContextSetUp;
 import woohakdong.server.common.exception.CustomException;
-import woohakdong.server.common.security.jwt.CustomUserDetails;
 import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
@@ -192,7 +180,6 @@ class GroupServiceTest extends SecurityContextSetUp {
 
     @DisplayName("그룹에 참가할 수 있다.")
     @Test
-    @Ignore
     void joinGroup() {
         // Given
         Group group = createNewGroup("동아리 MT", 0, EVENT, true, 0, 999);

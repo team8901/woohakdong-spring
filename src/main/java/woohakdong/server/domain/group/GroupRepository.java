@@ -17,4 +17,6 @@ public interface GroupRepository {
     boolean checkExistenceClubGroup(Club club, GroupType groupType);
 
     void delete(Group group);
+
+    void flush();
 }
