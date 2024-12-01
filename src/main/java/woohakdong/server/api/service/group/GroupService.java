@@ -5,7 +5,10 @@ import static woohakdong.server.domain.group.GroupType.EVENT;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.group.dto.GroupCreateRequest;
@@ -24,15 +27,16 @@ import woohakdong.server.domain.member.Member;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class GroupService {
 
     private final SecurityUtil securityUtil;
     private final DateUtil dateUtil;
+    private final RedissonClient redissonClient;
 
     private final GroupRepository groupRepository;
     private final ClubRepository clubRepository;
     private final ClubMemberRepository clubMemberRepository;
+    private final GroupServiceTrans groupServiceTrans;
 
     @Transactional
     public GroupIdResponse createEventGroup(Long clubId, GroupCreateRequest request, LocalDate date) {
@@ -52,6 +56,7 @@ public class GroupService {
         return GroupIdResponse.from(saved);
     }
 
+    @Transactional(readOnly = true)
     public GroupInfoResponse findOneGroup(Long groupId, LocalDate date) {
         Member member = securityUtil.getMember();
         Group group = groupRepository.getById(groupId);
@@ -63,6 +68,7 @@ public class GroupService {
         return GroupInfoResponse.from(group);
     }
 
+    @Transactional(readOnly = true)
     public List<GroupInfoResponse> findAllEventGroupOfClub(Long clubId) {
         Club club = clubRepository.getById(clubId);
         List<Group> groups = groupRepository.getAllByClubAndGroupType(club, EVENT);
@@ -117,15 +123,20 @@ public class GroupService {
         group.changeAvailability();
     }
 
-    @Transactional
     public void joinGroup(Long groupId, LocalDate date) {
-        Member member = securityUtil.getMember();
-        Group group = groupRepository.getById(groupId);
-        Club club = group.getClub();
-
-        // 클럽에 속한 멤버인지 확인
-        ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member,
-                dateUtil.getAssignedTerm(date));
-        group.joinNewMember(clubMember);
+        final String lockName = "group:" + groupId;
+        final RLock lock = redissonClient.getLock(lockName);
+        try {
+            if (!lock.tryLock(1, 5, TimeUnit.SECONDS)) {
+                return;
+            }
+            groupServiceTrans.processJoinGroup(groupId, date);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
 }

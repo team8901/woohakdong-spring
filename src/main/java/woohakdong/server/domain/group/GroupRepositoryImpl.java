@@ -50,4 +50,9 @@ public class GroupRepositoryImpl implements GroupRepository {
     public void delete(Group group) {
         groupJpaRepository.delete(group);
     }
+
+    @Override
+    public void flush() {
+        groupJpaRepository.flush();
+    }
 }
