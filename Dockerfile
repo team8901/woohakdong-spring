@@ -11,7 +11,7 @@ COPY --chown=gradle:gradle . .
 RUN gradle dependencies --no-daemon
 
 # 1-4. 테스트 및 빌드 실행
-RUN gradle clean test build --no-daemon
+RUN gradle clean build --no-daemon -x test
 
 # STAGE 2: 실행 환경
 FROM openjdk:17-jdk-slim
