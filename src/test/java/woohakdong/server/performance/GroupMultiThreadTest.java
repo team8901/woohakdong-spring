@@ -22,6 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 import woohakdong.server.api.service.group.GroupService;
 import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.config.WithMockCustomUser;
+import woohakdong.server.config.WithoutRedisConfig;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
@@ -38,6 +39,7 @@ import woohakdong.server.domain.member.MemberRepository;
 @ActiveProfiles("test")
 @SpringBootTest
 @WithMockCustomUser
+@WithoutRedisConfig
 @Disabled
 public class GroupMultiThreadTest {
 

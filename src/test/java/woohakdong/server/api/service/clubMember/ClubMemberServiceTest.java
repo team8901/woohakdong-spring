@@ -17,11 +17,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import woohakdong.server.api.controller.clubMember.dto.ClubMemberInfoResponse;
-import woohakdong.server.api.service.SecurityContextSetUp;
+import woohakdong.server.SecurityContextSetup;
 import woohakdong.server.common.exception.CustomErrorInfo;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.util.date.DateUtil;
-import woohakdong.server.domain.admin.adminAccount.AccountType;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubAccount.ClubAccount;
@@ -37,7 +36,7 @@ import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
 
 
-class ClubMemberServiceTest extends SecurityContextSetUp {
+class ClubMemberServiceTest extends SecurityContextSetup {
 
     @Autowired
     private ClubMemberService clubMemberService;

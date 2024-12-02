@@ -1,4 +1,4 @@
-package woohakdong.server.api.service;
+package woohakdong.server;
 
 import static woohakdong.server.config.TestConstants.TEST_PROVIDE_ID;
 
@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.config.WithMockCustomUser;
+import woohakdong.server.config.WithoutRedisConfig;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 
@@ -14,7 +15,8 @@ import woohakdong.server.domain.member.MemberRepository;
 @SpringBootTest
 @Transactional
 @WithMockCustomUser
-public abstract class SecurityContextSetUp {
+@WithoutRedisConfig
+public abstract class SecurityContextSetup {
 
     @Autowired
     private MemberRepository memberRepository;

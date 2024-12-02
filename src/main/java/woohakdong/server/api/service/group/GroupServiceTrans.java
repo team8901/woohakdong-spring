@@ -23,7 +23,6 @@ public class GroupServiceTrans {
     private final ClubMemberRepository clubMemberRepository;
     private final GroupRepository groupRepository;
 
-
     @Transactional
     public void processJoinGroup(Long groupId, LocalDate date) {
         Member member = securityUtil.getMember();

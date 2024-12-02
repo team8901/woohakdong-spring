@@ -1,20 +1,14 @@
 package woohakdong.server.domain.member;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
+import woohakdong.server.RepositoryTestSetup;
 
-import java.util.Optional;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
-@ActiveProfiles("test")
-@SpringBootTest
-@Transactional
-class MemberRepositoryTest {
+class MemberRepositoryTest extends RepositoryTestSetup {
 
     @Autowired
     private MemberRepository memberRepository;

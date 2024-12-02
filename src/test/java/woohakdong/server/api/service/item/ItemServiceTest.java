@@ -25,7 +25,7 @@ import woohakdong.server.api.controller.item.dto.ItemResponse;
 import woohakdong.server.api.controller.item.dto.ItemReturnRequest;
 import woohakdong.server.api.controller.item.dto.ItemReturnResponse;
 import woohakdong.server.api.controller.item.dto.ItemUpdateRequest;
-import woohakdong.server.api.service.SecurityContextSetUp;
+import woohakdong.server.SecurityContextSetup;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.domain.ItemHistory.ItemHistory;
@@ -42,7 +42,7 @@ import woohakdong.server.domain.itemBorrowed.ItemBorrowed;
 import woohakdong.server.domain.itemBorrowed.ItemBorrowedRepository;
 import woohakdong.server.domain.member.Member;
 
-class ItemServiceTest extends SecurityContextSetUp {
+class ItemServiceTest extends SecurityContextSetup {
     @Autowired
     private ItemService itemService;
 

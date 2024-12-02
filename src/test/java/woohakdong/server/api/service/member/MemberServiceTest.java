@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import woohakdong.server.api.controller.member.dto.CreateMemberRequest;
 import woohakdong.server.api.controller.member.dto.MemberInfoResponse;
-import woohakdong.server.api.service.SecurityContextSetUp;
+import woohakdong.server.SecurityContextSetup;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberGender;
@@ -17,7 +17,7 @@ import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
 
-class MemberServiceTest extends SecurityContextSetUp {
+class MemberServiceTest extends SecurityContextSetup {
 
     @Autowired
     private MemberRepository memberRepository;

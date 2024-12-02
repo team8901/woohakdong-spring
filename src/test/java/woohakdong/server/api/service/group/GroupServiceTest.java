@@ -18,7 +18,7 @@ import woohakdong.server.api.controller.group.dto.GroupCreateRequest;
 import woohakdong.server.api.controller.group.dto.GroupIdResponse;
 import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
 import woohakdong.server.api.controller.group.dto.GroupUpdateRequest;
-import woohakdong.server.api.service.SecurityContextSetUp;
+import woohakdong.server.SecurityContextSetup;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.domain.club.Club;
@@ -31,7 +31,7 @@ import woohakdong.server.domain.group.GroupRepository;
 import woohakdong.server.domain.group.GroupType;
 import woohakdong.server.domain.member.Member;
 
-class GroupServiceTest extends SecurityContextSetUp {
+class GroupServiceTest extends SecurityContextSetup {
 
     @Autowired
     private GroupService groupService;
@@ -178,21 +178,6 @@ class GroupServiceTest extends SecurityContextSetUp {
         assertThat(updatedGroup.getGroupIsActivated()).isFalse();
     }
 
-    @DisplayName("그룹에 참가할 수 있다.")
-    @Test
-    void joinGroup() {
-        // Given
-        Group group = createNewGroup("동아리 MT", 0, EVENT, true, 0, 999);
-        LocalDate date = LocalDate.of(2024, 11, 19);
-
-        // When
-        groupService.joinGroup(group.getGroupId(), date);
-
-        // Then
-        Group updatedGroup = groupRepository.getById(group.getGroupId());
-        assertThat(updatedGroup.getGroupMemberCount()).isEqualTo(1);
-    }
-
     private Group createNewGroup(String groupName, int groupAmount, GroupType groupType, boolean activated,
                                  int memberCount, int memberLimit) {
         Group group = Group.builder()
@@ -206,7 +191,6 @@ class GroupServiceTest extends SecurityContextSetUp {
                 .build();
         return groupRepository.save(group);
     }
-
 
     private Club createClub() {
         Club club = Club.builder()

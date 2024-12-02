@@ -18,7 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import woohakdong.server.api.service.SecurityContextSetUp;
+import woohakdong.server.SecurityContextSetup;
 import woohakdong.server.api.service.email.EmailClientImpl;
 import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.domain.club.Club;
@@ -31,7 +31,7 @@ import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.schedule.Schedule;
 import woohakdong.server.domain.schedule.ScheduleRepository;
 
-class NotificationServiceTest extends SecurityContextSetUp {
+class NotificationServiceTest extends SecurityContextSetup {
 
     @Autowired
     private NotificationService notificationService;

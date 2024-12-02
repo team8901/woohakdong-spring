@@ -6,18 +6,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.common.exception.CustomErrorInfo;
 import woohakdong.server.common.exception.CustomException;
+import woohakdong.server.RepositoryTestSetup;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.school.School;
 
-@ActiveProfiles("test")
-@SpringBootTest
-@Transactional
-class ItemRepositoryTest {
+class ItemRepositoryTest extends RepositoryTestSetup {
 
     @Autowired
     private ItemRepository itemRepository;
