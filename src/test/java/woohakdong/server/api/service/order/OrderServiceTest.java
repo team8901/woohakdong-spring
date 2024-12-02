@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import woohakdong.server.api.controller.group.dto.CreateOrderRequest;
@@ -31,7 +30,6 @@ import woohakdong.server.api.controller.group.dto.PaymentCompleteReqeust;
 import woohakdong.server.api.controller.group.dto.PortOneWebhookRequest;
 import woohakdong.server.SecurityContextSetup;
 import woohakdong.server.api.service.bank.MockBankService;
-import woohakdong.server.config.WithoutRedisConfig;
 import woohakdong.server.domain.admin.adminAccount.AdminAccount;
 import woohakdong.server.domain.admin.adminAccount.AdminAccountRepository;
 import woohakdong.server.domain.club.Club;
@@ -103,7 +101,7 @@ class OrderServiceTest extends SecurityContextSetup {
         OrderIdResponse response = orderService.registerOrder(group.getGroupId(), request);
 
         // Then
-        Order order = orderRepository.getById(response.orderId());
+        Order order = orderRepository.getByIdWithLock(response.orderId());
         assertThat(order)
                 .extracting("orderMerchantUid", "orderAmount", "orderStatus", "member.memberId")
                 .containsExactly("m-12315", 10000, INIT, member.getMemberId());
