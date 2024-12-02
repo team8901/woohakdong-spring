@@ -6,6 +6,4 @@ import woohakdong.server.domain.group.Group;
 
 public interface GroupMemberJpaRepository extends JpaRepository<GroupMember, Long> {
     List<GroupMember> findAllByGroup(Group group);
-
-    Integer countByGroup(Group group);
 }

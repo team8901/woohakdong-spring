@@ -15,14 +15,4 @@ public class GroupMemberRepositoryImpl implements GroupMemberRepository {
     public List<GroupMember> getByGroup(Group group) {
         return groupMemberJpaRepository.findAllByGroup(group);
     }
-
-    @Override
-    public Integer countByGroup(Group group) {
-        return groupMemberJpaRepository.countByGroup(group);
-    }
-
-    @Override
-    public void flush() {
-        groupMemberJpaRepository.flush();
-    }
 }
