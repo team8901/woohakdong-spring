@@ -52,7 +52,16 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+---
+spring:
+  config:
+    activate:
+      on-profile: redis-test
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
 ---
 spring:
   config:
