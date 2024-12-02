@@ -5,25 +5,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_NOT_FOUND;
 
 import java.time.LocalDate;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.common.exception.CustomErrorInfo;
 import woohakdong.server.common.exception.CustomException;
+import woohakdong.server.RepositoryTestSetup;
 import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
 
-@ActiveProfiles("test")
-@SpringBootTest
-@Transactional
-class ClubRepositoryTest {
+class ClubRepositoryTest extends RepositoryTestSetup {
 
     @Autowired
     private ClubRepository clubRepository;

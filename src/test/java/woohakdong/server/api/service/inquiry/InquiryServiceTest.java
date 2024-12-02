@@ -6,7 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import woohakdong.server.api.controller.inquiry.dto.InquiryRequest;
 import woohakdong.server.api.controller.inquiry.dto.InquiryResponse;
-import woohakdong.server.api.service.SecurityContextSetUp;
+import woohakdong.server.SecurityContextSetup;
 import woohakdong.server.domain.inquiry.Inquiry;
 import woohakdong.server.domain.inquiry.InquiryCategory;
 import woohakdong.server.domain.inquiry.InquiryRepository;
@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
 
-class InquiryServiceTest extends SecurityContextSetUp {
+class InquiryServiceTest extends SecurityContextSetup {
 
     @Autowired
     private InquiryService inquiryService;

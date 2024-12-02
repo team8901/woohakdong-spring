@@ -20,7 +20,7 @@ import woohakdong.server.api.controller.schedule.dto.ScheduleCreateRequest;
 import woohakdong.server.api.controller.schedule.dto.ScheduleIdResponse;
 import woohakdong.server.api.controller.schedule.dto.ScheduleInfoResponse;
 import woohakdong.server.api.controller.schedule.dto.ScheduleUpdateRequest;
-import woohakdong.server.api.service.SecurityContextSetUp;
+import woohakdong.server.SecurityContextSetup;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
@@ -31,7 +31,7 @@ import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.schedule.Schedule;
 import woohakdong.server.domain.schedule.ScheduleRepository;
 
-class ScheduleServiceTest extends SecurityContextSetUp {
+class ScheduleServiceTest extends SecurityContextSetup {
 
     @Autowired
     private ClubRepository clubRepository;

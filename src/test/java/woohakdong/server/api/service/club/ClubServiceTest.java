@@ -28,7 +28,7 @@ import woohakdong.server.api.controller.club.dto.ClubInfoResponse;
 import woohakdong.server.api.controller.club.dto.ClubSummaryResponse;
 import woohakdong.server.api.controller.club.dto.ClubUpdateRequest;
 import woohakdong.server.api.controller.group.dto.GroupSummaryResponse;
-import woohakdong.server.api.service.SecurityContextSetUp;
+import woohakdong.server.SecurityContextSetup;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.domain.club.Club;
@@ -47,7 +47,7 @@ import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
 
-class ClubServiceTest extends SecurityContextSetUp {
+class ClubServiceTest extends SecurityContextSetup {
 
     @Autowired
     private ClubService clubService;

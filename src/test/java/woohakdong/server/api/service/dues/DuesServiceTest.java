@@ -3,7 +3,7 @@ package woohakdong.server.api.service.dues;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import woohakdong.server.api.service.SecurityContextSetUp;
+import woohakdong.server.SecurityContextSetup;
 import woohakdong.server.domain.admin.adminAccount.AccountType;
 import woohakdong.server.domain.clubAccount.ClubAccount;
 import woohakdong.server.domain.clubAccount.ClubAccountRepository;
@@ -16,7 +16,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DuesServiceTest extends SecurityContextSetUp {
+class DuesServiceTest extends SecurityContextSetup {
     @Autowired
     private ClubAccountHistoryRepository clubAccountHistoryRepository;
 

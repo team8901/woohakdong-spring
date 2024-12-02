@@ -10,10 +10,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import woohakdong.server.api.controller.util.dto.S3PresignedUrlResponse;
-import woohakdong.server.api.service.SecurityContextSetUp;
+import woohakdong.server.SecurityContextSetup;
 import woohakdong.server.common.exception.CustomException;
 
-class UtilServiceTest extends SecurityContextSetUp {
+class UtilServiceTest extends SecurityContextSetup {
 
     @Autowired
     private UtilService utilService;

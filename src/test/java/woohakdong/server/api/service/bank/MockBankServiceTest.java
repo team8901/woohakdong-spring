@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import woohakdong.server.api.controller.club.dto.ClubAccountValidateRequest;
 import woohakdong.server.api.controller.club.dto.ClubAccountValidateResponse;
-import woohakdong.server.api.service.SecurityContextSetUp;
+import woohakdong.server.SecurityContextSetup;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.domain.admin.adminAccount.AdminAccount;
 import woohakdong.server.domain.admin.adminAccount.AdminAccountRepository;
@@ -25,7 +25,7 @@ import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 
 
-class MockBankServiceTest extends SecurityContextSetUp {
+class MockBankServiceTest extends SecurityContextSetup {
 
     @Autowired
     private MockBankService mockBankService;
