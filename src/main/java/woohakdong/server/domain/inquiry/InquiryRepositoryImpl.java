@@ -1,6 +1,7 @@
 package woohakdong.server.domain.inquiry;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import woohakdong.server.domain.member.Member;
 
@@ -25,5 +26,10 @@ public class InquiryRepositoryImpl implements InquiryRepository {
     @Override
     public List<Inquiry> getAll() {
         return inquiryJpaRepository.findAll();
+    }
+
+    @Override
+    public List<Inquiry> getByCategoryOrderByCreatedAtDesc(@Param("category") InquiryCategory category){
+        return inquiryJpaRepository.findByCategoryOrderByCreatedAtDesc(category);
     }
 }

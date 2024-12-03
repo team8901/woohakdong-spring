@@ -13,10 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.admin.overall.dto.ClubListResponse;
-import woohakdong.server.api.controller.admin.overall.dto.ClubPaymentResponse;
-import woohakdong.server.api.controller.admin.overall.dto.CountResponse;
-import woohakdong.server.api.controller.admin.overall.dto.SchoolListResponse;
+import woohakdong.server.api.controller.admin.overall.dto.*;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubHistory.ClubHistory;
@@ -24,6 +21,9 @@ import woohakdong.server.domain.clubHistory.ClubHistoryRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.clubmember.ClubMemberRole;
+import woohakdong.server.domain.inquiry.Inquiry;
+import woohakdong.server.domain.inquiry.InquiryCategory;
+import woohakdong.server.domain.inquiry.InquiryRepository;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
@@ -52,6 +52,9 @@ class AdminOverallServiceTest {
 
     @Autowired
     private ClubHistoryRepository clubHistoryRepository;
+
+    @Autowired
+    private InquiryRepository inquiryRepository;
 
     @BeforeEach
     void setup() {
@@ -208,6 +211,22 @@ class AdminOverallServiceTest {
         assertThat(response.clubPayment()).isEqualTo(30000 + (2 * 500) + 30500);
     }
 
+    @Test
+    void findByCategoryOrderByCreatedAtDesc() {
+        // Given
+        School school = createSchool("ajou.ac.kr");
+        Member member1 = createMember(school, "testProvideId2", "박상준", "sangjun@ajou.ac.kr");
+        Inquiry inquiry1 = Inquiry.create("Content1", InquiryCategory.INQUIRY, member1);
+        Inquiry inquiry2 = Inquiry.create("Content2", InquiryCategory.ETC, member1);
+        inquiryRepository.save(inquiry1);
+        inquiryRepository.save(inquiry2);
+
+        // When
+        List<InquiryListResponse> result = adminOverallService.getInquiry("INQUIRY");
+
+        // Then
+        assertThat(result.get(0).inquiryContent()).isEqualTo("Content1");
+    }
 
     private Club createClub(School school1, String name, String englishName) {
         Club club = Club.builder()
@@ -258,4 +277,13 @@ class AdminOverallServiceTest {
         ClubHistory clubHistory = ClubHistory.create(club, date);
         return clubHistoryRepository.save(clubHistory);
     }
+
+    private School createSchool(String domain) {
+        School school = School.builder()
+                .schoolDomain(domain)
+                .schoolName("아주대학교")
+                .build();
+        return schoolRepository.save(school);
+    }
+
 }

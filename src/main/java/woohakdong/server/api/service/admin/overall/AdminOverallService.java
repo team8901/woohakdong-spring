@@ -3,14 +3,14 @@ package woohakdong.server.api.service.admin.overall;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import woohakdong.server.api.controller.admin.overall.dto.ClubListResponse;
-import woohakdong.server.api.controller.admin.overall.dto.ClubPaymentResponse;
-import woohakdong.server.api.controller.admin.overall.dto.CountResponse;
-import woohakdong.server.api.controller.admin.overall.dto.SchoolListResponse;
+import woohakdong.server.api.controller.admin.overall.dto.*;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
 import woohakdong.server.domain.clubHistory.ClubHistoryRepository;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
+import woohakdong.server.domain.inquiry.Inquiry;
+import woohakdong.server.domain.inquiry.InquiryCategory;
+import woohakdong.server.domain.inquiry.InquiryRepository;
 import woohakdong.server.domain.member.MemberRepository;
 import woohakdong.server.domain.school.School;
 import woohakdong.server.domain.school.SchoolRepository;
@@ -32,6 +32,7 @@ public class AdminOverallService {
     private final MemberRepository memberRepository;
     private final ClubHistoryRepository clubHistoryRepository;
     private final ClubMemberRepository clubMemberRepository;
+    private final InquiryRepository inquiryRepository;
 
     public CountResponse getTotalSchoolCount(LocalDate assignedTerm) {
         if (assignedTerm == null) {
@@ -94,5 +95,15 @@ public class AdminOverallService {
 
         return ClubPaymentResponse.from(totalPayment);
 
+    }
+
+    public List<InquiryListResponse> getInquiry(String category) {
+        InquiryCategory inquiryCategory = category != null ? InquiryCategory.valueOf(category.toUpperCase()) : null;
+
+        List<Inquiry> inquiries = inquiryRepository.getByCategoryOrderByCreatedAtDesc(inquiryCategory);
+
+        return inquiries.stream()
+                .map(inquiry -> InquiryListResponse.from(inquiry, inquiry.getMember().getMemberEmail()))
+                .collect(Collectors.toList());
     }
 }

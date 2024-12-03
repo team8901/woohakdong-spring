@@ -14,7 +14,7 @@ public record InquiryListResponse(
         String memberEmail,
         LocalDateTime creatDate
 ) {
-    static InquiryListResponse from(Inquiry inquiry, String memberEmail) {
+    static public InquiryListResponse from(Inquiry inquiry, String memberEmail) {
         return InquiryListResponse.builder()
                 .inquiryId(inquiry.getInquiryId())
                 .inquiryContent(inquiry.getInquiryContent())

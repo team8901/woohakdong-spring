@@ -7,10 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import woohakdong.server.api.controller.ListWrapperResponse;
-import woohakdong.server.api.controller.admin.overall.dto.ClubListResponse;
-import woohakdong.server.api.controller.admin.overall.dto.ClubPaymentResponse;
-import woohakdong.server.api.controller.admin.overall.dto.CountResponse;
-import woohakdong.server.api.controller.admin.overall.dto.SchoolListResponse;
+import woohakdong.server.api.controller.admin.overall.dto.*;
 
 import java.time.LocalDate;
 
@@ -52,4 +49,9 @@ public interface AdminOverallControllerDocs {
     @ApiResponse(responseCode = "200", description = "분기별 동아리 결제금액 반환 성공", useReturnTypeSchema = true)
     ClubPaymentResponse getClubPaymentByTerm(@RequestParam(required = false)
                                              LocalDate assignedTerm);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "문의 내역 반환", description = "문의 내역을 카테고리별로 반환합니다.")
+    @ApiResponse(responseCode = "200", description = "문의 내역을 카테고리별 반환 성공", useReturnTypeSchema = true)
+    ListWrapperResponse<InquiryListResponse> getInquiry(@RequestParam(required = false) String category);
 }
