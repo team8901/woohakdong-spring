@@ -59,7 +59,7 @@ public class AdminOverallController implements AdminOverallControllerDocs{
     }
 
     @GetMapping("/inquiry")
-    public InquiryListResponse getInquiry() {
+    public ListWrapperResponse<InquiryListResponse> getInquiry(@RequestParam(required = false) String category) {
         return null;
     }
 }
