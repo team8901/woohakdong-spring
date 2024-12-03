@@ -19,6 +19,17 @@ public interface ClubAccountHistoryJpaRepository extends JpaRepository<ClubAccou
                                                      @Param("year") int year,
                                                      @Param("month") int month);
 
+    @Query("SELECT cah FROM ClubAccountHistory cah " +
+            "WHERE cah.clubAccount = :clubAccount " +
+            "AND (:year IS NULL OR YEAR(cah.clubAccountHistoryTranDate) = :year) " +
+            "AND (:month IS NULL OR MONTH(cah.clubAccountHistoryTranDate) = :month) " +
+            "AND (:keyword IS NULL OR STR(cah.clubAccountHistoryTranAmount) LIKE %:keyword%)" +
+            "ORDER BY cah.clubAccountHistoryTranDate DESC")
+    List<ClubAccountHistory> findTransactionsByFilters(@Param("clubAccount") ClubAccount clubAccount,
+                                                       @Param("year") Integer year,
+                                                       @Param("month") Integer month,
+                                                       @Param("keyword") String keyword);
+
     List<ClubAccountHistory> findAllByClubAccountClubOrderByClubAccountHistoryTranDateDesc(Club club);
 
     void deleteAllByClubAccount(ClubAccount clubAccount);
