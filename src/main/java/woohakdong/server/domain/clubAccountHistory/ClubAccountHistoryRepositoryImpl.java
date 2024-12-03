@@ -37,4 +37,10 @@ public class ClubAccountHistoryRepositoryImpl implements ClubAccountHistoryRepos
     public void deleteAllByClubAccount(ClubAccount clubAccount) {
         clubAccountHistoryJpaRepository.deleteAllByClubAccount(clubAccount);
     }
+
+    @Override
+    public List<ClubAccountHistory> getTransactionsByFilters(ClubAccount clubAccount, Integer year,
+                                                      Integer month, String keyword) {
+        return clubAccountHistoryJpaRepository.findTransactionsByFilters(clubAccount, year, month, keyword);
+    }
 }
