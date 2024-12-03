@@ -35,7 +35,7 @@ public class GroupController implements GroupControllerDocs {
     @PostMapping("/{groupId}/orders")
     public OrderIdResponse createClubJoinOrder(@PathVariable Long groupId,
                                                @RequestBody CreateOrderRequest request) {
-        return orderService.registerOrder(groupId, request);
+        return orderService.registerOrder(groupId, request, LocalDate.now());
     }
 
     @PostMapping("/{groupId}/orders/confirm")

@@ -37,6 +37,7 @@ import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.group.GroupRepository;
+import woohakdong.server.domain.groupmember.GroupMemberRepository;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.order.Order;
 import woohakdong.server.domain.order.OrderRepository;
@@ -60,14 +61,15 @@ public class OrderService {
     private final AdminAccountRepository adminAccountRepository;
     private final AdminAccountHistoryRepository adminAccountHistoryRepository;
     private final ClubHistoryRepository clubHistoryRepository;
+    private final GroupMemberRepository groupMemberRepository;
 
     @Transactional
-    public OrderIdResponse registerOrder(Long groupId, CreateOrderRequest request) {
+    public OrderIdResponse registerOrder(Long groupId, CreateOrderRequest request, LocalDate date) {
         Member member = securityUtil.getMember();
         Group group = groupRepository.getById(groupId);
 
         validateOrderCreation(request);
-        validateGroupMembership(group, member);
+        validateGroupMembership(group, member, date);
 
         Order order = Order.create(request.merchantUid(), member, group);
         orderRepository.save(order);
@@ -183,14 +185,18 @@ public class OrderService {
         }
     }
 
-    protected void validateGroupMembership(Group group, Member member) {
+    protected void validateGroupMembership(Group group, Member member, LocalDate date) {
         Club club = group.getClub();
         if (group.isTypeOf(JOIN) && clubMemberRepository.existsByClubAndMember(club, member)) {
             throw new CustomException(CLUB_ALREADY_JOINED);
         }
+
         if (group.isTypeOf(EVENT)) {
-            // TODO : 이벤트 그룹 가입 여부 확인
-            throw new CustomException(CLUB_GROUP_ALREADY_JOINED);
+            LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
+            ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
+            if (groupMemberRepository.checkAlreadyJoined(group, clubMember)) {
+                throw new CustomException(CLUB_GROUP_ALREADY_JOINED);
+            }
         }
     }
 
