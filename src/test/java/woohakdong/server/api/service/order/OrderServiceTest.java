@@ -98,9 +98,10 @@ class OrderServiceTest extends SecurityContextSetup {
     void registerOrder() {
         // Given
         CreateOrderRequest request = createClubJoinOrder("m-12315");
+        LocalDate date = LocalDate.of(2024, 11, 19);
 
         // When
-        OrderIdResponse response = orderService.registerOrder(group.getGroupId(), request);
+        OrderIdResponse response = orderService.registerOrder(group.getGroupId(), request, date);
 
         // Then
         Order order = orderRepository.getById(response.orderId());
