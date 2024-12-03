@@ -25,4 +25,6 @@ public interface ItemHistoryJpaRepository extends JpaRepository<ItemHistory, Lon
     List<ItemHistory> findByItemClub(Club club);
 
     List<ItemHistory> findByItemClubAndItemRentalDateBetween(Club club, LocalDateTime startDate, LocalDateTime endDate);
+
+    List<ItemHistory> findByClubByItemRentalDateDesc(Club club);
 }

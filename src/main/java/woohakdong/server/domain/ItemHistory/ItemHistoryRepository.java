@@ -26,4 +26,6 @@ public interface ItemHistoryRepository {
     List<ItemHistory> getByItemClub(Club club);
 
     List<ItemHistory> getByItemClubAndItemRentalDateBetween(Club club, LocalDateTime startDate, LocalDateTime endDate);
+
+    List<ItemHistory> getByClub(Club club);
 }
