@@ -44,7 +44,7 @@ class DuesServiceTest extends SecurityContextSetup {
         LocalDate date = LocalDate.of(2024, 10, 1);
 
         // when
-        List<ClubAccountHistory> histories = clubAccountHistoryRepository.findMonthlyTransactions(clubAccount, 2024, 10);
+        List<ClubAccountHistory> histories = clubAccountHistoryRepository.getTransactionsByFilters(clubAccount, 2024, 10, null);
 
         // then
         assertThat(histories).hasSize(2);

@@ -100,7 +100,7 @@ public class ItemController implements ItemControllerDocs {
         return ListWrapperResponse.of(itemService.getMyBorrowedItems(clubId, LocalDate.now()));
     }
 
-    @GetMapping("/{clubId}/items/history")
+    @GetMapping("/{clubId}/items/history/my")
     public ListWrapperResponse<ItemHistoryResponse> getMyHistoryItems(@PathVariable Long clubId) {
         return ListWrapperResponse.of(itemService.getMyHistoryItems(clubId, LocalDate.now()));
     }

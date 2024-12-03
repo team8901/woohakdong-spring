@@ -67,6 +67,6 @@ public class ItemHistoryRepositoryImpl implements ItemHistoryRepository{
 
     @Override
     public List<ItemHistory> getByClub(Club club) {
-        return itemHistoryJpaRepository.findByClubByItemRentalDateDesc(club);
+        return itemHistoryJpaRepository.findByClubOrderByItemRentalDateDesc(club);
     }
 }
