@@ -210,6 +210,30 @@ class ItemServiceTest extends SecurityContextSetup {
                 );
     }
 
+    @DisplayName("동아리별 물품대여 기록을 조회할 수 있다.")
+    @Test
+    void getClubItemHistorySuccess() {
+        // given
+        Item item = createItem(club, "축구공", SPORT, 7, false);
+        LocalDate date = LocalDate.now();
+        ClubMember clubMember = createClubMember(club, member, MEMBER, date);
+
+        LocalDateTime dateTime = date.atStartOfDay();
+        createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), dateTime.minusDays(2));
+        createItemHistory(item, clubMember, dateTime, dateTime.plusDays(7), null);
+
+        // when
+        List<ItemHistoryResponse> itemHistoryResponses = itemService.getAllItemHistory(club.getClubId());
+
+        // then
+        assertThat(itemHistoryResponses)
+                .extracting("itemRentalDate", "itemDueDate", "itemReturnDate")
+                .containsExactly(
+                        tuple(dateTime, dateTime.plusDays(7), null),
+                        tuple(dateTime.minusDays(10), dateTime.minusDays(3), dateTime.minusDays(2))
+                );
+    }
+
     @DisplayName("물품이름으로 검색할 수 있다.")
     @Test
     void searchItemsByName_success() {

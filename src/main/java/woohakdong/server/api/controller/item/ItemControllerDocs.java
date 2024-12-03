@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -47,6 +48,11 @@ public interface ItemControllerDocs {
     @Operation(summary = "물품 대여 기록 조회", description = "물품 대여 기록을 조회할 수 있다.")
     @ApiResponse(responseCode = "200", description = "물품 대여 기록 조회 성공", useReturnTypeSchema = true)
     public ListWrapperResponse<ItemHistoryResponse> getItemHistory(@PathVariable Long clubId, @PathVariable Long itemId);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "동아리별 물품 대여 기록 조회", description = "동아리별 물품 대여 기록을 조회할 수 있다.")
+    @ApiResponse(responseCode = "200", description = "동아리별 물품 대여 기록 조회 성공", useReturnTypeSchema = true)
+    public ListWrapperResponse<ItemHistoryResponse> getAllItemHistory(@PathVariable Long clubId);
 
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "물품 수정", description = "등록한 물품을 수정할 수 있다.")

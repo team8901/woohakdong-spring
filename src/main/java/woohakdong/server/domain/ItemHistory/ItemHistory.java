@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import woohakdong.server.domain.BaseEntity;
+import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.item.Item;
 import woohakdong.server.domain.member.Member;
@@ -45,9 +46,13 @@ public class ItemHistory extends BaseEntity {
     @JoinColumn(name = "item_id")
     private Item item;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "club_id")
+    private Club club;
+
     @Builder
     private ItemHistory(String itemReturnImage, LocalDateTime itemRentalDate, LocalDateTime itemReturnDate,
-                        LocalDateTime itemDueDate, ClubMember clubMember, Item item, String memberName) {
+                        LocalDateTime itemDueDate, ClubMember clubMember, Item item, String memberName, Club club) {
         this.itemReturnImage = itemReturnImage;
         this.itemRentalDate = itemRentalDate;
         this.itemReturnDate = itemReturnDate;
@@ -55,10 +60,11 @@ public class ItemHistory extends BaseEntity {
         this.clubMember = clubMember;
         this.item = item;
         this.memberName = memberName;
+        this.club = club;
     }
 
     public static ItemHistory create(ClubMember clubMember, String memberName, Item item, LocalDateTime itemRentalDate,
-                                     LocalDateTime itemDueDate) {
+                                     LocalDateTime itemDueDate, Club club) {
         return ItemHistory.builder()
                 .itemReturnImage(null)
                 .itemRentalDate(itemRentalDate)
@@ -67,6 +73,7 @@ public class ItemHistory extends BaseEntity {
                 .clubMember(clubMember)
                 .item(item)
                 .memberName(memberName)
+                .club(club)
                 .build();
 
     }

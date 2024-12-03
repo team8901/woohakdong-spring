@@ -115,7 +115,7 @@ public class ItemService {
         // 대여 기록 추가
         LocalDateTime borrowDate = LocalDateTime.now();
         LocalDateTime dueDate = borrowDate.plusDays(item.getItemRentalMaxDay());
-        ItemHistory itemHistory = ItemHistory.create(clubMember, member.getMemberName(), item, borrowDate, dueDate);
+        ItemHistory itemHistory = ItemHistory.create(clubMember, member.getMemberName(), item, borrowDate, dueDate, club);
         itemHistoryRepository.save(itemHistory);
 
         ItemBorrowed itemBorrowed = ItemBorrowed.createItemBorrowed(clubMember, item,
@@ -187,6 +187,30 @@ public class ItemService {
                             history,
                             history.getClubMember().getClubMemberId(),
                             item,
+                            isOverdue
+                    );
+                })
+                .collect(Collectors.toList());
+
+        return historyResponses;
+    }
+
+    public List<ItemHistoryResponse> getAllItemHistory(Long clubId) {
+        Club club = clubRepository.getById(clubId);
+
+        List<ItemHistoryResponse> historyResponses = itemHistoryRepository.getByClub(club).stream()
+                .map(history -> {
+                    Boolean isOverdue = history.getItemDueDate() != null && (
+                            (history.getItemReturnDate() == null && history.getItemDueDate()
+                                    .isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
+                                    (history.getItemReturnDate() != null && history.getItemReturnDate()
+                                            .isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
+                    );
+
+                    return ItemHistoryResponse.from(
+                            history,
+                            history.getClubMember().getClubMemberId(),
+                            history.getItem(),
                             isOverdue
                     );
                 })

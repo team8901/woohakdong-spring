@@ -64,4 +64,9 @@ public class ItemHistoryRepositoryImpl implements ItemHistoryRepository{
     public List<ItemHistory> getByItemClubAndItemRentalDateBetween(Club club, LocalDateTime startDate, LocalDateTime endDate) {
         return itemHistoryJpaRepository.findByItemClubAndItemRentalDateBetween(club, startDate, endDate);
     }
+
+    @Override
+    public List<ItemHistory> getByClub(Club club) {
+        return itemHistoryJpaRepository.findByClubByItemRentalDateDesc(club);
+    }
 }
