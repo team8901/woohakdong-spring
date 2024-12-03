@@ -22,7 +22,6 @@ import woohakdong.server.api.controller.group.dto.PaymentCompleteReqeust;
 import woohakdong.server.api.controller.group.dto.PortOneWebhookRequest;
 import woohakdong.server.api.service.group.GroupService;
 import woohakdong.server.api.service.order.OrderService;
-import woohakdong.server.domain.member.Member;
 
 @RestController
 @RequestMapping("/v1/groups")
@@ -77,6 +76,6 @@ public class GroupController implements GroupControllerDocs {
 
     @GetMapping("/{groupId}/members")
     public ListWrapperResponse<ClubMemberInfoResponse> getGroupMemberList(@PathVariable Long groupId) {
-        return null;
+        return ListWrapperResponse.of(groupService.getGroupMemberList(groupId));
     }
 }

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_MEMBER_LIMIT_EXCEEDED;
 import static woohakdong.server.common.exception.CustomErrorInfo.GROUP_NOT_FOUND;
+import static woohakdong.server.domain.clubmember.ClubMemberRole.MEMBER;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.group.GroupType.EVENT;
 
@@ -14,11 +15,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import woohakdong.server.SecurityContextSetup;
+import woohakdong.server.api.controller.clubMember.dto.ClubMemberInfoResponse;
 import woohakdong.server.api.controller.group.dto.GroupCreateRequest;
 import woohakdong.server.api.controller.group.dto.GroupIdResponse;
 import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
 import woohakdong.server.api.controller.group.dto.GroupUpdateRequest;
-import woohakdong.server.SecurityContextSetup;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.util.date.DateUtil;
 import woohakdong.server.domain.club.Club;
@@ -29,6 +31,8 @@ import woohakdong.server.domain.clubmember.ClubMemberRole;
 import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.group.GroupRepository;
 import woohakdong.server.domain.group.GroupType;
+import woohakdong.server.domain.groupmember.GroupMember;
+import woohakdong.server.domain.groupmember.GroupMemberRepository;
 import woohakdong.server.domain.member.Member;
 
 class GroupServiceTest extends SecurityContextSetup {
@@ -46,17 +50,21 @@ class GroupServiceTest extends SecurityContextSetup {
     private ClubMemberRepository clubMemberRepository;
 
     @Autowired
+    private GroupMemberRepository groupMemberRepository;
+
+    @Autowired
     private DateUtil dateUtil;
 
     @BeforeEach
     void setUp() {
         club = createClub();
         member = createExampleMember();
-        createClubMember(club, member, PRESIDENT);
+        clubMember = createClubMember(club, member, PRESIDENT);
     }
 
     private Club club;
     private Member member;
+    private ClubMember clubMember;
 
     @DisplayName("새로운 EVENT 그룹을 등록할 수 있다.")
     @Test
@@ -178,6 +186,36 @@ class GroupServiceTest extends SecurityContextSetup {
         assertThat(updatedGroup.getGroupIsActivated()).isFalse();
     }
 
+    @DisplayName("그룹에 참여한 멤버 목록을 불러올 수 있다.")
+    @Test
+    void getGroupMemberList() {
+        // Given
+        Group group = createNewGroup("동아리 MT", 0, EVENT, true, 0, 999);
+        Member exampleMember = createExampleMember();
+        ClubMember exampleClubMember = createClubMember(club, exampleMember, MEMBER);
+        setGroupMember(group, clubMember);
+        setGroupMember(group, exampleClubMember);
+
+        // When
+        List<ClubMemberInfoResponse> responses = groupService.getGroupMemberList(group.getGroupId());
+
+        // Then
+        assertThat(responses).hasSize(2)
+                .extracting("memberName", "clubMemberRole")
+                .containsExactlyInAnyOrder(
+                        tuple(member.getMemberName(), PRESIDENT),
+                        tuple(exampleMember.getMemberName(), MEMBER)
+                );
+    }
+
+    private void setGroupMember(Group group, ClubMember clubMember) {
+        GroupMember groupMember = GroupMember.builder()
+                .group(group)
+                .clubMember(clubMember)
+                .build();
+        groupMemberRepository.save(groupMember);
+    }
+
     private Group createNewGroup(String groupName, int groupAmount, GroupType groupType, boolean activated,
                                  int memberCount, int memberLimit) {
         Group group = Group.builder()
@@ -224,13 +262,13 @@ class GroupServiceTest extends SecurityContextSetup {
                 .build();
     }
 
-    private void createClubMember(Club club, Member member, ClubMemberRole role) {
+    private ClubMember createClubMember(Club club, Member member, ClubMemberRole role) {
         ClubMember clubMember = ClubMember.builder()
                 .club(club)
                 .member(member)
                 .clubMemberRole(role)
                 .clubMemberAssignedTerm(dateUtil.getAssignedTerm(LocalDate.of(2024, 11, 19)))
                 .build();
-        clubMemberRepository.save(clubMember);
+        return clubMemberRepository.save(clubMember);
     }
 }

@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.group.Group;
-import woohakdong.server.domain.member.Member;
 
 @RequiredArgsConstructor
 @Repository
@@ -19,7 +18,7 @@ public class GroupMemberRepositoryImpl implements GroupMemberRepository {
     }
 
     @Override
-    public List<GroupMember> getByGroup(Group group) {
+    public List<GroupMember> getAllByGroup(Group group) {
         return groupMemberJpaRepository.findAllByGroup(group);
     }
 
