@@ -23,6 +23,11 @@ public class DuesController implements DuesControllerDocs {
         duesService.fetchAndSaveRecentTransactions(clubId);
     }
 
+    @Override
+    public ListWrapperResponse<ClubAccountHistoryListResponse> getMonthlyTransactions(Long clubId, LocalDate date) {
+        return null;
+    }
+
     @GetMapping("/{clubId}/dues")
     public ListWrapperResponse<ClubAccountHistoryListResponse> getMonthlyTransactions(
             @PathVariable Long clubId,

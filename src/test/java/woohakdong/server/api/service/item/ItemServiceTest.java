@@ -195,8 +195,8 @@ class ItemServiceTest extends SecurityContextSetup {
         ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
         LocalDateTime dateTime = date.atStartOfDay();
-        createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), dateTime.minusDays(2));
-        createItemHistory(item, clubMember, dateTime, dateTime.plusDays(7), null);
+        createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), dateTime.minusDays(2), club);
+        createItemHistory(item, clubMember, dateTime, dateTime.plusDays(7), null, club);
 
         // when
         List<ItemHistoryResponse> itemHistoryResponses = itemService.getItemHistory(club.getClubId(), item.getItemId());
@@ -219,8 +219,8 @@ class ItemServiceTest extends SecurityContextSetup {
         ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
         LocalDateTime dateTime = date.atStartOfDay();
-        createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), dateTime.minusDays(2));
-        createItemHistory(item, clubMember, dateTime, dateTime.plusDays(7), null);
+        createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), dateTime.minusDays(2), club);
+        createItemHistory(item, clubMember, dateTime, dateTime.plusDays(7), null, club);
 
         // when
         List<ItemHistoryResponse> itemHistoryResponses = itemService.getAllItemHistory(club.getClubId());
@@ -264,7 +264,7 @@ class ItemServiceTest extends SecurityContextSetup {
         LocalDateTime dateTime = date.atStartOfDay();
 
         ItemHistory itemHistory = createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3),
-                null);
+                null, club);
 
         // when
         List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", true, true, null);
@@ -286,7 +286,7 @@ class ItemServiceTest extends SecurityContextSetup {
         LocalDate date = LocalDate.now();
         ClubMember clubMember = createClubMember(club, member, MEMBER, date);
         LocalDateTime dateTime = date.atStartOfDay();
-        createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), null);
+        createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), null, club);
 
         // when
         List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", true, true, true);
@@ -309,7 +309,7 @@ class ItemServiceTest extends SecurityContextSetup {
         ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
         LocalDateTime dateTime = date.atStartOfDay();
-        createItemHistory(item, clubMember, dateTime.minusDays(3), dateTime.plusDays(4), null);
+        createItemHistory(item, clubMember, dateTime.minusDays(3), dateTime.plusDays(4), null, club);
 
         // when
         List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", null, null, false);
@@ -395,7 +395,7 @@ class ItemServiceTest extends SecurityContextSetup {
 
         LocalDateTime dateTime = date.atStartOfDay();
         ItemHistory itemHistory = createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3),
-                dateTime.minusDays(2));
+                dateTime.minusDays(2), club);
 
         // when
         List<ItemHistoryResponse> response = itemService.getMyHistoryItems(club.getClubId(), date);
@@ -416,7 +416,7 @@ class ItemServiceTest extends SecurityContextSetup {
         ClubMember clubMember = createClubMember(club, member, MEMBER, now);
 
         LocalDateTime dateTime = now.atStartOfDay();
-        createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), null);
+        createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), null, club);
 
         // when
         List<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(),
@@ -438,7 +438,7 @@ class ItemServiceTest extends SecurityContextSetup {
         ClubMember clubMember = createClubMember(club, member, MEMBER, date);
 
         LocalDateTime dateTime = date.atStartOfDay();
-        createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), dateTime.minusDays(2));
+        createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), dateTime.minusDays(2), club);
 
         // when
         List<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(),
@@ -517,7 +517,7 @@ class ItemServiceTest extends SecurityContextSetup {
 
     private ItemHistory createItemHistory(Item item, ClubMember clubMember, LocalDateTime rentalDate,
                                           LocalDateTime dueDate,
-                                          LocalDateTime returnDate) {
+                                          LocalDateTime returnDate, Club club) {
         ItemHistory itemHistory = ItemHistory.builder()
                 .item(item)
                 .clubMember(clubMember)
@@ -525,6 +525,7 @@ class ItemServiceTest extends SecurityContextSetup {
                 .itemDueDate(dueDate)     // 3일 전에 반납 예정
                 .itemReturnDate(returnDate)  // 2일 전에 반납됨
                 .itemReturnImage("http://example.com/return_photo.png")
+                .club(club)
                 .build();
         itemHistoryRepository.save(itemHistory);
         return itemHistory;
