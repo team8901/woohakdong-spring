@@ -122,6 +122,13 @@ public class OrderService {
             clubMemberRepository.save(newPresident);
         }
 
+        if (group.isTypeOf(EVENT)) {
+            ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member,
+                    dateUtil.getAssignedTerm(date));
+            group.joinNewMember(clubMember);
+            groupRepository.save(group);
+        }
+
     }
 
     @Transactional
@@ -162,6 +169,13 @@ public class OrderService {
                     pastAssignedTerm);
             ClubMember newPresident = ClubMember.createFromExisting(clubMember, newAssignedTerm);
             clubMemberRepository.save(newPresident);
+        }
+
+        if (group.isTypeOf(EVENT)) {
+            ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member,
+                    dateUtil.getAssignedTerm(date));
+            group.joinNewMember(clubMember);
+            groupRepository.save(group);
         }
     }
 
