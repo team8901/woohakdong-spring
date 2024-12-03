@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import woohakdong.server.api.controller.ListWrapperResponse;
+import woohakdong.server.api.controller.clubMember.dto.ClubMemberInfoResponse;
 import woohakdong.server.api.controller.group.dto.CreateOrderRequest;
 import woohakdong.server.api.controller.group.dto.GroupIdResponse;
 import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
@@ -71,5 +73,10 @@ public class GroupController implements GroupControllerDocs {
     @PostMapping("/{groupId}/join")
     public void joinGroup(@PathVariable Long groupId) {
         groupService.joinGroup(groupId, LocalDate.now());
+    }
+
+    @GetMapping("/{groupId}/members")
+    public ListWrapperResponse<ClubMemberInfoResponse> getGroupMemberList(@PathVariable Long groupId) {
+        return null;
     }
 }

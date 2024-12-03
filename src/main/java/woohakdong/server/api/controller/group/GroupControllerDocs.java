@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import woohakdong.server.api.controller.ListWrapperResponse;
+import woohakdong.server.api.controller.clubMember.dto.ClubMemberInfoResponse;
 import woohakdong.server.api.controller.group.dto.CreateOrderRequest;
 import woohakdong.server.api.controller.group.dto.GroupIdResponse;
 import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
@@ -53,4 +55,9 @@ public interface GroupControllerDocs {
     @Operation(summary = "그룹 참가하기", description = "참가할 그룹 id를 입력하면, 해당 그룹에 참가합니다.")
     @ApiResponse(responseCode = "200", description = "그룹 참가 성공", useReturnTypeSchema = true)
     void joinGroup(Long groupId);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "그룹 참여 멤버 리스트 조회", description = "그룹 id를 입력하면, 해당 그룹에 참여한 멤버 리스트를 반환합니다.")
+    @ApiResponse(responseCode = "200", description = "그룹 참여 멤버 리스트 조회 성공", useReturnTypeSchema = true)
+    ListWrapperResponse<ClubMemberInfoResponse> getGroupMemberList(Long groupId);
 }
