@@ -3,6 +3,7 @@ package woohakdong.server.domain.clubmember;
 import java.time.LocalDate;
 import java.util.List;
 import woohakdong.server.domain.club.Club;
+import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.school.School;
 

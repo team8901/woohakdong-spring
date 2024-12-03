@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import woohakdong.server.domain.club.Club;
+import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.school.School;
 

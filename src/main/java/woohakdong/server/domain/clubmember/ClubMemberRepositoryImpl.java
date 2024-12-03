@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.domain.club.Club;
+import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.member.Member;
 import woohakdong.server.domain.school.School;
 

@@ -11,6 +11,7 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import woohakdong.server.api.controller.clubMember.dto.ClubMemberInfoResponse;
 import woohakdong.server.api.controller.group.dto.GroupCreateRequest;
 import woohakdong.server.api.controller.group.dto.GroupIdResponse;
 import woohakdong.server.api.controller.group.dto.GroupInfoResponse;
@@ -23,6 +24,8 @@ import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.group.GroupRepository;
+import woohakdong.server.domain.groupmember.GroupMember;
+import woohakdong.server.domain.groupmember.GroupMemberRepository;
 import woohakdong.server.domain.member.Member;
 
 @Service
@@ -37,6 +40,7 @@ public class GroupService {
     private final ClubRepository clubRepository;
     private final ClubMemberRepository clubMemberRepository;
     private final GroupServiceTrans groupServiceTrans;
+    private final GroupMemberRepository groupMemberRepository;
 
     @Transactional
     public GroupIdResponse createEventGroup(Long clubId, GroupCreateRequest request, LocalDate date) {
@@ -138,5 +142,15 @@ public class GroupService {
                 lock.unlock();
             }
         }
+    }
+
+    public List<ClubMemberInfoResponse> getGroupMemberList(Long groupId) {
+        Group group = groupRepository.getById(groupId);
+        List<GroupMember> groupMembers = groupMemberRepository.getAllByGroup(group);
+
+        return groupMembers.stream()
+                .map(GroupMember::getClubMember)
+                .map(ClubMemberInfoResponse::from)
+                .toList();
     }
 }
