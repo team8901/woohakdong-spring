@@ -60,6 +60,6 @@ public class AdminOverallController implements AdminOverallControllerDocs{
 
     @GetMapping("/inquiry")
     public ListWrapperResponse<InquiryListResponse> getInquiry(@RequestParam(required = false) String category) {
-        return null;
+        return ListWrapperResponse.of(adminOverallService.getInquiry(category));
     }
 }
