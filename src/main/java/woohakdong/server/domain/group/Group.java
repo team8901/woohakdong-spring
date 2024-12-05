@@ -77,7 +77,7 @@ public class Group extends BaseEntity {
     @OneToMany(mappedBy = "group")
     private List<Order> orders = new ArrayList<>();
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.MERGE)
     private List<GroupMember> groupMembers = new ArrayList<>();
 
     @Builder
