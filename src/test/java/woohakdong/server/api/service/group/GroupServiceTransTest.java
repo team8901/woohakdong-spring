@@ -2,11 +2,13 @@ package woohakdong.server.api.service.group;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_GROUP_ALREADY_JOINED;
 import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import static woohakdong.server.domain.group.GroupType.EVENT;
 
 import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -84,6 +86,25 @@ class GroupServiceTransTest extends SecurityContextSetup {
         assertThatThrownBy(() -> groupServiceTrans.processJoinGroup(group.getGroupId(), date))
                 .isInstanceOf(CustomException.class)
                 .hasMessage(CLUB_GROUP_ALREADY_JOINED.getMessage());
+    }
+
+    @DisplayName("그룹에 가입하면 groupMember가 생성된다.")
+    @Test
+    void processJoinGroupThenCreateGroupMember() {
+        // Given
+        Group group = createNewGroup("동아리 MT", 0, EVENT, true, 0, 999);
+        LocalDate date = LocalDate.of(2024, 11, 19);
+
+        // When
+        groupServiceTrans.processJoinGroup(group.getGroupId(), date);
+
+        // Then
+        List<GroupMember> groupMembers = groupMemberRepository.getAllByGroup(group);
+        assertThat(groupMembers).hasSize(1)
+                .extracting("clubMember", "group")
+                .containsExactly(
+                        tuple(clubMember, group)
+                );
     }
 
     private void setGroupMember(Group group, ClubMember clubMember) {
