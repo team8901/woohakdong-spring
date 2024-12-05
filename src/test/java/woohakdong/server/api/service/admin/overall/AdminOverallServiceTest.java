@@ -212,6 +212,7 @@ class AdminOverallServiceTest {
     }
 
     @Test
+    @DisplayName("카테고리별 문의를 확인할 수 있다.")
     void findByCategoryOrderByCreatedAtDesc() {
         // Given
         School school = createSchool("ajou.ac.kr");
@@ -226,6 +227,29 @@ class AdminOverallServiceTest {
 
         // Then
         assertThat(result.get(0).inquiryContent()).isEqualTo("Content1");
+    }
+
+    @Test
+    @DisplayName("전체 문의를 확인 할 수 있다.")
+    void findOrderByCreatedAtDesc() {
+        // Given
+        School school = createSchool("ajou.ac.kr");
+        Member member1 = createMember(school, "testProvideId2", "박상준", "sangjun@ajou.ac.kr");
+        Inquiry inquiry1 = Inquiry.create("Content1", InquiryCategory.INQUIRY, member1);
+        Inquiry inquiry2 = Inquiry.create("Content2", InquiryCategory.ETC, member1);
+        inquiryRepository.save(inquiry1);
+        inquiryRepository.save(inquiry2);
+
+        // When
+        List<InquiryListResponse> result = adminOverallService.getInquiry(null);
+
+        // Then
+        assertThat(result).hasSize(2)
+                .extracting("inquiryContent", "inquiryCategory")
+                .containsExactlyInAnyOrder(
+                        tuple("Content1", InquiryCategory.INQUIRY),
+                        tuple("Content2", InquiryCategory.ETC)
+                );
     }
 
     private Club createClub(School school1, String name, String englishName) {
