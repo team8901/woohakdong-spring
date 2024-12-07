@@ -38,7 +38,7 @@ public class AdminOverallService {
         if (assignedTerm == null) {
             return CountResponse.from(schoolRepository.count());
         }
-        Long count = schoolRepository.countByCreatedAtAfter(assignedTerm.atStartOfDay());
+        Long count = schoolRepository.countByCreatedAtBefore(assignedTerm.plusMonths(6).atStartOfDay());
         return CountResponse.from(count);
     }
 
