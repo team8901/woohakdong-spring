@@ -6,6 +6,7 @@ import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.admin.club.dto.ClubMemberResponse;
 import woohakdong.server.api.controller.admin.club.dto.ClubStartDateResponse;
 import woohakdong.server.api.controller.admin.club.dto.AdminItemHistoryResponse;
+import woohakdong.server.api.controller.admin.overall.dto.ClubPaymentResponse;
 import woohakdong.server.api.controller.admin.overall.dto.CountResponse;
 import woohakdong.server.api.service.admin.club.AdminClubService;
 
@@ -39,5 +40,11 @@ public class AdminClubController implements AdminClubControllerDocs{
     public ListWrapperResponse<AdminItemHistoryResponse> getItemHistory(@PathVariable Long clubId,
                                                    @RequestParam(required = false) LocalDate assignedTerm) {
         return ListWrapperResponse.of(adminClubService.getItemHistory(clubId, assignedTerm));
+    }
+
+    @GetMapping("/{clubId}/clubPayments")
+    public ClubPaymentResponse getClubPaymentByTerm(@PathVariable Long clubId,
+                                                    @RequestParam(required = false) LocalDate assignedTerm) {
+        return adminClubService.getClubPaymentByTerm(clubId, assignedTerm);
     }
 }

@@ -6,12 +6,14 @@ import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.admin.club.dto.AdminItemHistoryResponse;
 import woohakdong.server.api.controller.admin.club.dto.ClubMemberResponse;
 import woohakdong.server.api.controller.admin.club.dto.ClubStartDateResponse;
+import woohakdong.server.api.controller.admin.overall.dto.ClubPaymentResponse;
 import woohakdong.server.api.controller.admin.overall.dto.CountResponse;
 import woohakdong.server.api.controller.clubMember.dto.ClubMemberInfoResponse;
 import woohakdong.server.domain.ItemHistory.ItemHistory;
 import woohakdong.server.domain.ItemHistory.ItemHistoryRepository;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
+import woohakdong.server.domain.clubHistory.ClubHistoryRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
 import woohakdong.server.domain.item.ItemRepository;
@@ -25,6 +27,9 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AdminClubService {
+
+    private static final Integer PER_MEMBER_FEE = 500;
+    private static final Integer BASE_SERVICE_FEE = 30000;
 
     private final ClubRepository clubRepository;
     private final ClubMemberRepository clubMemberRepository;
@@ -89,5 +94,15 @@ public class AdminClubService {
                     );
                 })
                 .collect(Collectors.toList());
+    }
+
+    public ClubPaymentResponse getClubPaymentByTerm(Long clubId, LocalDate assignedTerm) {
+        Club club = clubRepository.getById(clubId);
+
+        Long memberCount = Long.valueOf(clubMemberRepository.countByClubAndAssignedTerm(club, assignedTerm));
+        Long totalPayment = BASE_SERVICE_FEE + memberCount * PER_MEMBER_FEE;
+
+        return ClubPaymentResponse.from(totalPayment);
+
     }
 }
