@@ -52,7 +52,7 @@ public class AdminClubService {
         if (assignedTerm == null) {
             itemCount = itemRepository.countByClub(club);
         } else {
-            itemCount = itemRepository.countByClubAndCreatedAtAfter(club, assignedTerm.atStartOfDay());
+            itemCount = itemRepository.countByClubAndCreatedAtBefore(club, assignedTerm.plusMonths(6).atStartOfDay());
         }
         return CountResponse.from(itemCount);
     }

@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface SchoolJpaRepository extends JpaRepository<School, Long> {
     Optional<School> findBySchoolDomain(String schoolDomain);
-    Long countByCreatedAtAfter(LocalDateTime date);
+    Long countByCreatedAtBefore(LocalDateTime date);
     List<School> findByCreatedAtAfter(LocalDateTime date);
 }
