@@ -9,6 +9,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.admin.club.dto.ClubMemberResponse;
 import woohakdong.server.api.controller.admin.club.dto.ClubStartDateResponse;
+import woohakdong.server.api.controller.admin.overall.dto.ClubPaymentResponse;
 import woohakdong.server.api.controller.admin.overall.dto.CountResponse;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
@@ -101,6 +102,16 @@ class AdminClubServiceTest {
 
         // Then
         assertThat(response.startDate()).isEqualTo(club.getCreatedAt());
+    }
+
+    @Test
+    @DisplayName("동아리 별 동아리 결제 내역 확인")
+    void getClubPayment() {
+        // When
+        ClubPaymentResponse response = adminClubService.getClubPaymentByTerm(club.getClubId(), getAssignedTerm(LocalDate.now()));
+
+        // Then
+        assertThat(response.clubPayment()).isEqualTo(31000);
     }
 
     private Item createItem(Club club1, String name, String image) {
