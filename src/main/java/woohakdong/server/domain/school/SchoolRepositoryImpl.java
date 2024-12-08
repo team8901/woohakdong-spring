@@ -43,8 +43,8 @@ public class SchoolRepositoryImpl implements SchoolRepository{
     }
 
     @Override
-    public Long countByCreatedAtAfter(LocalDateTime date) {
-        return schoolJpaRepository.countByCreatedAtAfter(date);
+    public Long countByCreatedAtBefore(LocalDateTime date) {
+        return schoolJpaRepository.countByCreatedAtBefore(date);
     }
 
     @Override

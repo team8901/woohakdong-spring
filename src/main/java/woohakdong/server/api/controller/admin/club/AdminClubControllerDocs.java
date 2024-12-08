@@ -9,6 +9,7 @@ import woohakdong.server.api.controller.ListWrapperResponse;
 import woohakdong.server.api.controller.admin.club.dto.AdminItemHistoryResponse;
 import woohakdong.server.api.controller.admin.club.dto.ClubMemberResponse;
 import woohakdong.server.api.controller.admin.club.dto.ClubStartDateResponse;
+import woohakdong.server.api.controller.admin.overall.dto.ClubPaymentResponse;
 import woohakdong.server.api.controller.admin.overall.dto.CountResponse;
 
 import java.time.LocalDate;
@@ -37,4 +38,10 @@ public interface AdminClubControllerDocs {
     @ApiResponse(responseCode = "200", description = "동아리 물품 기록 리스트 반환 성공", useReturnTypeSchema = true)
     ListWrapperResponse<AdminItemHistoryResponse> getItemHistory(@PathVariable Long clubId,
                                                                  @RequestParam(required = false) LocalDate assignedTerm);
+
+    @SecurityRequirement(name = "accessToken")
+    @Operation(summary = "동아리별 동아리 결제 내역", description = "동아리별 동아리 결제 내역를 반환합니다.")
+    @ApiResponse(responseCode = "200", description = "동아리별 동아리 결제 내역 반환 성공", useReturnTypeSchema = true)
+    public ClubPaymentResponse getClubPaymentByTerm(@PathVariable Long clubId,
+                                                    @RequestParam(required = false) LocalDate assignedTerm);
 }

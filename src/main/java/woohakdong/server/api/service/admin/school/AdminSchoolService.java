@@ -60,7 +60,7 @@ public class AdminSchoolService {
         if (assignedTerm == null) {
             itemCount = itemRepository.countByClubSchool(school);
         } else {
-            itemCount = itemRepository.countByClubSchoolAndCreatedAtAfter(school, assignedTerm.atStartOfDay());
+            itemCount = itemRepository.countByClubSchoolAndCreatedAtBefore(school, assignedTerm.plusMonths(6).atStartOfDay());
         }
         return CountResponse.from(itemCount);
     }

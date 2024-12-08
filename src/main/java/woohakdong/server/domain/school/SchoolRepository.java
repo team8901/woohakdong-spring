@@ -14,7 +14,7 @@ public interface SchoolRepository {
 
     List<School> getAll();
 
-    Long countByCreatedAtAfter(LocalDateTime date);
+    Long countByCreatedAtBefore(LocalDateTime date);
 
     List<School> getByCreatedAtAfter(LocalDateTime date);
 }
