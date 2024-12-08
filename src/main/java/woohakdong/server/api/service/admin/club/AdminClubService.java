@@ -13,6 +13,8 @@ import woohakdong.server.domain.ItemHistory.ItemHistory;
 import woohakdong.server.domain.ItemHistory.ItemHistoryRepository;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.club.ClubRepository;
+import woohakdong.server.domain.clubHistory.ClubHistory;
+import woohakdong.server.domain.clubHistory.ClubHistoryJpaRepository;
 import woohakdong.server.domain.clubHistory.ClubHistoryRepository;
 import woohakdong.server.domain.clubmember.ClubMember;
 import woohakdong.server.domain.clubmember.ClubMemberRepository;
@@ -35,6 +37,7 @@ public class AdminClubService {
     private final ClubMemberRepository clubMemberRepository;
     private final ItemRepository itemRepository;
     private final ItemHistoryRepository itemHistoryRepository;
+    private final ClubHistoryRepository clubHistoryRepository;
 
     public List<ClubMemberResponse> getClubMembers(Long clubId, LocalDate assignedTerm) {
         Club club = clubRepository.getById(clubId);
@@ -98,6 +101,18 @@ public class AdminClubService {
 
     public ClubPaymentResponse getClubPaymentByTerm(Long clubId, LocalDate assignedTerm) {
         Club club = clubRepository.getById(clubId);
+
+        if (assignedTerm == null) {
+            List<ClubHistory> clubHistories = clubHistoryRepository.getAllByClub(club);
+            Long totalPayment = clubHistories.stream()
+                    .mapToLong(clubHistory -> {
+                        Long memberCount = Long.valueOf(clubMemberRepository.countByClubAndAssignedTerm(club, clubHistory.getClubHistoryUsageDate()));
+                        return BASE_SERVICE_FEE + memberCount * PER_MEMBER_FEE;
+                    })
+                    .sum();
+
+            return ClubPaymentResponse.from(totalPayment);
+        }
 
         Long memberCount = Long.valueOf(clubMemberRepository.countByClubAndAssignedTerm(club, assignedTerm));
         Long totalPayment = BASE_SERVICE_FEE + memberCount * PER_MEMBER_FEE;
