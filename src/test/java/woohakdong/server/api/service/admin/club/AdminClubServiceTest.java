@@ -68,8 +68,8 @@ class AdminClubServiceTest {
         Member member2 = createMember("Member 2", "member2@test.deu", school);
         createItem(club, "Item 1", "photo1.png");
         createItem(club, "Item 2", "photo2.png");
-        createClubMember(club, member1, MEMBER, LocalDate.now());
-        createClubMember(club, member2, MEMBER, LocalDate.now());
+        createClubMember(club, member1, MEMBER, LocalDate.of(2024, 7, 1));
+        createClubMember(club, member2, MEMBER, LocalDate.of(2024, 7, 1));
     }
 
     @Test
@@ -108,7 +108,7 @@ class AdminClubServiceTest {
     @DisplayName("동아리 별 동아리 결제 내역 확인")
     void getClubPayment() {
         // When
-        ClubPaymentResponse response = adminClubService.getClubPaymentByTerm(club.getClubId(), getAssignedTerm(LocalDate.now()));
+        ClubPaymentResponse response = adminClubService.getClubPaymentByTerm(club.getClubId(), getAssignedTerm(LocalDate.of(2024, 7, 1)));
 
         // Then
         assertThat(response.clubPayment()).isEqualTo(31000);

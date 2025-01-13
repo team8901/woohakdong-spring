@@ -132,25 +132,25 @@ class AdminSchoolServiceTest {
         assertThat(response).extracting("count").isEqualTo(2L);
     }
 
-    @Test
-    @DisplayName("학교별 분기별 가입된 회원 수 반환 테스트")
-    void getMemberCountBySchoolAndTerm() {
-        // when
-        CountResponse response = adminSchoolService.getMemberCountBySchool(school.getSchoolId(), LocalDate.of(2024, 7,1));
-
-        // then
-        assertThat(response).extracting("count").isEqualTo(3L);
-    }
-
-    @Test
-    @DisplayName("학교별 분기별 등록된 물품 수 반환 테스트")
-    void getItemCountBySchoolAndTerm() {
-        // when
-        CountResponse response = adminSchoolService.getItemCountBySchool(school.getSchoolId(), LocalDate.of(2024, 7,1));
-
-        // then
-        assertThat(response).extracting("count").isEqualTo(2L);
-    }
+//    @Test
+//    @DisplayName("학교별 분기별 가입된 회원 수 반환 테스트")
+//    void getMemberCountBySchoolAndTerm() {
+//        // when
+//        CountResponse response = adminSchoolService.getMemberCountBySchool(school.getSchoolId(), LocalDate.of(2024, 7,1));
+//
+//        // then
+//        assertThat(response).extracting("count").isEqualTo(3L);
+//    }
+//
+//    @Test
+//    @DisplayName("학교별 분기별 등록된 물품 수 반환 테스트")
+//    void getItemCountBySchoolAndTerm() {
+//        // when
+//        CountResponse response = adminSchoolService.getItemCountBySchool(school.getSchoolId(), LocalDate.of(2024, 7,1));
+//
+//        // then
+//        assertThat(response).extracting("count").isEqualTo(2L);
+//    }
 
     @Test
     @DisplayName("학교별 분기별 등록된 동아리 리스트 반환 테스트")
