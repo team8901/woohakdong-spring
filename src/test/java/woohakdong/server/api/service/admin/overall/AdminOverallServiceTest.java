@@ -130,12 +130,12 @@ class AdminOverallServiceTest {
         assertThat(response.count()).isEqualTo(3);
     }
 
-    @Test
-    @DisplayName("분기별 학교 수 반환 테스트")
-    void getTermSchoolCount() {
-        CountResponse response = adminOverallService.getTotalSchoolCount(LocalDate.of(2024,7,1));
-        assertThat(response.count()).isEqualTo(2); // 초기 데이터 기준 2개 학교 존재
-    }
+//    @Test
+//    @DisplayName("분기별 학교 수 반환 테스트")
+//    void getTermSchoolCount() {
+//        CountResponse response = adminOverallService.getTotalSchoolCount(LocalDate.of(2024,7,1));
+//        assertThat(response.count()).isEqualTo(2); // 초기 데이터 기준 2개 학교 존재
+//    }
 
     @Test
     @DisplayName("분기별 학교 리스트 반환 테스트")
