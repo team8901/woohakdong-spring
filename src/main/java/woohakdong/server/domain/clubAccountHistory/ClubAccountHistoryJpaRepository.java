@@ -1,5 +1,7 @@
 package woohakdong.server.domain.clubAccountHistory;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,10 +27,11 @@ public interface ClubAccountHistoryJpaRepository extends JpaRepository<ClubAccou
             "AND (:month IS NULL OR MONTH(cah.clubAccountHistoryTranDate) = :month) " +
             "AND (:keyword IS NULL OR STR(cah.clubAccountHistoryContent) LIKE %:keyword%)" +
             "ORDER BY cah.clubAccountHistoryTranDate DESC")
-    List<ClubAccountHistory> findTransactionsByFilters(@Param("clubAccount") ClubAccount clubAccount,
-                                                       @Param("year") Integer year,
-                                                       @Param("month") Integer month,
-                                                       @Param("keyword") String keyword);
+    Slice<ClubAccountHistory> findTransactionsByFilters(@Param("clubAccount") ClubAccount clubAccount,
+                                                        @Param("year") Integer year,
+                                                        @Param("month") Integer month,
+                                                        @Param("keyword") String keyword,
+                                                        Pageable pageable);
 
     List<ClubAccountHistory> findAllByClubAccountClubOrderByClubAccountHistoryTranDateDesc(Club club);
 

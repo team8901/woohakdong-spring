@@ -1,8 +1,11 @@
 package woohakdong.server.api.controller.dues;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.web.bind.annotation.*;
 import woohakdong.server.api.controller.ListWrapperResponse;
+import woohakdong.server.api.controller.SliceResponse;
 import woohakdong.server.api.controller.clubMember.dto.ClubMemberInfoResponse;
 import woohakdong.server.api.controller.dues.dto.ClubAccountHistoryListResponse;
 import woohakdong.server.api.service.dues.DuesService;
@@ -23,18 +26,19 @@ public class DuesController implements DuesControllerDocs {
         duesService.fetchAndSaveRecentTransactions(clubId);
     }
 
-    @Override
-    public ListWrapperResponse<ClubAccountHistoryListResponse> getMonthlyTransactions(Long clubId, LocalDate date) {
-        return null;
-    }
+//    @Override
+//    public ListWrapperResponse<ClubAccountHistoryListResponse> getMonthlyTransactions(Long clubId, LocalDate date) {
+//        return null;
+//    }
 
     @GetMapping("/{clubId}/dues")
-    public ListWrapperResponse<ClubAccountHistoryListResponse> getMonthlyTransactions(
+    public SliceResponse<ClubAccountHistoryListResponse> getMonthlyTransactions(
             @PathVariable Long clubId,
             @RequestParam(required = false) LocalDate date,
-            @RequestParam(required = false) String keyword) {
+            @RequestParam(required = false) String keyword,
+            Pageable pageable) {
 
-        List<ClubAccountHistoryListResponse> historys = duesService.getMonthlyTransactions(clubId, date, keyword);
-        return ListWrapperResponse.of(historys);
+        Slice<ClubAccountHistoryListResponse> historys = duesService.getMonthlyTransactions(clubId, date, keyword, pageable);
+        return SliceResponse.of(historys.getContent(), historys.getNumber(), historys.hasNext());
     }
 }

@@ -2,6 +2,8 @@ package woohakdong.server.domain.clubAccountHistory;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.clubAccount.ClubAccount;
@@ -39,8 +41,8 @@ public class ClubAccountHistoryRepositoryImpl implements ClubAccountHistoryRepos
     }
 
     @Override
-    public List<ClubAccountHistory> getTransactionsByFilters(ClubAccount clubAccount, Integer year,
-                                                      Integer month, String keyword) {
-        return clubAccountHistoryJpaRepository.findTransactionsByFilters(clubAccount, year, month, keyword);
+    public Slice<ClubAccountHistory> getTransactionsByFilters(ClubAccount clubAccount, Integer year,
+                                                              Integer month, String keyword, Pageable pageable) {
+        return clubAccountHistoryJpaRepository.findTransactionsByFilters(clubAccount, year, month, keyword, pageable);
     }
 }

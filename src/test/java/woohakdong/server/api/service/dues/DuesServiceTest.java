@@ -3,6 +3,9 @@ package woohakdong.server.api.service.dues;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import woohakdong.server.SecurityContextSetup;
 import woohakdong.server.domain.admin.adminAccount.AccountType;
 import woohakdong.server.domain.clubAccount.ClubAccount;
@@ -43,12 +46,14 @@ class DuesServiceTest extends SecurityContextSetup {
 
         LocalDate date = LocalDate.of(2024, 10, 1);
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // when
-        List<ClubAccountHistory> histories = clubAccountHistoryRepository.getTransactionsByFilters(clubAccount, 2024, 10, null);
+        Slice<ClubAccountHistory> histories = clubAccountHistoryRepository.getTransactionsByFilters(clubAccount, 2024, 10, null, pageable);
 
         // then
-        assertThat(histories).hasSize(2);
-        assertThat(histories).extracting("clubAccountHistoryContent").containsExactlyInAnyOrder("Test Deposit 1", "Test Withdraw");
+        assertThat(histories.getContent()).hasSize(2);
+        assertThat(histories.getContent()).extracting("clubAccountHistoryContent").containsExactlyInAnyOrder("Test Deposit 1", "Test Withdraw");
     }
 
     @Test
@@ -68,11 +73,13 @@ class DuesServiceTest extends SecurityContextSetup {
 
         LocalDate date = LocalDate.of(2024, 10, 1);
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // when
-        List<ClubAccountHistory> histories = clubAccountHistoryRepository.getTransactionsByFilters(clubAccount, null, null, "Deposit");
+        Slice<ClubAccountHistory> histories = clubAccountHistoryRepository.getTransactionsByFilters(clubAccount, null, null, "Deposit", pageable);
 
         // then
-        assertThat(histories).hasSize(2);
-        assertThat(histories).extracting("clubAccountHistoryContent").containsExactlyInAnyOrder("Test Deposit 1", "Test Deposit 2");
+        assertThat(histories.getContent()).hasSize(2);
+        assertThat(histories.getContent()).extracting("clubAccountHistoryContent").containsExactlyInAnyOrder("Test Deposit 1", "Test Deposit 2");
     }
 }
