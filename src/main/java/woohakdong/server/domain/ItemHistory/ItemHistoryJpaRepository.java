@@ -1,5 +1,7 @@
 package woohakdong.server.domain.ItemHistory;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
@@ -27,4 +29,12 @@ public interface ItemHistoryJpaRepository extends JpaRepository<ItemHistory, Lon
     List<ItemHistory> findByItemClubAndItemRentalDateBetween(Club club, LocalDateTime startDate, LocalDateTime endDate);
 
     List<ItemHistory> findByClubOrderByItemRentalDateDesc(Club club);
+
+    Slice<ItemHistory> findByItemOrderByItemRentalDateDesc(Item item, Pageable pageable);
+
+    Slice<ItemHistory> findByClubOrderByItemRentalDateDesc(Club club, Pageable pageable);
+
+    Slice<ItemHistory> findByClubMemberOrderByItemRentalDateDesc(ClubMember clubMember, Pageable pageable);
+
+    Slice<ItemHistory> findByItemClubAndClubMemberOrderByItemRentalDateDesc(Club club, ClubMember clubMember, Pageable pageable);
 }

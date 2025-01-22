@@ -15,6 +15,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import woohakdong.server.api.controller.SliceResponse;
 import woohakdong.server.api.controller.item.dto.ItemAvailableUpdateRequest;
 import woohakdong.server.api.controller.item.dto.ItemBorrowedResponse;
 import woohakdong.server.api.controller.item.dto.ItemHistoryResponse;
@@ -101,11 +105,13 @@ class ItemServiceTest extends SecurityContextSetup {
         createItem(club, "축구공", SPORT, 7, false);
         createItem(club, "농구공", SPORT, 7, false);
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // When
-        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), null, null, null, null, null);
+        SliceResponse<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), null, null, null, null, null, pageable);
 
         // Then
-        assertThat(items).hasSize(2)
+        assertThat(items.result()).hasSize(2)
                 .extracting("itemName", "itemCategory")
                 .containsExactlyInAnyOrder(
                         tuple("축구공", SPORT),
@@ -198,8 +204,10 @@ class ItemServiceTest extends SecurityContextSetup {
         createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), dateTime.minusDays(2), club);
         createItemHistory(item, clubMember, dateTime, dateTime.plusDays(7), null, club);
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // when
-        List<ItemHistoryResponse> itemHistoryResponses = itemService.getItemHistory(club.getClubId(), item.getItemId());
+        Slice<ItemHistoryResponse> itemHistoryResponses = itemService.getItemHistory(club.getClubId(), item.getItemId(), pageable);
 
         // then
         assertThat(itemHistoryResponses)
@@ -222,11 +230,13 @@ class ItemServiceTest extends SecurityContextSetup {
         createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), dateTime.minusDays(2), club);
         createItemHistory(item, clubMember, dateTime, dateTime.plusDays(7), null, club);
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // when
-        List<ItemHistoryResponse> itemHistoryResponses = itemService.getAllItemHistory(club.getClubId());
+        Slice<ItemHistoryResponse> itemHistoryResponses = itemService.getAllItemHistory(club.getClubId(), pageable);
 
         // then
-        assertThat(itemHistoryResponses)
+        assertThat(itemHistoryResponses.getContent())
                 .extracting("itemRentalDate", "itemDueDate", "itemReturnDate")
                 .containsExactly(
                         tuple(dateTime, dateTime.plusDays(7), null),
@@ -241,11 +251,13 @@ class ItemServiceTest extends SecurityContextSetup {
         createItem(club, "축구공", SPORT, 7, false);
         createItem(club, "농구공", SPORT, 5, false);
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // when
-        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", false, true, null);
+        SliceResponse<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", false, true, null, pageable);
 
         // then
-        assertThat(items).hasSize(2)
+        assertThat(items.result()).hasSize(2)
                 .extracting("itemName", "itemCategory", "itemRentalMaxDay")
                 .containsExactlyInAnyOrder(
                         tuple("축구공", SPORT, 7),
@@ -266,11 +278,13 @@ class ItemServiceTest extends SecurityContextSetup {
         ItemHistory itemHistory = createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3),
                 null, club);
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // when
-        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", true, true, null);
+        SliceResponse<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", true, true, null, pageable);
 
         // then
-        assertThat(items)
+        assertThat(items.result())
                 .hasSize(1)
                 .extracting("itemName", "itemCategory", "itemRentalMaxDay", "itemUsing")
                 .containsExactly(tuple("농구공", ItemCategory.SPORT, 5, true));
@@ -288,11 +302,13 @@ class ItemServiceTest extends SecurityContextSetup {
         LocalDateTime dateTime = date.atStartOfDay();
         createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), null, club);
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // when
-        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", true, true, true);
+        SliceResponse<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", true, true, true, pageable);
 
         // then
-        assertThat(items)
+        assertThat(items.result())
                 .hasSize(1)
                 .extracting("itemName", "itemCategory", "itemRentalMaxDay", "itemUsing")
                 .containsExactly(tuple("농구공", ItemCategory.SPORT, 5, true));
@@ -311,11 +327,13 @@ class ItemServiceTest extends SecurityContextSetup {
         LocalDateTime dateTime = date.atStartOfDay();
         createItemHistory(item, clubMember, dateTime.minusDays(3), dateTime.plusDays(4), null, club);
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // when
-        List<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", null, null, false);
+        SliceResponse<ItemResponse> items = itemService.getItemsByFilters(club.getClubId(), "공", "", null, null, false, pageable);
 
         // then
-        assertThat(items)
+        assertThat(items.result())
                 .hasSize(2);
     }
 
@@ -360,11 +378,13 @@ class ItemServiceTest extends SecurityContextSetup {
         ClubMember clubMember = createClubMember(club, member, MEMBER, date);
         ItemBorrowed itemBorrowed = createItemBorrowed(clubMember, item);
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // when
-        List<ItemBorrowedResponse> response = itemService.getMyBorrowedItems(club.getClubId(), date);
+        Slice<ItemBorrowedResponse> response = itemService.getMyBorrowedItems(club.getClubId(), date, pageable);
 
         // then
-        assertThat(response)
+        assertThat(response.getContent())
                 .isNotEmpty()
                 .extracting("itemName")
                 .containsExactly("축구공");
@@ -397,11 +417,13 @@ class ItemServiceTest extends SecurityContextSetup {
         ItemHistory itemHistory = createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3),
                 dateTime.minusDays(2), club);
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // when
-        List<ItemHistoryResponse> response = itemService.getMyHistoryItems(club.getClubId(), date);
+        Slice<ItemHistoryResponse> response = itemService.getMyHistoryItems(club.getClubId(), date, pageable);
 
         // then
-        assertThat(response)
+        assertThat(response.getContent())
                 .isNotEmpty()
                 .extracting("itemRentalDate", "itemDueDate")
                 .containsExactly(tuple(dateTime.minusDays(10), dateTime.minusDays(3)));
@@ -418,12 +440,14 @@ class ItemServiceTest extends SecurityContextSetup {
         LocalDateTime dateTime = now.atStartOfDay();
         createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), null, club);
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // when
-        List<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(),
-                clubMember.getClubMemberId());
+        Slice<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(),
+                clubMember.getClubMemberId(), pageable);
 
         // then
-        assertThat(response)
+        assertThat(response.getContent())
                 .isNotEmpty()
                 .extracting("itemRentalDate", "itemDueDate", "itemName", "itemOverdue")
                 .containsExactly(tuple(dateTime.minusDays(10), dateTime.minusDays(3), "축구공", true));
@@ -440,12 +464,14 @@ class ItemServiceTest extends SecurityContextSetup {
         LocalDateTime dateTime = date.atStartOfDay();
         createItemHistory(item, clubMember, dateTime.minusDays(10), dateTime.minusDays(3), dateTime.minusDays(2), club);
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // when
-        List<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(),
-                clubMember.getClubMemberId());
+        Slice<ItemHistoryResponse> response = itemService.getClubMemberHistoryItems(club.getClubId(),
+                clubMember.getClubMemberId(), pageable);
 
         // then
-        assertThat(response)
+        assertThat(response.getContent())
                 .isNotEmpty()
                 .extracting("itemRentalDate", "itemDueDate", "itemName", "itemOverdue")
                 .containsExactly(tuple(dateTime.minusDays(10), dateTime.minusDays(3), "축구공", true));

@@ -5,6 +5,8 @@ import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_NOT_FOUND;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.domain.club.Club;
@@ -83,5 +85,15 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public Long countByClub(Club club) {
         return itemJpaRepository.countByClub(club);
+    }
+
+    @Override
+    public Slice<Item> getAllByClub(Club club, Pageable pageable) {
+        return itemJpaRepository.findByClub(club, pageable);
+    }
+
+    @Override
+    public Slice<Item> getItemsByFilters(Club club, String keyword, ItemCategory category, Boolean using, Boolean available, Pageable pageable){
+        return itemJpaRepository.findItemsByFilters(club, keyword, category, using, available, pageable);
     }
 }

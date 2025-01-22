@@ -3,6 +3,8 @@ package woohakdong.server.domain.itemBorrowed;
 import static woohakdong.server.common.exception.CustomErrorInfo.ITEM_BORROWED_NOT_FOUND;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.domain.clubmember.ClubMember;
@@ -37,5 +39,10 @@ public class ItemBorrowedRepositoryImpl implements ItemBorrowedRepository {
 
     public List<ItemBorrowed> getByItemBorrowedReturnDateBefore(LocalDateTime currentDateTime) {
         return itemBorrowedJpaRepository.findByItemBorrowedReturnDateBefore(currentDateTime);
+    }
+
+    @Override
+    public Slice<ItemBorrowed> getByClubMember(ClubMember clubMember, Pageable pageable) {
+        return itemBorrowedJpaRepository.findByClubMember(clubMember, pageable);
     }
 }
