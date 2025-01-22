@@ -1,6 +1,9 @@
 package woohakdong.server.domain.clubmember;
 
 import java.util.Optional;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -37,4 +40,8 @@ public interface ClubMemberJpaRepository extends JpaRepository<ClubMember, Long>
     Long countByClub_SchoolAndClubMemberAssignedTerm(School school, LocalDate clubMemberAssignedTerm);
 
     List<ClubMember> findAllByClub(Club club);
+
+    Slice<ClubMember> findByClubAndClubMemberAssignedTerm(Club club, LocalDate assignedTerm, Pageable pageable);
+
+    Slice<ClubMember> findByClubAndClubMemberAssignedTermAndMemberMemberNameContaining(Club club, LocalDate assignedTerm, String name, Pageable pageable);
 }

@@ -2,6 +2,9 @@ package woohakdong.server.domain.clubmember;
 
 import java.time.LocalDate;
 import java.util.List;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import woohakdong.server.domain.club.Club;
 import woohakdong.server.domain.group.Group;
 import woohakdong.server.domain.member.Member;
@@ -37,4 +40,6 @@ public interface ClubMemberRepository {
     List<ClubMember> getAllByClub(Club club);
 
     List<ClubMember> getByClubAndClubMemberAssignedTerm(Club club, LocalDate assignedTerm);
+
+    Slice<ClubMember> getAllBySearchFilterPaging(Club club, String name, LocalDate assignedTerm, Pageable pageable);
 }
