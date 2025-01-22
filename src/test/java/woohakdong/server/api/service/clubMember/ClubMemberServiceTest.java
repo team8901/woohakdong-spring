@@ -16,6 +16,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import woohakdong.server.api.controller.clubMember.dto.ClubMemberInfoResponse;
 import woohakdong.server.SecurityContextSetup;
 import woohakdong.server.common.exception.CustomErrorInfo;
@@ -108,12 +111,14 @@ class ClubMemberServiceTest extends SecurityContextSetup {
         createClubMember(club, member2, OFFICER, LocalDate.of(2024, 3, 1));
         createClubMember(club, member3, OFFICER, LocalDate.of(2024, 7, 1));
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // when
-        List<ClubMemberInfoResponse> responses = clubMemberService.getFilteredMembers(club.getClubId(), null,
-                LocalDate.of(2024, 4, 1));
+        Slice<ClubMemberInfoResponse> responses = clubMemberService.getFilteredMembers(club.getClubId(), null,
+                LocalDate.of(2024, 4, 1), pageable);
 
         // then
-        assertThat(responses).hasSize(2)
+        assertThat(responses.getContent()).hasSize(2)
                 .extracting("memberName", "clubMemberRole")
                 .containsExactlyInAnyOrder(
                         tuple("준상박", OFFICER),
@@ -137,11 +142,13 @@ class ClubMemberServiceTest extends SecurityContextSetup {
 
         LocalDate date = LocalDate.of(2024, 1, 1);
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // When
-        List<ClubMemberInfoResponse> responses = clubMemberService.getFilteredMembers(club.getClubId(), "가나", date);
+        Slice<ClubMemberInfoResponse> responses = clubMemberService.getFilteredMembers(club.getClubId(), "가나", date, pageable);
 
         // Then
-        assertThat(responses).hasSize(2)
+        assertThat(responses.getContent()).hasSize(2)
                 .extracting("memberName", "clubMemberRole")
                 .containsExactlyInAnyOrder(
                         tuple("박가나", MEMBER),

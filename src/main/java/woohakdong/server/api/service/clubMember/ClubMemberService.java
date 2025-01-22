@@ -8,8 +8,11 @@ import static woohakdong.server.domain.clubmember.ClubMemberRole.PRESIDENT;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import woohakdong.server.api.controller.SliceResponse;
 import woohakdong.server.api.controller.clubMember.dto.ClubMemberInfoResponse;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.common.util.date.DateUtil;
@@ -81,14 +84,12 @@ public class ClubMemberService {
         clubMember.changeRole(clubMemberRole);
     }
 
-    public List<ClubMemberInfoResponse> getFilteredMembers(Long clubId, String name, LocalDate date) {
+    public Slice<ClubMemberInfoResponse> getFilteredMembers(Long clubId, String name, LocalDate date, Pageable pageable) {
         LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
         Club club = clubRepository.getById(clubId);
-        List<ClubMember> clubMemberList = clubMemberRepository.getAllBySearchFilter(club, name, assignedTerm);
+        Slice<ClubMember> clubMemberList = clubMemberRepository.getAllBySearchFilterPaging(club, name, assignedTerm, pageable);
 
-        return clubMemberList.stream()
-                .map(ClubMemberInfoResponse::from)
-                .toList();
+        return clubMemberList.map(ClubMemberInfoResponse::from);
     }
 
     @Transactional

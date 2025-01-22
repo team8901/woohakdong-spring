@@ -5,6 +5,8 @@ import static woohakdong.server.common.exception.CustomErrorInfo.CLUB_MEMBER_NOT
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 import woohakdong.server.common.exception.CustomException;
 import woohakdong.server.domain.club.Club;
@@ -98,5 +100,15 @@ public class ClubMemberRepositoryImpl implements ClubMemberRepository {
     @Override
     public List<ClubMember> getByClubAndClubMemberAssignedTerm(Club club, LocalDate assignedTerm) {
         return clubMemberJpaRepository.findByClubAndClubMemberAssignedTerm(club, assignedTerm);
+    }
+
+    @Override
+    public Slice<ClubMember> getAllBySearchFilterPaging(Club club, String name, LocalDate assignedTerm, Pageable pageable) {
+        if (name == null || name.isBlank()) {
+            return clubMemberJpaRepository.findByClubAndClubMemberAssignedTerm(club, assignedTerm, pageable);
+        }
+
+        return clubMemberJpaRepository.findByClubAndClubMemberAssignedTermAndMemberMemberNameContaining(club,
+                assignedTerm, name, pageable);
     }
 }
