@@ -3,6 +3,8 @@ package woohakdong.server.domain.ItemHistory;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 import woohakdong.server.common.exception.CustomErrorInfo;
 import woohakdong.server.common.exception.CustomException;
@@ -68,5 +70,25 @@ public class ItemHistoryRepositoryImpl implements ItemHistoryRepository{
     @Override
     public List<ItemHistory> getByClub(Club club) {
         return itemHistoryJpaRepository.findByClubOrderByItemRentalDateDesc(club);
+    }
+
+    @Override
+    public Slice<ItemHistory> getAllByItem(Item item, Pageable pageable) {
+        return itemHistoryJpaRepository.findByItemOrderByItemRentalDateDesc(item, pageable);
+    }
+
+    @Override
+    public Slice<ItemHistory> getByClub(Club club, Pageable pageable) {
+        return itemHistoryJpaRepository.findByClubOrderByItemRentalDateDesc(club, pageable);
+    }
+
+    @Override
+    public Slice<ItemHistory> getAllByMember(ClubMember clubMember, Pageable pageable) {
+        return itemHistoryJpaRepository.findByClubMemberOrderByItemRentalDateDesc(clubMember, pageable);
+    }
+
+    @Override
+    public Slice<ItemHistory> getAllByClubAndMember(Club club, ClubMember clubMember, Pageable pageable) {
+        return itemHistoryJpaRepository.findByItemClubAndClubMemberOrderByItemRentalDateDesc(club, clubMember, pageable);
     }
 }

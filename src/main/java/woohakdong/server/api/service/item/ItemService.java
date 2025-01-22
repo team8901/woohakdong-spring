@@ -10,8 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import woohakdong.server.api.controller.SliceResponse;
 import woohakdong.server.api.controller.item.dto.ItemAvailableUpdateRequest;
 import woohakdong.server.api.controller.item.dto.ItemBorrowResponse;
 import woohakdong.server.api.controller.item.dto.ItemBorrowedResponse;
@@ -67,31 +70,31 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public List<ItemResponse> getItemsByFilters(Long clubId, String keyword, String category, Boolean using,
-                                                Boolean available, Boolean overdue) {
+    public SliceResponse<ItemResponse> getItemsByFilters(Long clubId, String keyword, String category, Boolean using,
+                                                         Boolean available, Boolean overdue, Pageable pageable) {
         Club club = clubRepository.getById(clubId);
-        List<Item> items;
+        Slice<Item> items;
 
         if (keyword == null && category == null && using == null && available == null) {
-            items = itemRepository.getAllByClub(club);
+            items = itemRepository.getAllByClub(club, pageable);
         } else {
             if (category == null || category.isEmpty()) {
-                items = itemRepository.getItemsByFilters(club, keyword, null, using, available);
+                items = itemRepository.getItemsByFilters(club, keyword, null, using, available, pageable);
             } else {
                 ItemCategory itemCategory = ItemCategory.valueOf(category.toUpperCase());
-                items = itemRepository.getItemsByFilters(club, keyword, itemCategory, using, available);
+                items = itemRepository.getItemsByFilters(club, keyword, itemCategory, using, available, pageable);
             }
         }
 
         List<ItemResponse> responses = new ArrayList<>();
 
         if (overdue != null) {
-            getItemByOverdue(overdue, items, responses);
+            getItemByOverdue(overdue, items.getContent(), responses);
         } else {
-            getItemByOhters(items, responses);
+            getItemByOhters(items.getContent(), responses);
         }
 
-        return responses;
+        return SliceResponse.of(responses, items.getNumber(), items.hasNext());
     }
 
     @Transactional
@@ -170,53 +173,45 @@ public class ItemService {
                 .build();
     }
 
-    public List<ItemHistoryResponse> getItemHistory(Long clubId, Long itemId) {
+    public Slice<ItemHistoryResponse> getItemHistory(Long clubId, Long itemId, Pageable pageable) {
         Club club = clubRepository.getById(clubId);
         Item item = itemRepository.getById(itemId);
 
-        List<ItemHistoryResponse> historyResponses = itemHistoryRepository.getAllByItem(item).stream()
-                .map(history -> {
-                    Boolean isOverdue = history.getItemDueDate() != null && (
-                            (history.getItemReturnDate() == null && history.getItemDueDate()
-                                    .isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
-                                    (history.getItemReturnDate() != null && history.getItemReturnDate()
-                                            .isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
-                    );
+        Slice<ItemHistory> itemHistories = itemHistoryRepository.getAllByItem(item, pageable);
 
-                    return ItemHistoryResponse.from(
-                            history,
-                            history.getClubMember().getClubMemberId(),
-                            item,
-                            isOverdue
-                    );
-                })
-                .collect(Collectors.toList());
+        return itemHistories.map(history -> {
+            Boolean isOverdue = history.getItemDueDate() != null && (
+                    (history.getItemReturnDate() == null && history.getItemDueDate().isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
+                            (history.getItemReturnDate() != null && history.getItemReturnDate().isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
+            );
 
-        return historyResponses;
+            return ItemHistoryResponse.from(
+                    history,
+                    history.getClubMember().getClubMemberId(),
+                    item,
+                    isOverdue
+            );
+        });
     }
 
-    public List<ItemHistoryResponse> getAllItemHistory(Long clubId) {
+    public Slice<ItemHistoryResponse> getAllItemHistory(Long clubId, Pageable pageable) {
         Club club = clubRepository.getById(clubId);
 
-        List<ItemHistoryResponse> historyResponses = itemHistoryRepository.getByClub(club).stream()
-                .map(history -> {
-                    Boolean isOverdue = history.getItemDueDate() != null && (
-                            (history.getItemReturnDate() == null && history.getItemDueDate()
-                                    .isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
-                                    (history.getItemReturnDate() != null && history.getItemReturnDate()
-                                            .isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
-                    );
+        Slice<ItemHistory> itemHistories = itemHistoryRepository.getByClub(club, pageable);
 
-                    return ItemHistoryResponse.from(
-                            history,
-                            history.getClubMember().getClubMemberId(),
-                            history.getItem(),
-                            isOverdue
-                    );
-                })
-                .collect(Collectors.toList());
+        return itemHistories.map(history -> {
+            Boolean isOverdue = history.getItemDueDate() != null && (
+                    (history.getItemReturnDate() == null && history.getItemDueDate().isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
+                            (history.getItemReturnDate() != null && history.getItemReturnDate().isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
+            );
 
-        return historyResponses;
+            return ItemHistoryResponse.from(
+                    history,
+                    history.getClubMember().getClubMemberId(),
+                    history.getItem(),
+                    isOverdue
+            );
+        });
     }
 
     public ItemInfoResponse getItemInfo(Long clubId, Long itemId) {
@@ -255,75 +250,61 @@ public class ItemService {
         item.setItemAvailable(request.itemAvailable());
     }
 
-    public List<ItemBorrowedResponse> getMyBorrowedItems(Long clubId, LocalDate date) {
+    public Slice<ItemBorrowedResponse> getMyBorrowedItems(Long clubId, LocalDate date, Pageable pageable) {
         Member member = securityUtil.getMember();
         Club club = clubRepository.getById(clubId);
         LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
 
         ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
-        List<ItemBorrowed> borrowedItems = itemBorrowedRepository.getByClubMember(clubMember);
+        Slice<ItemBorrowed> borrowedItems = itemBorrowedRepository.getByClubMember(clubMember, pageable);
 
-        List<ItemBorrowedResponse> itemBorrowedResponses = borrowedItems.stream()
-                .map(itemBorrowed -> ItemBorrowedResponse.from(itemBorrowed.getItem(),
-                        itemBorrowed.getItemBorrowedReturnDate()))
-                .collect(Collectors.toList());
-
-        return itemBorrowedResponses;
+        return borrowedItems.map(itemBorrowed ->
+                ItemBorrowedResponse.from(itemBorrowed.getItem(), itemBorrowed.getItemBorrowedReturnDate())
+        );
     }
 
-    public List<ItemHistoryResponse> getMyHistoryItems(Long clubId, LocalDate date) {
+    public Slice<ItemHistoryResponse> getMyHistoryItems(Long clubId, LocalDate date, Pageable pageable) {
         Member member = securityUtil.getMember();
         Club club = clubRepository.getById(clubId);
         LocalDate assignedTerm = dateUtil.getAssignedTerm(date);
         ClubMember clubMember = clubMemberRepository.getByClubAndMemberAndAssignedTerm(club, member, assignedTerm);
 
-        List<ItemHistory> histories = itemHistoryRepository.getAllByMember(clubMember);
-        List<ItemHistoryResponse> itemHistoryResponses = histories.stream()
-                .map(history -> {
-                    Boolean isOverdue = history.getItemDueDate() != null && (
-                            (history.getItemReturnDate() == null && history.getItemDueDate()
-                                    .isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
-                                    (history.getItemReturnDate() != null && history.getItemReturnDate()
-                                            .isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
-                    );
+        Slice<ItemHistory> histories = itemHistoryRepository.getAllByMember(clubMember, pageable);
 
-                    return ItemHistoryResponse.from(
-                            history,
-                            history.getClubMember().getClubMemberId(),
-                            history.getItem(),
-                            isOverdue
-                    );
-                })
-                .collect(Collectors.toList());
+        return histories.map(history -> {
+            Boolean isOverdue = history.getItemDueDate() != null && (
+                    (history.getItemReturnDate() == null && history.getItemDueDate().isBefore(LocalDateTime.now())) ||
+                            (history.getItemReturnDate() != null && history.getItemReturnDate().isAfter(history.getItemDueDate()))
+            );
 
-        return itemHistoryResponses;
+            return ItemHistoryResponse.from(
+                    history,
+                    history.getClubMember().getClubMemberId(),
+                    history.getItem(),
+                    isOverdue
+            );
+        });
     }
 
-    public List<ItemHistoryResponse> getClubMemberHistoryItems(Long clubId, Long clubMemberId) {
+    public Slice<ItemHistoryResponse> getClubMemberHistoryItems(Long clubId, Long clubMemberId, Pageable pageable) {
         Club club = clubRepository.getById(clubId);
         ClubMember clubMember = clubMemberRepository.getById(clubMemberId);
 
-        List<ItemHistory> histories = itemHistoryRepository.getAllByClubAndMember(club, clubMember);
+        Slice<ItemHistory> histories = itemHistoryRepository.getAllByClubAndMember(club, clubMember, pageable);
 
-        List<ItemHistoryResponse> itemHistoryResponses = histories.stream()
-                .map(history -> {
-                    Boolean isOverdue = history.getItemDueDate() != null && (
-                            (history.getItemReturnDate() == null && history.getItemDueDate()
-                                    .isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
-                                    (history.getItemReturnDate() != null && history.getItemReturnDate()
-                                            .isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
-                    );
+        return histories.map(history -> {
+            Boolean isOverdue = history.getItemDueDate() != null && (
+                    (history.getItemReturnDate() == null && history.getItemDueDate().isBefore(LocalDateTime.now())) || // 반납되지 않았고 연체
+                            (history.getItemReturnDate() != null && history.getItemReturnDate().isAfter(history.getItemDueDate())) // 반납이 연체된 날짜에 이루어짐
+            );
 
-                    return ItemHistoryResponse.from(
-                            history,
-                            history.getClubMember().getClubMemberId(),
-                            history.getItem(),
-                            isOverdue
-                    );
-                })
-                .collect(Collectors.toList());
-
-        return itemHistoryResponses;
+            return ItemHistoryResponse.from(
+                    history,
+                    history.getClubMember().getClubMemberId(),
+                    history.getItem(),
+                    isOverdue
+            );
+        });
     }
 
 
