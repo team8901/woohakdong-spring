@@ -4,9 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import woohakdong.server.api.controller.ListWrapperResponse;
+import woohakdong.server.api.controller.SliceResponse;
 import woohakdong.server.api.controller.dues.dto.ClubAccountHistoryListResponse;
 
 import java.time.LocalDate;
@@ -22,7 +24,9 @@ public interface DuesControllerDocs {
     @SecurityRequirement(name = "accessToken")
     @Operation(summary = "월별 회비 내역 조회", description = "월별 회비 내역을 조회할 수 있다.")
     @ApiResponse(responseCode = "200", description = "물품 대여 기록 조회 성공", useReturnTypeSchema = true)
-    public ListWrapperResponse<ClubAccountHistoryListResponse> getMonthlyTransactions(
+    public SliceResponse<ClubAccountHistoryListResponse> getMonthlyTransactions(
             @PathVariable Long clubId,
-            @RequestParam(required = false) LocalDate date);
+            @RequestParam(required = false) LocalDate date,
+            @RequestParam(required = false) String keyword,
+            Pageable pageable);
 }

@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import woohakdong.server.api.controller.dues.dto.ClubAccountHistoryListResponse;
@@ -48,18 +50,16 @@ public class DuesService {
         }
     }
 
-    public List<ClubAccountHistoryListResponse> getMonthlyTransactions(Long clubId, LocalDate date, String keyword) {
+    public Slice<ClubAccountHistoryListResponse> getMonthlyTransactions(Long clubId, LocalDate date, String keyword, Pageable pageable) {
         Club club = clubRepository.getById(clubId);
         ClubAccount clubAccount = clubAccountRepository.getByClub(club);
-        List<ClubAccountHistory> histories;
+        Slice<ClubAccountHistory> histories;
 
         Integer year = (date != null) ? date.getYear() : null;
         Integer month = (date != null) ? date.getMonthValue() : null;
 
-        histories = clubAccountHistoryRepository.getTransactionsByFilters(clubAccount, year, month, keyword);
+        histories = clubAccountHistoryRepository.getTransactionsByFilters(clubAccount, year, month, keyword, pageable);
 
-        return histories.stream()
-                .map(history -> ClubAccountHistoryListResponse.from(history))
-                .collect(Collectors.toList());
+        return histories.map(ClubAccountHistoryListResponse::from);
     }
 }
