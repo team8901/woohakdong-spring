@@ -18,8 +18,8 @@ public class OrderRepositoryImpl implements OrderRepository{
     }
 
     @Override
-    public Order getById(Long orderId) {
-        return orderJpaRepository.findById(orderId)
+    public Order getByIdWithLock(Long orderId) {
+        return orderJpaRepository.findByOrderIdWithLock(orderId)
                 .orElseThrow(() -> new CustomException(ORDER_NOT_FOUND));
     }
 

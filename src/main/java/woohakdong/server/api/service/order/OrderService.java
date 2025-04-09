@@ -80,7 +80,7 @@ public class OrderService {
     @Transactional
     public void confirmOrderPayment(Long groupId, PaymentCompleteReqeust request, LocalDate date) {
         Member member = securityUtil.getMember();
-        Order order = orderRepository.getById(request.orderId());
+        Order order = orderRepository.getByIdWithLock(request.orderId());
 
         if (order.isOrderComplete()) {
             return;
